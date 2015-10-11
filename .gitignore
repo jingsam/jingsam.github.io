@@ -1,4 +1,6 @@
 Gemfile.lock
 .code-highlighter-cache/
-.ink-cache
-.sass-cache
+.ink-cache/
+.sass-cache/
+.deploy/
+_site/
