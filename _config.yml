@@ -1,6 +1,9 @@
 title: jingsam's blog
 url: http://your-site.com
 
+date_format: "%Y-%m-%d"
+time_format: "%H:%M"
+
 # Default extension for new posts and pages
 post_ext: md
 page_ext: html
