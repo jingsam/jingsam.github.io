@@ -30,7 +30,7 @@ sharing:
 share_with: links
 
 # Embed comments, options: false, facebook, disqus
-comments: true
+comments: disqus
 
 # Center the text in post and page headings.
 center_headings: true
