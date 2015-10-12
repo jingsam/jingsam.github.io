@@ -1,2 +1,2 @@
 # jingsam.github.io
-My blog
+My blog https://jingsam.github.io
