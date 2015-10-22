@@ -4,7 +4,7 @@ title: "Octopress 3.0博客搭建教程"
 date: 2015-10-21T21:16:53+08:00
 ---
 
-Octopress是一款专为黑客准备的博客系统，它简洁美观且定制性强。相信大家已经在网上看到过很多Octopress 2.0博客教程，但本文所要描述的是Octopress 3.0的博客搭建过程。
+Octopress是一款专为黑客准备的博客系统，它简洁美观且定制性强。相信大家已经在网上看到过很多Octopress 2.0的博客教程，但本文所要描述的是Octopress 3.0的博客搭建过程。
 
 Octopress 3.0相对于2.0有很大的不同。Octopress 2.0是通过git分发的，需要修改Octopress源代码来构建博客系统，因此难以合并未来的更新。Octopress的作者Mathis认为git并不是一个合适的软件分发方式，因此从3.0开始通过gem方式分发。并且增加了一系列octopress命令，代替之前的rake命令。
 
@@ -119,7 +119,7 @@ Octopress支持rsync、s3、git方式发布。以发布到GitHub上为例，首�
 octopress deploy init git git@github.com:user/project
 ```
 
-以上命令将会生成一个`_deploy.yml`文件，填写相应的参数后完成配置。需注意的是如果`_deploy.yml`包含密码信息，请在`.gitignore`中设置忽略，避免密码泄露。另外，我们需要建立两个分支，`master`分支用来发布网页，`source`分支用来管理源代码，切不可直接deploy到`source`分支上破坏了源代码。如果发布分支和源代码分支是统一分支，deploy时Octopress会出现警告。
+以上命令将会生成一个`_deploy.yml`文件，填写相应的参数后完成配置。需注意的是如果`_deploy.yml`包含密码信息，请在`.gitignore`中设置忽略，避免密码泄露。另外，我们需要建立两个分支，`master`分支用来发布网页，`source`分支用来管理源代码，切不可直接deploy到`source`分支上破坏了源代码。如果发布分支和源代码分支是同一分支，deploy时Octopress会出现警告。
 
 最后使用如下命令完成发布：
 ```
