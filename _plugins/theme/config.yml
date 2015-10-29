@@ -4,13 +4,13 @@ subtitle: A geospatial hacker
 
 # Links for main navigation
 nav:
-  - { url: '/', title: 'Post' }
-  - { url: '/archive/', title: 'Archive' }
-  - { url: '/feed/', title: 'Subscribe' }
+  - { url: '/', title: '首页' }
+  - { url: '/archive/', title: '归档' }
+  - { url: '/feed/', title: '订阅' }
 
 # Link labels
-permalink_label: "Permalink"
-read_more_label: "Continue Reading →"
+permalink_label: "文章链接"
+read_more_label: "继续阅读 →"
 
 # Show excerpts on post index
 excerpt_posts: true
