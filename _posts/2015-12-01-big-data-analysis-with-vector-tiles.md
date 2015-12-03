@@ -120,10 +120,10 @@ function line_length(feature, units) {
 node index.js
 ```
 
-我在一台 32 核服务器上运行了 30 min 58 s，处理了 1680 万个矢量瓦片，最终得到了全球公路总里程有 3000 万公里。这个速度我想当满意，毕竟有这么大的数据量。
+我在一台 32 核服务器上运行了 30 min 58 s，处理了 1680 万个矢量瓦片，最终得到了全球公路总里程有 3215 万公里。这个速度我想当满意，毕竟有这么大的数据量。
 
-查询维基百科上的数据得到的总里程是 6000 万公里，少了近一倍。我觉得有两方面的原因：  
-1. 我计算的道路只包括 OSM 中 Tag 为 `motorway, trunk, primary, secondary, tertiary, unclassified, residential, road`的公路，实际上还包括其他类型的公路没有统计；  
+查询维基百科上的数据得到的总里程是 6428 万公里，少了近一倍。我觉得有两方面的原因：
+1. 我计算的道路只包括 OSM 中 Tag 为 `motorway, trunk, primary, secondary, tertiary, unclassified, residential, road`的公路，实际上还包括其他类型的公路没有统计；
 2. OSM 的数据完善程度在世界各地区不一样，欧洲和美洲比较完善，而中国和非洲的数据密度偏低，所以会造成部分道路未统计到。
 
 
