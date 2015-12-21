@@ -3,7 +3,7 @@ title: jingsam's blog
 subtitle: A geospatial hacker
 
 # Links for main navigation
-nav:
+main_nav:
   - { url: '/', title: '首页' }
   - { url: '/archive/', title: '归档' }
   - { url: '/feed/', title: '订阅' }

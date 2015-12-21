@@ -20,3 +20,9 @@ titlecase: true
 post_template: post
 page_template: page
 draft_template: draft
+
+gems:
+  - octopress-codefence
+  - octopress-solarized
+  - octopress-feeds
+  - octopress-genesis-theme
