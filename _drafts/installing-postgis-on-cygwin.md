@@ -5,5 +5,7 @@ title: "Cygwin 安装 PostGIS"
 
 geos
 gdal
-proj.4
-libxml2
+libproj-devel
+libxml2-devel
+libpq-devel
+libreadline-devel
