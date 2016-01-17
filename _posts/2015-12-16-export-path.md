@@ -16,3 +16,8 @@ export PATH=/home/jingsam/bin:$PATH
 问题解决！
 
 至于 `PATH` 变量到底支不支持通配符，等以后查询到相关信息再来更新。
+
+**更新**：PATH 可以引用 `$HOME` 变量，因此可以这么写：
+```
+export PATH=$HOME/bin:$PATH
+```
