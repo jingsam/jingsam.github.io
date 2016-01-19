@@ -1,6 +1,7 @@
-Gemfile.lock
-.code-highlighter-cache/
-.ink-cache/
-.sass-cache/
-.deploy/
-_site/
+.DS_Store
+Thumbs.db
+db.json
+*.log
+node_modules/
+public/
+.deploy*/

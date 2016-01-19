@@ -15,7 +15,7 @@ apt-cyg install libxml2-devel libjson-c-devel libproj-devel libreadline-devel li
 
 安装完依赖之后，到 PostGIS 的[官网][postgis]上下载源代码。解压源代码，进入到解压后的目录，使用 Linux 常用的三条命令进行编译安装：
 
-```
+```bash
 ./configure
 make
 make install
