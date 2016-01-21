@@ -34,5 +34,5 @@ create extension postgis;
 
 
 [postgis]: http://postgis.net/source/
-[geos]: {% post_url 2016-01-17-compiling-geos-on-cygwin %}
-[gdal]: {% post_url 2016-01-17-compiling-gdal-on-cygwin %}
+[geos]: /2016/01/17/compiling-geos-on-cygwin.html
+[gdal]: /2016/01/17/compiling-gdal-on-cygwin.html
