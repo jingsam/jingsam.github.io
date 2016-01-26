@@ -79,7 +79,7 @@ cygrunsrv -E cygserver
 ### 总结
 
 以下是本文安装与配置 PostgreSQL 时，所有涉及到的命令：
-```
+```bash
 // 安装
 apt-cyg install postgresql
 
