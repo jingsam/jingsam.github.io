@@ -7,7 +7,7 @@ date: 2015-12-31T15:11:11+08:00
 `arcpy.Polygon` 是描述多边形的几何类，并不像 ArcEngine 中区分 polygon 和 multipolygon，而是采用同一套数据结构描述两类多边形。
 
 在 arcpy 中，一个多边形（polygon）可能包含多个部件（part），而每个部件除了必须包含一个外环（exterior ring），还可能包含几个内环（interior ring），每个环由多个封合的坐标点（point）构成。polygon的层次结构如下：
-```
+```bash
 polygon
 ├── part0
 │   ├── ring0

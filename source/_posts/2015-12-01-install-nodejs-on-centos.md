@@ -13,7 +13,7 @@ date: 2015-12-01T12:46:51+08:00
 yum install nodejs
 ```
 结果提示：
-```
+```bash
 Loaded plugins: fastestmirror, refresh-packagekit
 You need to be root to perform this command.
 ```
@@ -32,7 +32,7 @@ http://mirrors.163.com/centos/%24releasever/os/x86_64/repodata/repomd.xml: [Errn
 http://mirrors.163.com/centos/6/os/x86_64/repodata/repomd.xml
 ```
 因此，我就直接更改`/etc/yum.repos.d/CentOS6-Base-163.repo`文件，将里面的`$releasever`替换为 6，然后执行：
-```
+```bash
 sudo yum clean all
 sudo yum makecache
 ```
@@ -46,7 +46,7 @@ sudo yum makecache
 No package node available.
 ```
 原来 CentOS 的官方源并没有 Nodejs 的安装包，安装需要添加 EPEL 源，执行以下命令安装：
-```
+```bash
 sudo rpm -ivh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
 ```
@@ -59,7 +59,7 @@ sudo yum -y install nodejs npm --enablerepo=epel
 ## 总结
 
 Nodejs 不存在官方的源中，所以安装需要添加 EPEL 源后再安装，完整的命令如下：
-```
+```bash
 sudo rpm -ivh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 sudo rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
 sudo yum -y install nodejs npm --enablerepo=epel

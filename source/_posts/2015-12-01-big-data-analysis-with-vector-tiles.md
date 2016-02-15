@@ -20,7 +20,7 @@ date: 2015-12-01T15:53:09+08:00
 ## TileReduce
 
 然后，我要选择一个合适的计算框架来处理如此巨量的数据。[TileReduce][3] 是 Mapbox 的一个开源项目，它被设计用来对矢量瓦片做 MapReduce 操作。TileReduce 基于 Javascript 开发，可以借助 Nodejs 运行在各个平台上。运行以下命令，完成开发环境的搭建：
-```
+```bash
 mkdir tile-reduce-test
 cd tile-reduce-test
 npm init

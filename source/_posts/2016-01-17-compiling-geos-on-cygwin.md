@@ -12,14 +12,14 @@ Cygwin 的官方源中并没有 GEOS 的二进制发行包，所以要在 Cygwin
 
 源代码解压后，进入到解压后的目录，使用 Linux 常用的三条命令进行编译安装：
 
-```
+```bash
 ./configure
 make
 make install
 ```
 
 我在编译的过程中，出现如下错误：
-```
+```bash
 libtool: compile:  g++ -DHAVE_CONFIG_H -I. -I../include -I../include/geos -I../include -DGEOS_CAPI_VERSION=\"3.5.0-CAPI-1.9.0\" -DGEOS_JTS_PORT=\"1.13.0\" -DGEOS_INLINE -pedantic -Wall -ansi -Wno-long-long -ffloat-store -g -O2 -MT libgeos_c_la-geos_ts_c.lo -MD -MP -MF .deps/libgeos_c_la-geos_ts_c.Tpo -c geos_ts_c.cpp  -DDLL_EXPORT -DPIC -o .libs/libgeos_c_la-geos_ts_c.o
 geos_ts_c.cpp: 在成员函数‘void GEOSContextHandle_HS::NOTICE_MESSAGE(std::string, ...)’中:
 geos_ts_c.cpp:225:81: 错误：‘vsnprintf’在此作用域中尚未声明

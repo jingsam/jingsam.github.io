@@ -12,7 +12,7 @@ Cygwin 的官方源中并没有 GDAL 的二进制发行包，所以要在 Cygwin
 
 源代码解压后，进入到解压后的目录，使用 Linux 常用的三条命令进行编译安装：
 
-```
+```bash
 ./configure
 make
 make install
@@ -20,7 +20,7 @@ make install
 
 我在编译的过程中，出现如下错误：
 
-```
+```bash
 /home/Sam/download/gdal-2.0.1/frmts/o/.libs/dgif_lib.o: In function `DGifOpenFileHandle':
 /cygdrive/d/Download/gdal-2.0.1/frmts/gif/giflib/dgif_lib.c:111: undefined reference to `setmode'
 /cygdrive/d/Download/gdal-2.0.1/frmts/gif/giflib/dgif_lib.c:111:(.text+0x8e1): relocation truncated to fit: R_X86_64_PC32 against undefined symbol `setmode'
