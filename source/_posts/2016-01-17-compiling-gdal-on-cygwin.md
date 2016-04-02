@@ -36,4 +36,6 @@ make install
 
 因此解决方案是：找到 dgif_lib.c 和 egif_lib.c，分别在 `setmode()` 函数前添加头文件 `#include <io.h>` 。
 
+更新：在 GDAL 2.0.2 中，编译 gdalserver.c 时会报 fd_set 未定义的错误，解决方法是在该文件的46行下面添加 `#include <sys/select.h>` 。
+
 [gdal]: http://trac.osgeo.org/gdal/wiki/DownloadSource
