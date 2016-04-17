@@ -22,6 +22,7 @@ $red          = #ff2a2a
 $blue-bright  = #87daff
 $blue         = #0684bd
 $blue-deep    = #262a30
+$orange       = #fc6423
 
 
 
@@ -54,14 +55,30 @@ $selection-color              = white
 // Font, line-height, and elements colors.
 // --------------------------------------------------
 
+
+get_font_family(config) {
+  custom_family = hexo-config('font.' + config + '.family')
+  return custom_family is a 'string' ? custom_family : null
+}
+
 // Font families.
-$font-family-sans-serif   = "Avenir Next", Avenir, Tahoma, Vendana, sans-serif
-$font-family-serif        = "PT Serif", Cambria, Georgia, "Times New Roman", serif
-$font-family-monospace    = "Input Mono", "PT Mono", Consolas, Monaco, Menlo, monospace
 $font-family-chinese      = "PingFang SC", "Microsoft YaHei"
-$font-family-base         = Lato, $font-family-chinese, sans-serif
-$font-family-headings     = Lato, $font-family-chinese, sans-serif
+
+$font-family-base         = $font-family-chinese, sans-serif
+$font-family-base         = get_font_family('global'), $font-family-chinese, sans-serif if get_font_family('global')
+
+$font-family-logo         = $font-family-base
+$font-family-logo         = get_font_family('logo'), $font-family-base if get_font_family('logo')
+
+$font-family-headings     = $font-family-base
+$font-family-headings     = get_font_family('heading'), $font-family-base if get_font_family('heading')
+
 $font-family-posts        = $font-family-base
+$font-family-posts        = get_font_family('post'), $font-family-base if get_font_family('post')
+
+$font-family-monospace    = consolas, Menlo, $font-family-chinese, monospace
+$font-family-monospace    = get_font_family('code'), consolas, Menlo, $font-family-chinese, monospace if get_font_family('code')
+
 $font-family-icons        = 'FontAwesome'
 
 
@@ -79,6 +96,7 @@ $font-size-small          = $font-size-base - 2px
 $font-size-smaller        = $font-size-base - 4px
 $font-size-large          = $font-size-base + 2px
 $font-size-larger         = $font-size-base + 4px
+
 
 // Headings font size
 $font-size-headings-step    = 2px
@@ -122,10 +140,13 @@ $table-row-hover-bg-color       = $whitesmoke
 
 
 
-// Code Blocks
+// Code & Code Blocks
 // --------------------------------------------------
 $code-font-family = $font-family-monospace
 $code-font-size = 13px
+$code-background = $gainsboro
+$code-foreground = $black-light
+$code-border-radius = 4px
 
 
 
@@ -201,9 +222,11 @@ $site-meta-text-align   = center
 $brand-color            = white
 $brand-hover-color      = white
 $brand-bg               = $black-deep
-$brand-font-family      = $font-family-base
-$site-subtitle-color    = $grey-dark
 
+$logo-font-size         = 20px
+$logo-font-size         = unit(hexo-config('font.logo.size'), px) if hexo-config('font.logo.size') is a 'unit'
+
+$site-subtitle-color    = $grey-dark
 $subtitle-font-size     = 13px
 $subtitle-color         = $grey-dark
 
@@ -245,18 +268,25 @@ $site-state-item-name-font-size   = 13px
 $site-state-item-name-color       = inherit
 $site-state-item-border-color     = $black-dim
 
-$post-toc-color                   = $grey-dark
-$post-toc-hover-color             = $grey-light
+$toc-link-color                       = $grey-dark
+$toc-link-border-color                = $black-light
+$toc-link-hover-color                 = $grey-light
+$toc-link-hover-border-color          = $grey-light
+$toc-link-active-color                = $sidebar-highlight
+$toc-link-active-border-color         = $sidebar-highlight
+$toc-link-active-current-color        = $sidebar-highlight
+$toc-link-active-current-border-color = $sidebar-highlight
 
 
 // Components
 // --------------------------------------------------
 
 // Back to top
-$b2t-position-bottom          = 19px
+$b2t-opacity                  = 1
+$b2t-position-bottom          = -100px
+$b2t-position-bottom-on       = 19px
 $b2t-position-right           = 50px
-$b2t-width                    = 15px
-$b2t-height                   = 13px
+$b2t-font-size                = 12px
 $b2t-color                    = white
 $b2t-bg-color                 = $black-deep
 
