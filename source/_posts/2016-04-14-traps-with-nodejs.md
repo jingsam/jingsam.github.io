@@ -11,5 +11,6 @@ tags:
 
 以下是我在开发中遇到的一些坑，在此记录一下，以后会持续更新：
 
-1. nodemon无法在Cygwin下运行，只能在cmd下运行。
+~~1. nodemon无法在Cygwin下运行，只能在cmd下运行。~~
+1. nodemon在windows下运行需要调用cmd.exe, 所以在Cygwin下运行要将`/cygdrive/c/Windows/system32`添加到PATH环境变量中;
 2. istanbul和mocha集成的时候，在Windows运行的时候命令要写成`istanbul cover ./node_modules/mocha/bin/_mocha`，直接用`istanbul cover _mocha`是不行的。

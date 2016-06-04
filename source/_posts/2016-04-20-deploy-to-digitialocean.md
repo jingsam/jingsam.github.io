@@ -86,7 +86,7 @@ PORT=80 node ./bin/www
 sudo apt-get install libcap2-bin
 sudo setcap cap_net_bind_service=+ep `which nodejs`
 ```
-后一条命令中的`which nodejs`是找出nodejs可执行文件的路径，很多教程里面写的是`which node`，这是错误的。node
+后一条命令中的`which nodejs`是找出nodejs可执行文件的路径，一定要是nodejs的实际路径，不能是符号链接。
 
 执行以上命令后，再次测试就会发现能够使用80端口了。
 
