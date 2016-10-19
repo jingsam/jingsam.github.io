@@ -1,39 +1,31 @@
 {% if config.search.path %}
   <script type="text/javascript">
     // Popup Window;
-    var scrollTop = '';
-    var newHeight = '100';
-
+    var isfetched = false;
     // Search DB path;
     var search_path = "{{ config.search.path }}";
     if (search_path.length == 0) {
        search_path = "search.xml";
     }
     var path = "{{ config.root }}" + search_path;
-
     // monitor main search box;
-    $('#search-input').on('input', function() {
-    if ($(this).val().length <= 0) {
-      $('#search-result').hide();
-      return;
-    }
-    $('i.search-keyword').text($(this).val());
-    $('a.search-result[href!="#"]').each(function(){
-      this.href = this.href.replace(/\=(.*?)(?=%20site)/,'='+$('#search-input').val())
-    });
-    $('#search-result').show();
-    });
 
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
     // search function;
     var searchFunc = function(path, search_id, content_id) {
     'use strict';
-    searchFunc = function(){};
     $.ajax({
         url: path,
         dataType: "xml",
-        async: false,
+        async: true,
         success: function( xmlResponse ) {
             // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
             var datas = $( "entry", xmlResponse ).map(function() {
                 return {
                     title: $( "title", this ).text(),
@@ -44,12 +36,11 @@
             var $input = document.getElementById(search_id);
             var $resultContent = document.getElementById(content_id);
             $input.addEventListener('input', function(){
+                var matchcounts = 0;
                 var str='<ul class=\"search-result-list\">';                
                 var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
                 $resultContent.innerHTML = "";
-                if (this.value.trim().length <= 0) {
-                    return;
-                }
+                if (this.value.trim().length > 1) {
                 // perform local searching
                 datas.forEach(function(data) {
                     var isMatch = true;
@@ -79,6 +70,7 @@
                     }
                     // show search results
                     if (isMatch) {
+                        matchcounts += 1;
                         str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
                         var content = data.content.trim().replace(/<[^>]+>/g,"");
                         if (first_occur >= 0) {
@@ -89,12 +81,12 @@
                                 start = 0;
                             }
                             if(start == 0){
-                                end = 100;
+                                end = 50;
                             }
                             if(end > content.length){
                                 end = content.length;
                             }
-                            var match_content = content.substr(start, end); 
+                            var match_content = content.substring(start, end);
                             // highlight all keywords
                             keywords.forEach(function(keyword){
                                 var regS = new RegExp(keyword, "gi");
@@ -105,51 +97,31 @@
                         }
                         str += "</li>";
                     }
-                });
+                })};
                 str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
                 $resultContent.innerHTML = str;
             });
+            proceedsearch();
         }
     });}
 
     // handle and trigger popup window;
-    $(window).bind('scroll', function() {
-      scrollTop = $( window ).scrollTop();
-      newHeight = scrollTop + 100;
-    });
-    $('#search-result a').mousedown(function(e) {
-        window.location.href = this.href;
-      });
     $('.popup-trigger').mousedown(function(e) {
-      searchFunc(path, 'local-search-input', 'local-search-result');
-      $('#local-search-input').val($('#search-input').val());
-      document.getElementById('local-search-input').dispatchEvent(new Event('input'));
       e.stopPropagation();
-      if(jQuery(window).width() < 750) {
-        $('.site-search-form').after( $( ".popup" ) );
-        $('.popup').show().addClass('popup-mobile').css('top', 0);
-        $('html, body').animate({
-          scrollTop: $('.popup').offset().top
-        }, 500);
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
       } else {
-        $('.popup').removeClass('popup-mobile').css('top', newHeight).toggle();
+        proceedsearch();
       };
+
     });
 
-    $('#search-input').focus(function() {
-    if ($(this).val().length > 0) {
-      $('#search-result').show();
-      }
-    });
-    $('#search-input').blur(function() {
-      $('#search-result').hide();
-    });
-
-    $('html').click(function() {
-      $('.popup').hide();
-    });
     $('.popup-btn-close').click(function(e){
       $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
     });
     $('.popup').click(function(e){
       e.stopPropagation();

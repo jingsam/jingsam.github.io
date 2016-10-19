@@ -226,7 +226,7 @@ Each `ExteriorRing` and `InteriorRing` MUST consist of the following sequence:
 
 假设示例点的坐标为：
 
-* (25,7)
+* (25, 17)
 
 表示它只需要一条指令：
 
