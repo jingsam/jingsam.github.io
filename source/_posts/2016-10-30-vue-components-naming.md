@@ -78,7 +78,7 @@ new Vue({
 
 首先，Vue 会将 `template` 中的内容插到 DOM 中，以方便解析标签。由于 HTML 标签不区分大小写，所以在生成的标签名都会转换为小写。例如，当你的 `template` 为 `<MyComponent></MyComponent>` 时，插入 DOM 后会被转换为 `<mycomponent></mycomponent>`。
 
-然后，通过标签名寻找对应的自定义组件。匹配的优先顺序从高到低为：原标签名、camelCase化的标签名、PascalCase化的标签名。例如 `<my-component>` 会依次匹配 my-component、myComponent、MyComponent。camelCase 和 PascalCase 的代码如下：
+然后，通过标签名寻找对应的自定义组件。**匹配的优先顺序从高到低为：原标签名、camelCase化的标签名、PascalCase化的标签名。**例如 `<my-component>` 会依次匹配 my-component、myComponent、MyComponent。camelCase 和 PascalCase 的代码如下：
 ```js
 var camelizeRE = /-(\w)/g;
 
