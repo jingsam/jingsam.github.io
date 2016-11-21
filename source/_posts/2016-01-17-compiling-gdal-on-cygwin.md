@@ -38,4 +38,6 @@ make install
 
 更新：在 GDAL 2.0.2 中，编译 gdalserver.c 时会报 fd_set 未定义的错误，解决方法是在该文件的46行下面添加 `#include <sys/select.h>` 。
 
+更新2：使用坐标系转换需要 proj.4 支持，在 cygwin 平台下，GDAL 默认链接到 `cygproj-0.dll`，可能会出现找不到 proj.4 的错误。这时，在 `ogr/ogrct.cpp` 中将 98 行的 `#  define LIBNAME      "cygproj-0.dll"` 改为 `#  define LIBNAME      "cygproj-1.dll"` 后，重新编译。
+
 [gdal]: http://trac.osgeo.org/gdal/wiki/DownloadSource

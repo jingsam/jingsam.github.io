@@ -15,7 +15,7 @@ npm 的 package.json 包括 5 种 dependencies：
 
 从以上的定义可以看出，`dependencies` 是程序运行依赖，`devDependencies` 一般是一些开发工具，`peerDependencies` 一般用于插件。
 
-下表是我在 awesome-vue 中找到的 28 个 Vue 组件库吧，统计 Vue 在这些库中的位置。其中，11 个库选择放到 `dependencies`，10 个库选择放到 `devDependencies`，4 个库选择放到 `peerDependencies`，2 个库选择不放 Vue 依赖，最后还有 1 个库选择在 `devDependencies` 和 `peerDependencies` 同时加上 Vue 依赖。
+下表是我在 awesome-vue 中找到的 28 个 Vue 组件库，统计了 Vue 在这些库中的位置。其中，11 个库选择放到 `dependencies`，10 个库选择放到 `devDependencies`，4 个库选择放到 `peerDependencies`，2 个库选择不放 Vue 依赖，最后还有 1 个库选择在 `devDependencies` 和 `peerDependencies` 同时加上 Vue 依赖。
 
 | UI                       | dependencies        | devDependencies | peerDependencies | none |
 | ------------------------ | ------------------- | --------------- | ---------------- | ---- |
