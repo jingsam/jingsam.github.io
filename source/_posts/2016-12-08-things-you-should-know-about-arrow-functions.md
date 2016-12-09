@@ -26,7 +26,7 @@ tags:
 箭头函数没有`this`，那下面的代码明显可以取到`this`啊：
 ```javascript
 function foo() {
-  let a = 1
+  this.a = 1
   let b = () => console.log(this.a)
 
   b()
@@ -38,7 +38,7 @@ foo()  // 1
 以上箭头函数中的`this`其实是父级作用域中的`this`，即函数`foo`的`this`。箭头函数引用了父级的变量，构成了一个闭包。以上代码等价于：
 ```javascript
 function foo() {
-  let a = 1
+  this.a = 1
 
   let self = this
   let b = () => console.log(self.a)
@@ -77,7 +77,7 @@ let a = {
   bar: function() { console.log(this.foo) }
 }
 
-a.bar()  //undefined
+a.bar()  // 1
 ```
 
 另一个错误是在原型上使用箭头函数，如：
