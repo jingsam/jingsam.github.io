@@ -1,0 +1,20 @@
+// ==============================
+// Header
+// ==============================
+
+.header {
+  @include clearfix; 
+  padding: $header-padding;
+
+  @import '_header/logo';
+  @import '_header/menu';
+  @import '_header/mobile-navbar';
+}
+
+
+@include max-screen() {
+  .header {
+    padding: 20px 0 0;
+    text-align: center;
+  }
+}

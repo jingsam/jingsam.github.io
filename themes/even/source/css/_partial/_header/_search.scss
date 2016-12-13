@@ -1,0 +1,36 @@
+// ==============================
+// Search
+// =============================
+
+.menu-search {
+  display: inline-block;
+  position: absolute;
+  top: calc(50% - 3px);
+  right: -2px;
+  width: 1em;
+  height: 20px;
+  background: $white;
+  overflow: hidden;
+  transform: translateY(-50%);
+  transition-duration: 0.2s;
+  transition-property: width;
+  transition-timing-function: ease-out;
+
+  .search-input {
+    width: calc(100% - 45px);
+    height: 100%;
+    border: 0;
+    outline: 0;
+  }
+
+  &.expanded {
+    right: -10px;
+    width: 100%;
+    padding: 5px 2px 5px 8px;
+    margin: 0;
+    line-height: 20px;
+    border: 1px solid $light-gray;
+    border-radius: 50px;
+  }
+}
+

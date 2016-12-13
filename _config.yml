@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: jingsam's blog
+title: jingsam
 subtitle:
 description:
 author: jingsam
@@ -63,9 +63,10 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: next
+theme: even
 plugin:
 - hexo-generator-feed
+- hexo-math
 feed:
   type: atom
   path: atom.xml

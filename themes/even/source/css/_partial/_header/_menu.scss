@@ -1,0 +1,49 @@
+// ==============================
+// Menu
+// =============================
+
+.site-nav {
+  float: right;
+
+  .menu {
+    display: inline-block;
+    position: relative;
+    padding-left: 0;
+    padding-right: 20px;
+    font-family: $global-serif-font-family;
+
+    .menu-item {
+      display: inline-block;
+
+      & + .menu-item {
+        margin-left: $menu-item-margin-left;;
+      }
+
+      @include underline-from-center;
+    }
+
+    @import 'search';
+
+    .menu-item-link {
+      font-size: $menu-link-font-size;
+    }
+  }
+}
+
+@include max-screen() {
+  .site-nav {
+    float: none;
+
+    .menu {
+      margin: 0;
+
+      .menu-search {
+        display: none;
+      }
+
+      .menu-item {
+        margin: $menu-item-mobile-margin;
+      }
+    }
+  }
+}
