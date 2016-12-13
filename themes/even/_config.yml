@@ -45,7 +45,6 @@ social:
   github: https://github.com/jingsam
   weibo: http://weibo.com/u/1902650267
   zhihu:
-  disqus: jingsam
 
 # ===========================================
 # Third Party Services Settings
@@ -59,7 +58,7 @@ google_analytics:
 # Duoshuo
 duoshuo_shortname:
 # Disqus
-disqus_shortname:
+disqus_shortname: jingsam
 
 
 # ===========================================
