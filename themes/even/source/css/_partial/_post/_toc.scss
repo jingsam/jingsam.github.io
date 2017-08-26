@@ -1,7 +1,7 @@
 .post-toc {
   position: absolute;
   width: $post-toc-width;
-  margin-left: $global-body-width;
+  margin-left: $global-body-width - 15px;
   padding: 10px;
   font-family: $global-serif-font-family;
   border-radius: 5px;

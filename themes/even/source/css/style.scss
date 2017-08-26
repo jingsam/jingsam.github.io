@@ -1,10 +1,10 @@
 @import "_custom/custom";
-@import "variables";
+@import "_variables";
 
 @import "_common/utils";
 @import "_common/animation";
 
-@import "base";
+@import "_base";
 @import "_partial/header";
 @import "_partial/post";
 @import "_partial/pagination";
@@ -13,4 +13,6 @@
 @import "_partial/tags";
 @import "_partial/categories";
 @import "_partial/iconfont";
+@import "_partial/slideout";
+@import "_partial/mobile";
 @import "_partial/back-to-top";

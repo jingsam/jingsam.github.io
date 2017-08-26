@@ -23,9 +23,6 @@ menu:
   # Categories: /categories
   About: /about
 
-# site search option
-search: true
-
 # ===========================================
 # Theme Settings
 # ===========================================
@@ -33,6 +30,19 @@ search: true
 # color: Default | Mint Green | Cobalt Blue | Hot Pink | Dark Violet
 theme:
   color: Default
+  toc: false
+  fancybox: false
+
+copyright:
+  enable: false
+  # https://creativecommons.org/
+  license: '本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可'
+
+reward:
+  enable: false
+  qrCode:
+    wechat:
+    alipay:
 
 # ===========================================
 # Social links Settings
@@ -42,9 +52,14 @@ social:
   stack-overflow:
   twitter:
   facebook:
+  linkedin:
+  google:
   github: https://github.com/jingsam
   weibo: http://weibo.com/u/1902650267
-  zhihu:
+  zhihu: https://www.zhihu.com/people/jingsam
+  douban:
+  pocket:
+  tumblr:
 
 # ===========================================
 # Third Party Services Settings
@@ -52,16 +67,23 @@ social:
 
 # Baidu Analytics
 baidu_analytics:
+# Baidu Verification
+baidu_verification:
+
 # Google Analytics
 google_analytics:
+# Google Verification
+google_verification:
 
-# Duoshuo
-duoshuo_shortname:
 # Disqus
 disqus_shortname: jingsam
 
+#Changyan
+changyan:
+  appid:
+  appkey:
 
 # ===========================================
 # Version
 # ===========================================
-version: 2.0.0
+version: 2.5.0
