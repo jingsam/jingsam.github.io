@@ -174,7 +174,7 @@ See 'C:\Program Files\Docker\Docker\resources\bin\docker.exe run --help'.
 
 要搞清楚到底是怎么回事，我们先看看镜像包和容器包由什么区别：
 
-![docker export vs. docker save](/assets/docker-export-vs-docker-save.png)
+![docker save vs docker export](/assets/docker-save-vs-docker-export.png)
 
 从上面可以看出右边的`postgres-export.tar`的内容是一个linux系统的文件目录，猜测就是一个linux镜像。而`postgres-save.tar`里面到底是什么内容呢？点开一个文件夹看看：
 

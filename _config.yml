@@ -5,7 +5,7 @@
 # Site
 title: jingsam
 subtitle:
-description:
+description: GIS, mapping
 author: jingsam
 language: zh-Hans
 timezone:
@@ -30,17 +30,18 @@ skip_render:
 # Writing
 new_post_name: :year-:month-:day-:title.md # File name of new posts
 default_layout: post
+auto_spacing: true
 titlecase: false # Transform title into titlecase
 external_link: true # Open external links in new tab
 filename_case: 0
 render_drafts: false
-post_asset_folder: false
+post_asset_folder: true
 relative_link: false
 future: true
 highlight:
   enable: true
   line_number: true
-  auto_detect: false
+  auto_detect: true
   tab_replace:
 
 # Category & Tag
