@@ -1,5 +1,5 @@
 ---
-title: mapbox-gl如何高效地高亮元素
+title: mapbox-gl如何高效地高亮要素
 date: 2017-10-20 08:42:01
 tags:
 ---
