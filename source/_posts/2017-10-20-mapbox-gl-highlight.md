@@ -12,7 +12,7 @@ mapbox-gl基于矢量瓦片的前端渲染技术，使得要素高亮变得简�
 
 使用到的主要接口是`map.on('mousemove', layer, e)`，其中`e`可以获取到当前鼠标位置的features，效果如下：
 
-<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/f3au0qLo/2/embedded/result,js,html,css" frameborder="0"></iframe>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/f3au0qLo/4/embedded/result,js,html,css" frameborder="0"></iframe>
 
 测试中发现，在图斑比较密集的情况下，高亮非常卡，滞后严重，效率并不高。
 
@@ -21,7 +21,7 @@ mapbox-gl基于矢量瓦片的前端渲染技术，使得要素高亮变得简�
 
 第二种方法是对第一种方法的改进，思路如下：对原始数据源做一个镜像，即添加一个新的数据源，名称不通但指向的是同一套数据,例如下面示例中的`source-mirror`，高亮图层的数据源指向`source-mirror`。改进后的效果如下：
 
-<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/rj16bqa4/1/embedded/result,js,html,css" frameborder="0"></iframe>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/rj16bqa4/4/embedded/result,js,html,css" frameborder="0"></iframe>
 
 测试可以发现，稍微改进一下，高亮的效率提升很大。
 
@@ -33,7 +33,7 @@ mapbox-gl基于矢量瓦片的前端渲染技术，使得要素高亮变得简�
 
 使用的接口只要是`map.getSource(source).setData(geojson)`，其中`getSource`用于根据sourceId获取数据源，`setData`用于动态更新数据。效果如下：
 
-<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/ykoyet0w/3/embedded/result,js,html,css" frameborder="0"></iframe>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/ykoyet0w/4/embedded/result,js,html,css" frameborder="0"></iframe>
 
 测试可以发现，这种方法甚至比第二种方法效率更高。原因在于要高亮的要素往往很小，前段切成瓦片可能就一两张，因此不用去整体从原始数据源的瓦片种过滤，效率会更高。
 
