@@ -39,25 +39,31 @@ $ npm link
 总而言之，这种方式优点是比较简单，缺点是安装了不需要的`devDependencies`，对于有“洁癖”的人是难以忍受的。
 
 
-# 使用`npm install <folder>`
+# 使用`npm bundle`
 
-那有什么方法相比于上一种方法更干净呢？答案是`npm install <folder>`直接从文件夹安装。
+那有什么方法相比于上一种方法更干净呢？答案是使用npm-bundle工具将pm2的所有依赖打包，然后到目标服务器上使用`npm install <tarball file>`安装。
 
-同样以pm2为例，首先我们需要准备pm2包，可以在联网的机器上执行：
-
-```
-$ npm install pm2 --global-style
-```
-
-上面的`--global-style`很关键，表示将pm2安装到node_modules中一个单独的pm2文件夹中，这样我们可以方便地将pm2及其所有相关依赖都拷贝出来。也可以使用`npm install pm2 -g`安装到全局的node_modules，其文件布局是一样。
-
-然后，将pm2文件拷贝到目标机器上，使用以下命令安装：
+首先在联网机器上安装npm-bundle工具：
 
 ```
-$ npm install pm2/ -g
+$ npm install -g npm-bundle
 ```
 
-这种方式不需要安装多余的`devDependencies`，并且不需要克隆pm2的源码，比第一种方法更干净环保。
+然后打包pm2：
+
+```
+$ npm-bundle pm2
+```
+
+上面的命令会生成一个tgz的包文件，复制到目标服务器上安装：
+
+```
+$ npm install -g ./pm2-3.2.2.tgz
+```
+
+npm-bundle的本质是借助`npm pack`来实现打包的。`npm pack`会打包包本身以及`bundledDependencies`中的依赖，npm-bundle则是将pm2的所有`dependencies`记录到`bundledDependencies`，来实现所有依赖的打包。
+
+这种方式不需要安装多余的`devDependencies`，并且不需要克隆pm2的源码，比第一种方法更方便。
 
 
 [1]: /2018/11/24/npm-package-offline-install.html
