@@ -9,6 +9,8 @@
     var leancloud = this.config.leancloud;
 
     this.navbar();
+    this.responsiveTable();
+
     if (this.config.toc) {
       this.scrollToc();
       this.tocFollow();
@@ -54,6 +56,11 @@
     $('#mobile-panel').on('touchend', function () {
       slideout.isOpen() && $navIcon.click();
     });
+  };
+
+  Even.prototype.responsiveTable = function () {
+    var tables = $('.post-content > table')
+    tables.wrap('<div class="table-responsive">')
   };
 
   Even.prototype.scrollToc = function () {
@@ -176,6 +183,11 @@
           newcounter.set('title', title);
           newcounter.set('url', url);
           newcounter.set('time', 1);
+
+          var acl = new AV.ACL();
+          acl.setWriteAccess('*', true)
+          acl.setReadAccess('*', true)
+          newcounter.setACL(acl)
 
           newcounter.save().then(function () {
             updateVisits($visits, newcounter.get('time'));

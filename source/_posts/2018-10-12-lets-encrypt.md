@@ -156,13 +156,19 @@ IMPORTANT NOTES:
 
 上面的信息告诉我们，证书保存在`/etc/letsencrypt/live/example.com/fullchain.pem`，证书的秘钥保存在`/etc/letsencrypt/live/example.com/privkey.pem`，我们可以把这两个文件拷贝到服务器上用于设置https。
 
-证书的有效期是90天，我们可以在证书失效前30天更新证书的有效期：
+
+# 证书更新
+
+证书的有效期是90天，在证书失效前30天之内，Let's Encrypt会发邮件通知我们。
+
+虽然有专门的`renew`命令用来自动更新证书，但是我们申请的是通配符证书，仍然需要手动验证域名。因此，我们需要重新运行原来申请证书的命令来更新证书：
 
 ```
 $ docker run -it --rm --name certbot \
     -v $PWD:/etc/letsencrypt \
     certbot/certbot:v0.27.1 \
-    renew
+    certonly --manual --preferred-challenges=dns-01 \
+    --server=https://acme-v02.api.letsencrypt.org/directory
 ```
 
 
