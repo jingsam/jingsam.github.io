@@ -5,13 +5,20 @@
   "hexo": {
     "version": "3.8.0"
   },
+  "scripts": {
+    "new": "hexo new post",
+    "serve": "hexo serve",
+    "build": "hexo generate",
+    "deploy": "hexo deploy",
+    "clean": "hexo clean"
+  },
   "dependencies": {
     "hexo": "^3.8.0",
-    "hexo-deployer-git": "^0.3.1",
+    "hexo-deployer-git": "^1.0.0",
     "hexo-generator-archive": "^0.1.5",
     "hexo-generator-feed": "^1.2.2",
     "hexo-generator-index": "^0.2.1",
-    "hexo-renderer-marked": "^0.3.2",
+    "hexo-renderer-marked": "^1.0.1",
     "hexo-renderer-scss": "^1.2.0",
     "hexo-server": "^0.3.3"
   }
