@@ -40,7 +40,7 @@ http模式和dns模式各有优劣，适用于不同的场景。http模式不需
 ```
 $ docker run -it --rm --name certbot \
     -v $PWD:/etc/letsencrypt \
-    certbot/certbot:v0.27.1 \
+    certbot/certbot \
     certonly --manual --preferred-challenges=dns-01 \
     --server=https://acme-v02.api.letsencrypt.org/directory
 ```
@@ -166,7 +166,7 @@ IMPORTANT NOTES:
 ```
 $ docker run -it --rm --name certbot \
     -v $PWD:/etc/letsencrypt \
-    certbot/certbot:v0.27.1 \
+    certbot/certbot \
     certonly --manual --preferred-challenges=dns-01 \
     --server=https://acme-v02.api.letsencrypt.org/directory
 ```

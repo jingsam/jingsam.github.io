@@ -1,16 +1,16 @@
 ---
-title: 利用反向代理实现内网服务器自动部署
+title: 利用ssh反向穿透实现内网服务器自动部署
 date: 2019-06-14 14:36:17
 tags:
 ---
 
 当前持续集成的流行，大大提高了开发迭代的速度。自动化部署作为持续集成的最后一公里，对于完成整个闭环至关重要。如果生产服务器部署至公网且开通了ssh端口，那么测试服务器完成测试打包后，可以很方便地利用ssh将部署包推送到生产服务器上完成部署。但是，如果生产服务器部署在内网，测试服务器部署在外网，那么测试服务器就无法得知生产服务器的IP，无法利用ssh远程登录实现自动部署。
 
-本文利用ssh的反向代理技术，来实现内网服务器的自动部署。
+本文利用ssh的反向穿透技术，来实现内网服务器的自动部署。
 
 ## 技术原理
 
-ssh一般用来客户端远程登录到服务器上，而ssh反向代理“反其道而行之”，由服务端主动发起请求连接客户端，然后在客户端打开一个端口，之后发往客户端的数据包将会转发到服务端。例如在服务端执行：
+ssh一般用来客户端远程登录到服务器上，而ssh反向穿透“反其道而行之”，由服务端主动发起请求连接客户端，然后在客户端打开一个端口，之后发往客户端的数据包将会转发到服务端。例如在服务端执行：
 
 ```bash
 ssh -NR 22022:localhost:22 clientUser@clientMachine
@@ -22,7 +22,7 @@ ssh -NR 22022:localhost:22 clientUser@clientMachine
 ssh -p 22022 serverUser@clientMachine
 ```
 
-通过ssh的反向代理技术，让内网服务器借用公网客户机的IP，实现内网服务器公网可见。在此基础上，实现内网服务器自动部署的原理如下图：
+通过ssh的反向穿透技术，让内网服务器借用公网客户机的IP，实现内网服务器公网可见。在此基础上，实现内网服务器自动部署的原理如下图：
 
 ![](/assets/ssh-reverse-proxy.png)
 
@@ -92,7 +92,7 @@ sudo systemctl start autossh
 
 首先是`prodServer`连接到`jumpServer`，这一步比较简单，只需在`prodServer`使用`ssh-copy-id`命令将公钥复制到`jumpServer`即可。
 
-然后是`testServer`连接到`prodServer`，这一步稍微有点复杂，主要是因为`testServer`一般是动态创建的虚拟机或容器，测试完就删除了，所以没办法提前将`testServer`的公钥复制到`prodServer`。解决的思路是使用任意机器登录一次`prodServer`并将改机器的公钥复制到`prodServer`，然后将该该机器的私钥复制到`testServer`，让`testServer`伪装成为该机器登录`prodServer`。Gitlab、Travis-ci、Circle CI各自有不同的方法安全地传输ssh key，具体参考相应的文档。Gitlab可以在project和group中的“设置->CI/CD->Variables”中设置环境变量，如下图：
+然后是`testServer`连接到`prodServer`，这一步稍微有点复杂，主要是因为`testServer`一般是动态创建的虚拟机或容器，测试完就删除了，所以没办法提前将`testServer`的公钥复制到`prodServer`。解决的思路是使用任意机器登录一次`prodServer`并将该机器的公钥复制到`prodServer`，然后将该该机器的私钥复制到`testServer`，让`testServer`伪装成为该机器登录`prodServer`。Gitlab、Travis-ci、Circle CI各自有不同的方法安全地传输ssh key，具体参考相应的文档。Gitlab可以在project和group中的“设置->CI/CD->Variables”中设置环境变量，如下图：
 
 ![](/assets/gitlab-variables.png)
 
@@ -119,6 +119,6 @@ deploy:
 
 ## 总结
 
-本文借助ssh反向代理技术，实现了内网服务器与测试服务器的互通，并且利用autossh解决了ssh持久连接的问题，以及利用复制私钥来实现测试服务器到内网服务器的免密登录。最终，结合这些技术，实现了内网服务的自动化部署。
+本文借助ssh反向穿透技术，实现了内网服务器与测试服务器的互通，并且利用autossh解决了ssh持久连接的问题，以及利用复制私钥来实现测试服务器到内网服务器的免密登录。最终，结合这些技术，实现了内网服务的自动化部署。
 
-在实际测试过程中，ssh的反向代理连接速度慢而且不是很稳定，下一步研究webhook技术来实现自动部署。
+在实际测试过程中，ssh的反向穿透连接速度慢而且不是很稳定，下一步研究webhook技术来实现自动部署。
