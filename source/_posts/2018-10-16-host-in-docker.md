@@ -34,7 +34,7 @@ server {
 
 # 使用宿主机IP
 
-在安装Docker的时候，会在宿主机安装一个虚拟网关`docker0`，我们可以使用宿主机在`docker0`上的IP地址来代替`localhost`。
+在安装Docker的时候，会在宿主机安装一个虚拟网卡`docker0`，我们可以使用宿主机在`docker0`上的IP地址来代替`localhost`。
 
 首先，使用如下命令查询宿主机IP地址：
 
@@ -50,7 +50,9 @@ $ ip addr show docker0
 
 可以发现宿主机的IP是`172.17.0.1`，那么将`proxy_pass http://localhost:1234`改为`proxy_pass http://172.17.0.1:1234`就可以解决`502 Bad Gateway`错误。
 
-但是，不同系统下宿主机的IP是不同的，例如Linux下一般是`172.17.0.1`, macOS下一般是`192.168.65.1`，并且这个IP还可以更改。所以使用IP配置`nginx.conf`，不能跨环境通用。
+macOS下并没有`docker0`虚拟网卡，宿主机IP默认是`192.168.65.1`，也可以使用`host.docker.internal`这个特殊的DNS名称来解析宿主机IP。
+
+由此发现，不同系统下宿主机的IP是不同的，所以使用宿主机IP，不能跨环境通用。
 
 
 # 使用host网络
