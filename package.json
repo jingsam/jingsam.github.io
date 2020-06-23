@@ -8,7 +8,7 @@
   "scripts": {
     "new": "hexo new post",
     "serve": "hexo serve",
-    "build": "hexo generate",
+    "generate": "hexo generate",
     "deploy": "hexo deploy",
     "clean": "hexo clean"
   },
