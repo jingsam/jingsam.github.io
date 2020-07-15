@@ -20,6 +20,6 @@
     "hexo-generator-index": "^0.2.1",
     "hexo-renderer-marked": "^1.0.1",
     "hexo-renderer-scss": "^1.2.0",
-    "hexo-server": "^0.3.3"
+    "hexo-server": "^1.0.0"
   }
 }
