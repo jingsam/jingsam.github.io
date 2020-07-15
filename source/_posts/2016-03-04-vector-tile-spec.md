@@ -453,17 +453,6 @@ layers {
     geometry: 2410
     geometry: 3080
   }
-  features {
-    id: 1
-    tags: 0
-    tags: 2
-    tags: 2
-    tags: 3
-    type: Point
-    geometry: 9
-    geometry: 2410
-    geometry: 3080
-  }
   keys: "hello"
   keys: "h"
   keys: "count"
