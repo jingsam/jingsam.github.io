@@ -18,7 +18,7 @@
     "hexo-generator-archive": "^0.1.5",
     "hexo-generator-feed": "^1.2.2",
     "hexo-generator-index": "^0.2.1",
-    "hexo-renderer-marked": "^1.0.1",
+    "hexo-renderer-marked": "^3.0.0",
     "hexo-renderer-scss": "^1.2.0",
     "hexo-server": "^0.3.3"
   }
