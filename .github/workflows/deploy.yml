@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+          token: ${{ secrets.PAT }}
       - id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - uses: actions/cache@v2
