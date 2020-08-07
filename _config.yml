@@ -78,8 +78,6 @@ archive_generator:
 ## Themes: https://hexo.io/themes/
 theme: even
 
-
-
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:

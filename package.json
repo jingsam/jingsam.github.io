@@ -6,7 +6,9 @@
     "version": "4.2.1"
   },
   "scripts": {
-    "new": "hexo new post",
+    "post": "hexo new post",
+    "draft": "hexo new draft",
+    "pub": "hexo publish",
     "serve": "hexo serve",
     "generate": "hexo generate",
     "deploy": "hexo deploy",
