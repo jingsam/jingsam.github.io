@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "hexo": {
-    "version": "4.2.1"
+    "version": "5.0.2"
   },
   "scripts": {
     "post": "hexo new post",
@@ -15,13 +15,14 @@
     "clean": "hexo clean"
   },
   "dependencies": {
-    "hexo": "^4.2.1",
+    "hexo": "^5.0.2",
     "hexo-deployer-git": "^2.1.0",
     "hexo-generator-archive": "^1.0.0",
     "hexo-generator-feed": "^3.0.0",
-    "hexo-generator-index": "^1.0.0",
+    "hexo-generator-index": "^2.0.0",
     "hexo-renderer-marked": "^3.0.0",
     "hexo-renderer-scss": "^1.2.0",
+    "hexo-renderer-swig": "^1.1.0",
     "hexo-server": "^2.0.0"
   }
 }
