@@ -24,7 +24,7 @@ ssh -p 22022 serverUser@clientMachine
 
 通过ssh的反向穿透技术，让内网服务器借用公网客户机的IP，实现内网服务器公网可见。在此基础上，实现内网服务器自动部署的原理如下图：
 
-![](/assets/ssh-reverse-proxy.png)
+{% asset_img ssh-reverse-proxy.png %}
 
 
 上述原理很简单，但具体操作起来，还是有许多细节要考虑，下面对此一一说明。
@@ -94,7 +94,7 @@ sudo systemctl start autossh
 
 然后是`testServer`连接到`prodServer`，这一步稍微有点复杂，主要是因为`testServer`一般是动态创建的虚拟机或容器，测试完就删除了，所以没办法提前将`testServer`的公钥复制到`prodServer`。解决的思路是使用任意机器登录一次`prodServer`并将该机器的公钥复制到`prodServer`，然后将该该机器的私钥复制到`testServer`，让`testServer`伪装成为该机器登录`prodServer`。Gitlab、Travis-ci、Circle CI各自有不同的方法安全地传输ssh key，具体参考相应的文档。Gitlab可以在project和group中的“设置->CI/CD->Variables”中设置环境变量，如下图：
 
-![](/assets/gitlab-variables.png)
+{% asset_img gitlab-variables.png %}
 
 设置好之后，配置`.gitlab-ci.yml`：
 

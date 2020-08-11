@@ -101,7 +101,8 @@ a.bar()  //undefined
 到这里，我们可以发现箭头函数并不是万金油，稍不留神就会踩坑。
 
 至于什么情况该使用箭头函数，《You Don't Know About JS》给出了一个决策图：
-![arrow function](/assets/arrow-function.png)
+
+{% asset_image arrow-function.png %}
 
 以上决策图看起来有点复杂，我认为有三点比较重要：
 1. 箭头函数适合于无复杂逻辑或者无副作用的纯函数场景下，例如用在`map`、`reduce`、`filter`的回调函数定义中；

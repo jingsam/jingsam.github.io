@@ -174,11 +174,11 @@ See 'C:\Program Files\Docker\Docker\resources\bin\docker.exe run --help'.
 
 要搞清楚到底是怎么回事，我们先看看镜像包和容器包由什么区别：
 
-![docker save vs docker export](/assets/docker-save-vs-docker-export.png)
+{% asset_img docker-save-vs-docker-export.png %}
 
 从上面可以看出右边的`postgres-export.tar`的内容是一个linux系统的文件目录，猜测就是一个linux镜像。而`postgres-save.tar`里面到底是什么内容呢？点开一个文件夹看看：
 
-![postgres-save.tar](/assets/postgres-save.png)
+{% asset_img postgres-save.png %}
 
 其实就是一个分层的文件系统。Docker镜像实际上就是由这样的一层层文件进行叠加起来的，上层的文件会覆盖下层的同名文件。如果将`postgres-save.tar`中的各层文件合并到一起，基本就是`postgres-export.tar`的内容。由于`postgres-save.tar`里面的各层文件会存在很多重复的文件，这也解释了为什么`postgres-save.tar`会比`postgres-export.tar`大100多M。
 

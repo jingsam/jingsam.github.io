@@ -16,7 +16,7 @@ tags:
 
 对于一个多边形，哪一个点才适合做标注点呢？自然而然我们就会想到是重心，即[centroid][4]。然而对于凹多边形或者环，它们的重心会出现在多边形外部，这明显不是我们想要的。
 
-![centeroid](/assets/centeroid.png)
+{% asset_img centeroid.png %}
 
 一个合适的标注点，应该是多边形的视觉中心，即以该点为圆心在多边形内部画一个圆，该圆的面积是最大的。假如我们定义一个点到多边形的距离为该点到多边形各边的最短距离，并且规定点在多边形内部时距离为正，点在外部时距离为负。所以多边形标注问题就可以简化为寻找离多边形最远的点，即[pole of inaccessibility][5]。
 
@@ -30,17 +30,17 @@ tags:
 
 在以上的步骤中，如何计算格网内部的点到多边形可能的最大距离是一个问题。如下图，格网中心点到多边形的距离为`dist`，到顶点的距为`radius`，那么格网到多边形可能的最大距离`maxd = dist + radius`。
 
-![dist](/assets/dist.jpg)
+{% asset_img dist.jpg %}
 
 如何证明上述计算最大距离的公式呢？我几何学得不好，没办法给出严密的数学证明，但是我可以通过图示予以说明。
 
 如下图，设多边形内部一点`O`，其距多边形的距离`OA`长度为`dist`。以`O`为圆心，以`radius`为半径作一个圆。延长AO，交圆于点`B`，那么`AB`的长度为`dist + radius`。在圆内部任意取一点`B'`，显然`AB' <= AB = dist + radius`。假设点`B‘`到多边形的距离为`d`，那么`d <= AB' <= AB = dist + radius`。所以对于圆内的任意一点，其到多边形的距离必定小于等于`dist + radius`。在圆内部取一个正方形区域，仍然符合`d <= dist + radius`，这就证明格网区域的最大距离为`dist + radius`。
 
-![proof](/assets/proof.png)
+{% asset_img proof.png %}
 
 如何对格网进行细分呢？我们可以用四叉树，将一个格网分割为4个小格网。
 
-![quadtree](/assets/quadtree.jpg)
+{% asset_img quadtree.jpg %}
 
 搜寻标注点的算法原理是不是很简单？我将在下一篇博文中详细描述如何用JS实现该算法。
 

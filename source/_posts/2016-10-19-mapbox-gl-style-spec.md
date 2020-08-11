@@ -10,7 +10,7 @@ tags:
 
 当然，如果有什么翻译不到位或者错误的地方，欢迎给我发 [issue][3]。
 
-![](/assets/mapbox-gl-style-spec.png)
+{% asset_img mapbox-gl-style-spec.png %}
 
 [1]: https://jingsam.github.io/mapbox-gl-style-spec
 [2]: http://www.mapbox.cn/

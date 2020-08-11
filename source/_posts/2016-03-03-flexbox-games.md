@@ -15,13 +15,12 @@ tags:
 
 [Flexbox defense][1]是一款塔防游戏，通过flexbox相关属性调整炮塔的位置，消灭行进中的怪物。游戏总共有10关，完成所有的关卡可以学习`justify-content`、`align-items`、`flex-direction`、`order`、`align-self`这5个属性。游戏比较简单，初学者10分钟左右就能通关。
 
-![flexbox defense](/assets/flexbox-defense.png)
-
+{% asset_image flexbox-defense.png %}
 
 ## Flexbox froggy
 [Flexbox froggy][2]要求你通过设置flex属性，将青蛙移到相应颜色的荷叶上。游戏总共有24关，难度较前一个游戏高，不仅包括前面已经学习的5个属性，还增加了`flex-wrap`、`flex-flow`、`align-content`3个属性。但是，玩通前一个游戏后再玩这个游戏，也不算难。
 
-![flexbox froggy](/assets/flexbox-froggy.png)
+{% asset_image flexbox-froggy.png %}
 
 第21关的`align-content`属性容易与`align-items`相混淆，不易理解。`align-items`所调整的是元素整体的位置，而`align-content`调整的是元素整体中所包含的多行子元素间的布局关系。因此，如果元素整体只有1行，`align-content`属性是无效的。
 

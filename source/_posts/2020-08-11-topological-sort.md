@@ -16,7 +16,7 @@ DAG是一个专业术语，虽然对于一般人比较陌生，但它实际上�
 
 例如，下图中`1 → 2 → 4 → 3 → 5`是一个正确的拓扑排序，每个节点都在它说依赖的节点后面。而`1 → 2 → 3 → 4 → 5`则不满足拓扑排序的要求，`3`依赖于`4`却出现在前面。
 
-![topological sorting](/assets/toposort.png)
+{% asset_img toposort.png %}
 
 ## 基本原理
 
@@ -41,7 +41,7 @@ Kahn算法采用入度方法，其算法过程如下：
 
 下图是对Kahn算法的演绎：
 
-![kahn's algorithm](/assets/kahn.png)
+{% asset_img kahn.png %}
 
 
 ## DFS算法
@@ -54,7 +54,7 @@ DFS算法采用出度算法，其算法过程如下：
 
 下图是对DFS算法的演绎：
 
-![DFS algorithm](/assets/dfs.png)
+{% asset_img dfs.png %}
 
 
 ## One more thing

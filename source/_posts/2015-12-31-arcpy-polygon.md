@@ -25,11 +25,11 @@ polygon
 
 如下图是一个 multipolygon，它包含 3 个部件，其中第一个部件包含一个外环（ring0）和一个内环（ring1）。
 
-![polygon](/assets/polygon.png)
+{% asset_img polygon.png %}
 
 在 arcpy 中，每个 polygon 是由多个 part 构成的列表表示，每个 part 直接由一系列坐标串表示。在这里我们可以发现，没有表示 ring 的数据结构。其实 arcpy 会环与环之间添加一个 None 坐标点，在遍历坐标串的过程中，通过 None 结点来判断环的结束。如下如图是包含一个内环的 polygon：
 
-![ring](/assets/ring.png)
+{% asset_img ring.png %}
 
 如果打印这个polygon，我们将会看到：
 ```
