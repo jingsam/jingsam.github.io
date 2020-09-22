@@ -9,7 +9,7 @@ date: 2015-12-31T09:46:40+08:00
 multiprocessing 是 python 的多进程并行库，我使用进程池 multiprocessing.pool 来自动管理进程任务。通过一下语句初始化 pool:
 ```python
 multiprocessing.freeze_support()  # Windows 平台要加上这句，避免 RuntimeError
-pool = multiprocessing.Pool()
+pool = multiprocessing.Pool()     # 此时进程池中的进程数默认为os.cpu_count()
 ```
 
 假设我们要并行执行的任务是以下函数：
@@ -26,7 +26,7 @@ for i in xrange(0, 4):
     result = pool.apply_async(task, args=(i,))
     results.append(result)
 ```
-`pool.apply_async` 采用异步方式调用 task，`pool.apply` 则是同步方式调用。同步方式意味着下一个 task 需要等待上一个 task 完成后才能开始运行，这显然不是我们想要的功能，所以采用异步方式连续地提交任务。在上面的语句中，我们提交了 4 个任务，假设我的 CPU 是 4 核，那么我的每个核运行一个任务。如果我提交多于 4 个任务，那么每个核就需要同时运行 2 个以上的任务，这回带来任务切换成本，降低了效率。所以我们设置的并行任务数最好等于 CPU 核心数， CPU 核可以通过下面语句得到：
+`pool.apply_async` 采用异步方式调用 task，`pool.apply` 则是同步方式调用。同步方式意味着下一个 task 需要等待上一个 task 完成后才能开始运行，这显然不是我们想要的功能，所以采用异步方式连续地提交任务。在上面的语句中，我们提交了 4 个任务，假设我的 CPU 是 4 核，那么我的每个核运行一个任务。如果我提交多于 4 个任务，那么每个核就需要同时运行 2 个以上的任务，这会带来任务切换成本，降低了效率。所以我们设置的并行任务数最好等于 CPU 核心数， CPU 核可以通过下面语句得到：
 ```python
 cpus = multiprocessing.cpu_count()
 ```
