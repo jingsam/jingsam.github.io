@@ -63,21 +63,6 @@ docker save -o images.tar postgres:9.6 mongo:3.4
 
 打包之后的`images.tar`包含`postgres:9.6`和`mongo:3.4`这两个镜像。
 
-虽然命令行参数要求指定image，实际上也可以对container进行打包，例如：
-```bash
->docker ps
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
-3623943d369f        postgres:9.6        "docker-entrypoint..."   3 hours ago         Up 3 hours          5432/tcp            postgres
-
->docker save -o b.tar postgres
->docker save -o c.tar postgres:9.6
->ls -al
--rwxrwxrwx 1 root root 277886464 8月  26 14:40 b.tar
--rwxrwxrwx 1 root root 277886464 8月  26 14:41 c.tar
-```
-
-通过以上命令可以看到，`b.tar`和`c.tar`是完全一模一样的。这说明，docker save如果指定的是container，docker save将保存的是容器背后的image。
-
 将打包后的镜像载入进来使用docker load，例如：
 ```
 docker load -i images.tar
@@ -108,7 +93,7 @@ Options:
 docker export -o postgres-export.tar postgres
 ```
 
-docker export需要指定container，不能像docker save那样指定image或container都可以。
+docker export需要指定container，不能像docker save那样指定image。
 
 将打包的container载入进来使用docker import，例如：
 ```
