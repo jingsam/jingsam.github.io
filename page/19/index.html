@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/19/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2018/03/06/webpack.html">Library项目的Webpack配置</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-03-06
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>知乎上有个提问，叫“如何成为高级Webpack配置工程师”，戏谑Webpack已经复杂到成为一门专业学问了。但Webpack确实是非常复杂的，一般人只能做到入门而无法精通。Webpack的复杂性在于要完成各种各样的功能，即不仅要处理js、css、html、图片、字体等各种格式的前端资源，还要对这些资源进行转译、精简、提取、分割、打包等一系列操作。</p>
+<p>Webpack在当前前端工程化中占有很重要的地位，前端工程化是为了提高前端开发的效率，但是前端工程化中的工具链配置的复杂度也逐渐提高。有时候新开一个项目，光是配置这些工具就要花一两天，这对于小型项目有点得不偿失。在配置工具链的时间花费大，诚然webpack本身配置参数多，我认为更重要的原因在于平时过于依赖于vue-cli、react-scripts这类自动化生成工具，没有具体地了解每个配置项的作用。</p>
+<p>最近要开发一个可视化的JS库，但是vue-cli、react-scripts这类自动化生成工具主要针对的是SPA，对开发Library支持不好，因而尝试下手动配置webpack、eslint、babel、prettier这些工具。好在开发的是Library，主要处理JS代码，如果是SPA，那就需要处理各种各样的前端资源，还是建议使用vue-cli、react-scripts。</p>
+<p>本文主要是做步骤记录，用于指导以后进行简单项目的手动配置，因而本篇文章不探讨深度内容。</p>
+<h1 id="生成package-json"><a href="#生成package-json" class="headerlink" title="生成package.json"></a>生成package.json</h1><p>这块没什么好说的，借助<code>npm init</code>或<code>yarn init</code>可以快速地生成<code>package.json</code>文件。我通常习惯于先在<code>scripts</code>中把主要的开发命令写出来，以下是我的<code>scripts</code>配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;scripts&quot;: &#123;</span><br><span class="line">    &quot;build-dev&quot;: &quot;webpack --config build/webpack.dev.config.js&quot;,</span><br><span class="line">    &quot;build-prod&quot;: &quot;webpack --config build/webpack.prod.config.js&quot;,</span><br><span class="line">    &quot;build&quot;: &quot;npm run build-dev &amp;&amp; npm run build-prod&quot;,</span><br><span class="line">    &quot;start&quot;: &quot;webpack-dev-server --config build/webpack.dev.config.js&quot;,</span><br><span class="line">    &quot;lint&quot;: &quot;eslint src/*.js&quot;,</span><br><span class="line">    &quot;format&quot;: &quot;prettier-eslint --write src/*.js&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的<code>scripts</code>配置也体现了下文要讲的工程目录结构，即<code>build</code>里面放webpack配置文件，<code>src</code>里面放源代码，详细的内容在下一节描述。</p>
+<p><code>main</code>默认是<code>index.js</code>，即指向源代码的入口文件。但是本项目主要开发的库是作为其他项目的node_modules，一般不会再对库进行转译，所以为了方便将本库集成到前段工程项目中，<code>main</code>应该指向转译好的UMD格式文件。本项目的<code>main</code>配置为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;main&quot;: &quot;dist/geoeye.js&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="规划目录结构"><a href="#规划目录结构" class="headerlink" title="规划目录结构"></a>规划目录结构</h1><p>我认为工程的目录结构非常重要，它能够反映代码的模块划分，好的目录结构让人赏心悦目、容易理解。我按照以下目录进行组织：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">build  // 编译配置</span><br><span class="line">  |- webpack.dev.config.js</span><br><span class="line">  |- webpack.prod.config.js</span><br><span class="line">dist  // 编译好的库文件</span><br><span class="line">  |- geoeye.js</span><br><span class="line">  |- geoeye.min.js</span><br><span class="line">  |- geoeye.min.js.map</span><br><span class="line">src   // 源代码</span><br><span class="line">debug // 用于调试</span><br><span class="line">test  // 测试</span><br><span class="line">package.json</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置webpack"><a href="#配置webpack" class="headerlink" title="配置webpack"></a>配置webpack</h1><p>Webpack 4刚发布，据说简化了配置，所以本项目就来尝尝鲜。Webpack 4相比原来需要额外安装一个webpack-cli，并且要求node版本不小于6.11.5，安装命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev webpack webpack-cli</span><br></pre></td></tr></table></figure>
+
+<p>接下来就要配置<code>webpack.dev.config.js</code>和<code>webpack.prod.config.js</code>。webpack官方文档推荐用一个<code>webpack.common.config.js</code>提取公共配置后，再用<code>webpack-merge</code>合并。由于本项目配置比较简单，重复的地方不多，所以就不用引入额外的复杂度了。如果项目的配置复杂到同一种配置需要重复3次以上，那么还是需要采用<code>webpack-merge</code>合并的，因为同时更改3个地方很容易出错。</p>
+<p>本项目的<code>webpack.dev.config.js</code>的配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">const path = require(&#x27;path&#x27;)</span><br><span class="line">const webpack = require(&#x27;webpack&#x27;)</span><br><span class="line"></span><br><span class="line">module.exports = &#123;</span><br><span class="line">  entry: &#x27;./src/index.js&#x27;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.join(__dirname, &#x27;../dist&#x27;),</span><br><span class="line">    filename: &#x27;geoeye.js&#x27;,</span><br><span class="line">    library: &#x27;geoeye&#x27;,</span><br><span class="line">    libraryTarget: &#x27;umd&#x27;,</span><br><span class="line">    umdNamedDefine: true</span><br><span class="line">  &#125;,</span><br><span class="line">  devtool: &#x27;cheap-module-eval-source-map&#x27;,</span><br><span class="line">  devServer: &#123;</span><br><span class="line">    contentBase: &#x27;./debug&#x27;,</span><br><span class="line">    publicPath: &#x27;/dist/&#x27;,</span><br><span class="line">    hot: true,</span><br><span class="line">    open: true,</span><br><span class="line">    overlay: true</span><br><span class="line">  &#125;,</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: /\.js$/,</span><br><span class="line">        loader: &#x27;babel-loader&#x27;,</span><br><span class="line">        exclude: /node_modules/</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  mode: &#x27;development&#x27;,</span><br><span class="line">  plugins: [</span><br><span class="line">    new webpack.HotModuleReplacementPlugin()</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>本项目的<code>webpack.prod.config.js</code>的配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">const path = require(&#x27;path&#x27;)</span><br><span class="line">const webpack = require(&#x27;webpack&#x27;)</span><br><span class="line"></span><br><span class="line">module.exports = &#123;</span><br><span class="line">  entry: &#x27;./src/index.js&#x27;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.join(__dirname, &#x27;../dist&#x27;),</span><br><span class="line">    filename: &#x27;geoeye.min.js&#x27;,</span><br><span class="line">    library: &#x27;geoeye&#x27;,</span><br><span class="line">    libraryTarget: &#x27;umd&#x27;,</span><br><span class="line">    umdNamedDefine: true</span><br><span class="line">  &#125;,</span><br><span class="line">  devtool: &#x27;source-map&#x27;,</span><br><span class="line">  module: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123;</span><br><span class="line">        test: /\.js$/,</span><br><span class="line">        loader: &#x27;babel-loader&#x27;,</span><br><span class="line">        exclude: /node_modules/</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  mode: &#x27;production&#x27;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上有以下几个地方需要注意：</p>
+<p>1.<code>entry</code>中使用相对于当前目录时，<code>./</code>不能省略，即<code>./src/index.js</code>不能写为<code>src/index.js</code>。<br>2.<code>output</code>中的<code>path</code>一定要是绝对路径；<br>3.<code>libraryTarget</code>设为<code>umd</code>以兼容浏览器和commonjs环境；<br>4.webpack 4新引入了<code>mode</code>配置，会自动做一些优化，可以为<code>development</code>或<code>production</code>，不能省略<code>mode</code>的配置；<br>5.<code>mode</code>为<code>development</code>时，HotModuleReplacementPlugin不是默认载入的，所以为了使开发时候能够热替换，需要手动加上这个配置；</p>
+<h1 id="配置babel"><a href="#配置babel" class="headerlink" title="配置babel"></a>配置babel</h1><p>babel负责将高语言特性JS源代码转译为低语言特性JS代码，以兼容低版本浏览器，当前推荐采用<code>babel-preset-env</code>，它能根据要兼容的浏览器版本，有选择性地转译，而不是像以前一样统统转译为ES5。</p>
+<p>使用以下命令安装babel以及配套工具：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev babel-core babel-preset-env babel-loader</span><br></pre></td></tr></table></figure>
+
+<p><code>.babelrc</code>配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;presets&quot;: [</span><br><span class="line">    [</span><br><span class="line">      &quot;env&quot;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;targets&quot;: &#123;</span><br><span class="line">          &quot;browsers&quot;: [&quot;last 2 versions&quot;, &quot;ie 11&quot;]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="配置eslint和prettier"><a href="#配置eslint和prettier" class="headerlink" title="配置eslint和prettier"></a>配置eslint和prettier</h1><p>eslint能够检查源代码中的格式错误以及少量的语法错误，prettier是用来自动地格式化代码。它们的主要区别在于，eslint主要用来检查代码格式，prettier主要用来修复代码格式。虽然<code>eslint --fix</code>也能自动修复一些格式错误，但只能修复少数几种格式错误，功能十分有限。prettier的格式修复功能很强，但是如果代码中有错误，例如有尾逗号、引用未知变量，prettier不管这些，仍然帮你格式化，这就让你很难提早发现代码中的错误。</p>
+<p>eslint和prettier相爱相杀，让它们和谐相处，才能更好地为我们提供服务。总体思想是eslint的检查规则尽量与prettier的格式规则保持一致，代码先用prettier格式化之后再用<code>eslint --fix</code>修复并检查。</p>
+<p>需要先安装一下几个包：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-prettier prettier-eslint-cli</span><br></pre></td></tr></table></figure>
+
+<p><code>eslint-config-prettier</code>是用来将prettier的格式化规则作为eslint的检查规则，<code>eslint-plugin-prettier</code>则是用来对比prettier格式化前后，代码中出现的错误。<code>prettier-eslint-cli</code>是用来依次执行prettier和<code>eslint --fix</code>，自动格式化代码。</p>
+<p><code>.eslintrc</code>的配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;env&quot;: &#123;</span><br><span class="line">    &quot;browser&quot;: true,</span><br><span class="line">    &quot;es6&quot;: true</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;parserOptions&quot;: &#123;</span><br><span class="line">    &quot;sourceType&quot;: &quot;module&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;extends&quot;: [&quot;prettier&quot;],</span><br><span class="line">  &quot;plugins&quot;: [&quot;prettier&quot;],</span><br><span class="line">  &quot;rules&quot;: &#123; &quot;prettier/prettier&quot;: &quot;error&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要指出的是如果使用了ES6的<code>import</code>和<code>export</code>，则需要配置<code>&quot;sourceType&quot;: &quot;module&quot;</code>。</p>
+<p>我是无分号党，<code>.prettierrc</code>配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;singleQuote&quot;: true,</span><br><span class="line">  &quot;semi&quot;: false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置-gitignore"><a href="#配置-gitignore" class="headerlink" title="配置.gitignore"></a>配置.gitignore</h1><p><code>.gitignore</code>用来排除不需要git管理的文件，配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">node_modules/</span><br><span class="line">dist/</span><br><span class="line">npm-debug.log*</span><br><span class="line">yarn-debug.log*</span><br><span class="line">yarn-error.log*</span><br><span class="line"></span><br><span class="line"># Editor directories and files</span><br><span class="line">.idea</span><br><span class="line">.vscode</span><br><span class="line">*.suo</span><br><span class="line">*.ntvs*</span><br><span class="line">*.njsproj</span><br><span class="line">*.sln</span><br></pre></td></tr></table></figure>
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>配置一个Library开发环境，分为生成package.json、规划目录结构、配置webpack、配置babel、配置eslint和prettier、配置.gitignore几个步骤。本文仅仅是流水账记录，深度不够，写到后面我都觉得乏味了，以后不写这种水文章了，匿了。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/18/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/20/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

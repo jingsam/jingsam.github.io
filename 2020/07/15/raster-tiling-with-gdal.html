@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="使用GDAL完成影像切片"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2020/07/15/raster-tiling-with-gdal.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>使用GDAL完成影像切片 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">使用GDAL完成影像切片
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-15
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>2020年已经过去一半多了，今天才更新2020年的第一篇博客文章，惭愧！如果能找什么借口的话，过去的一段时间把精力放在了<a target="_blank" rel="noopener" href="https://www.yuque.com/geoway-vision/vision">可视化团队知识库</a>的建设上面，忽视了博客的建设。</p>
+<p>知识库里面的文章的主要目的其一是作为团队工程经验的积累，其二是让团队新人能够快速掌握时空大数据可视化相关的知识。基于以上目的，知识库里面的文章偏向于科普向和入门向，注重于知识的广度而不是深度，放到博客上似乎有些“低技术含量”了。同时，平时在做文章选题时，经常会在知识库和博客之间犹豫徘徊，犹豫来犹豫去，最后写作的热情也就没有了😂。</p>
+<p>不过最近我的想法又有了些变化，“低技术含量”的文章不见得让本博客掉价。每个人的技术专精的方向不一样，我认为简单的技术，读者可能不太了解，需要一些“低技术含量”的文章帮助他快速了解和入门。所以，今后本博客的文章不会太刻意去追求技术深度，只要我觉得有价值的点，都会形成文章分享出来。</p>
+<p>今天的这篇文章就是一篇“低技术含量”的文章，主要讲使用GDAL来完成遥感影像的切片。</p>
+<p>对了，最近我更新了<a href="/assets/%E7%AE%80%E5%8E%86_GIS_%E7%A0%94%E5%8F%91%E4%B8%BB%E7%AE%A1_%E5%BD%AD%E9%87%91%E9%87%91_%E6%AD%A6%E6%B1%89%E5%A4%A7%E5%AD%A6_18771991849.pdf">简历</a>，如果您有什么好的工作机会介绍给我，那就太感谢了🙏。</p>
+<p>前段时间做一个可视化大屏，需要对遥感影像进行切片。由于近几年一直在研究矢量瓦片技术，对栅格切片这块的工具比较生疏。在网上搜了一下，发现合适的工具并不多。要么是诸如GeoServer这样的巨无霸，要么就是一些只支持限定数据源和限定切片规则的小工具。仔细研究了下GDAL，发现组合使用栅格格式转换工具<code>gdal_translate</code>和金字塔生成工具<code>gdaladdo</code>就能够实现支持任意数据源和任意切片规则的影像切片工作流。</p>
+<p>开始之前，需要选定一种存储栅格瓦片的容器格式。看了一下发现选择并不多，暂时时只发现MBTiles、GeoPackage和COG（Cloud Optimized GeoTIFF）三种。MBtiles只支持EPSG:3857一种切片规则，不符合需要支持任意切片规则的要求。COG则是基于GeoTiff的一种Hack实现，技术过程过于复杂，也不予以考虑。所以能够选择的实际上只有一种：GeoPackage。</p>
+<p>接下来使用如下命令就可以将影像转换为栅格瓦片，并输出到GeoPackage中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdal_translate -of GPKG chengdu.tif chengdu.gpkg -co TILING_SCHEME=InspireCRS84Quad</span><br></pre></td></tr></table></figure>
+
+<p>以上命令中，<code>-of</code>用来指定输出格式。<code>TILING_SCHEME</code>用来指定切片规则，比较常用的是<code>GoogleMapsCompatible</code>（EPSG:3857）和<code>InspireCRS84Quad</code>（EPSG:4326）,也可以自定义切片规则，具体做法请查看<a target="_blank" rel="noopener" href="https://gdal.org/drivers/raster/gpkg.html#creation-options">文档</a>。</p>
+<p>需要注意的是，以上命令只是根据切片规则选择一个合适的级别，生成一个单一级别的瓦片，并不是我们需要的多级别的瓦片。生成多级别的瓦片，需要使用接下来的命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdaladdo chengdu.gpkg</span><br></pre></td></tr></table></figure>
+
+<p>如果GeoPackage里面有多个瓦片集，可以使用以下命令来指定为某个瓦片集生成金字塔：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdaladdo GPKG:chengdu.gpkg:layername</span><br></pre></td></tr></table></figure>
+
+<p>从GDAL 3.2开始还支持并行，使用以下命令使用所有的CPU来加速生成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdaladdo chengdu.gpkg --config GDAL_NUM_THREADS ALL_CPUS</span><br></pre></td></tr></table></figure>
+
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2020/07/15/raster-tiling-with-gdal.html">https://jingsam.github.io/2020/07/15/raster-tiling-with-gdal.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2020/08/07/speed-up-docker-multi-stage-builds.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">加速Docker多阶段构建的方法</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2019/11/10/how-to-lie-with-maps.html">
+        <span class="next-text nav-default">《会说谎的地图》</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

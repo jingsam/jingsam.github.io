@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/32/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/11/01/peerDependencies-in-Vue-components.html">开发组件库时 Vue 应该放哪儿：devDependencies or peerDependencies？</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-11-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>最近在和 Aresn 开发 iView 组件库的时候，关于依赖包 Vue 到底是放在 devDependencies 还是 peerDependencies 有些争论。本着打破砂锅问到底的精神，这篇文章讨论下 package.json 里面的各种 depedencies 字段到底是干嘛的。</p>
+<p>npm 的 package.json 包括 5 种 dependencies：</p>
+<ol>
+<li><code>dependencies</code>：应用能够正常运行所依赖的包。这种 dependencies 是最常见的，用户在使用 <code>npm install</code> 安装你的包时会自动安装这些依赖。</li>
+<li><code>devDependencies</code>：开发应用时所依赖的工具包。通常是一些开发、测试、打包工具，例如 webpack、ESLint、Mocha。应用正常运行并不依赖于这些包，用户在使用 <code>npm install</code> 安装你的包时也不会安装这些依赖。</li>
+<li><code>peerDependencies</code>：应用运行依赖的宿主包。最典型的就是插件，例如各种 jQuery 插件，这些插件本身不包含 jQeury，需要外部提供。用户使用 npm 1 或 2 时会自动安装这种依赖，npm 3 不会自动安装，会提示用户安装。</li>
+<li><code>bundledDependencies</code>：发布包时需要打包的依赖，似乎很少见。</li>
+<li><code>optionalDependencies</code>：可选的依赖包。此种依赖不是程序运行所必须的，但是安装后可能会有新功能，例如一个图片解码库，安装了 <code>optionalDependencies</code> 后会支持更多的格式。</li>
+</ol>
+<p>从以上的定义可以看出，<code>dependencies</code> 是程序运行依赖，<code>devDependencies</code> 一般是一些开发工具，<code>peerDependencies</code> 一般用于插件。</p>
+<p>下表是我在 awesome-vue 中找到的 28 个 Vue 组件库，统计了 Vue 在这些库中的位置。其中，11 个库选择放到 <code>dependencies</code>，10 个库选择放到 <code>devDependencies</code>，4 个库选择放到 <code>peerDependencies</code>，2 个库选择不放 Vue 依赖，最后还有 1 个库选择在 <code>devDependencies</code> 和 <code>peerDependencies</code> 同时加上 Vue 依赖。</p>
+<table>
+<thead>
+<tr>
+<th>UI</th>
+<th>dependencies</th>
+<th>devDependencies</th>
+<th>peerDependencies</th>
+<th>none</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vue-strap</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>gritcode-components</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Keen-UI</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>material-ui-vue</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-admin</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-carbon</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-impression</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vuikit</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-material</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-kit</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-material-design</td>
+<td>✔</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vuestrap-base-components</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vux</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-materialize</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>mint-ui</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>N3-components</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-desktop</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-beauty</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>radon-ui</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>vue-antd</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>bootstrap-vue</td>
+<td></td>
+<td>✔</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>iview</td>
+<td></td>
+<td></td>
+<td>✔</td>
+<td></td>
+</tr>
+<tr>
+<td>wovue</td>
+<td></td>
+<td></td>
+<td>✔</td>
+<td></td>
+</tr>
+<tr>
+<td>vue-bulma</td>
+<td></td>
+<td></td>
+<td>✔</td>
+<td></td>
+</tr>
+<tr>
+<td>quasar</td>
+<td></td>
+<td></td>
+<td>✔</td>
+<td></td>
+</tr>
+<tr>
+<td>vueboot</td>
+<td></td>
+<td></td>
+<td></td>
+<td>✔</td>
+</tr>
+<tr>
+<td>material-components</td>
+<td></td>
+<td></td>
+<td></td>
+<td>✔</td>
+</tr>
+<tr>
+<td>element</td>
+<td></td>
+<td>✔</td>
+<td>✔</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>下面分析下各种选择的优劣：</p>
+<ul>
+<li><code>dependencies</code>：放到 <code>dependencies</code> 的好处是安装组件库的时候 Vue 会自动安装。问题是已有的工程项目中往往已经安装了 Vue，会导致在 npm 1 或 2 中重复安装 Vue。虽然此问题在 npm 3 中可以规避，但是如果已安装的 Vue 版本与组件库所依赖的版本不兼容时，Vue 仍然会重复安装。</li>
+<li><code>devDependencies</code>：由于组件库单元测试时会用到 Vue，所以严格来说 Vue 是属于开发工具包，放到 <code>devDependencies</code> 合情合理。但是，在 <code>devDependencies</code> 中的 Vue 依赖不会自动安装，所以需要用户去查文档来确定到底应该安装哪个版本的 Vue，对用户似乎不太友好。</li>
+<li><code>peerDependencies</code>：Vue 组件库本质上是 Vue 的插件，依赖于外部提供的 Vue。把 Vue 放到这里，npm 能够提示用户需要安装哪个版本的 Vue，这点比 <code>devDependencies</code>  友好。问题在于，从 npm 3 开始，<code>peerDependencies</code> 中的依赖不会自动安装，会导致自动集成测试失败。</li>
+<li>不添加依赖：这基本上是最差的选择了，用户甚至不能知道组件库到底依赖哪个版本的 Vue，只能靠猜。</li>
+<li><code>devDependencies</code>、<code>peerDependencies</code> 同时添加：这是我和 Element UI 的开发者讨论后最优的做法。<code>peerDependencies</code> 中的 Vue 是组件库运行所依赖的 Vue 的最低版本，而 <code>devDependencies</code> 运行测试时需要的 Vue 版本，一般情况下 <code>devDependencies &gt;= peerDependencies</code>。这种做法保证了 npm 1、2、3 都不会出问题，并且当用户安装组件库时给予友好的提示信息。</li>
+</ul>
+<p>到这里，我们可以得出以下结论：<strong>在开发 Vue 组件库是，应当同时在 <code>devDependencies</code> 和 <code>peerDependencies</code> 添加 Vue 依赖。</strong></p>
+<p>最后，可能有人会说：哥们，何必较真呢，能用不就行了吗？我的观点是，如果大家都按照规范来，会减少很多不必要的麻烦。想想看，如果大家在 npm 上发布包的时候不遵守 semver 规范，你还有信心说，你的程序只要 npm install 就能正常运行么？</p>
+<p>按老罗的话说，我不是为了输赢，我就是认真！</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/31/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/33/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

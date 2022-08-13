@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/48/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/03/04/vector-tile-spec.html">Mapbox矢量瓦片标准</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-03-04
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>以下是<a target="_blank" rel="noopener" href="https://github.com/mapbox/vector-tile-spec/tree/master/2.1">《Mapbox Vector Tile Specification》</a>最新的2.1版的中文翻译，以便查阅。</p>
+<h1 id="矢量瓦片标准"><a href="#矢量瓦片标准" class="headerlink" title="矢量瓦片标准"></a>矢量瓦片标准</h1><p>本文档中的“<strong>必须</strong>”、“<strong>必须不</strong>”、“<strong>必备</strong>”、”<strong>应该</strong>“、“<strong>不应该</strong>”、“<strong>建议</strong>”、“<strong>可以</strong>”、“<strong>可选</strong>”的含义参照<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>。</p>
+<h2 id="1-目标"><a href="#1-目标" class="headerlink" title="1. 目标"></a>1. 目标</h2><p>本文档规定了一种节省存储空间的矢量瓦片数据编码格式。这种格式应用于客户端或服务端高效渲染或查询要素信息。</p>
+<h2 id="2-文件格式"><a href="#2-文件格式" class="headerlink" title="2. 文件格式"></a>2. 文件格式</h2><p>矢量瓦片文件采用<a target="_blank" rel="noopener" href="https://developers.google.com/protocol-buffers/">Google Protocol Buffers</a>进行编码。Google Protocol Buffers是一种兼容多语言、多平台、易扩展的数据序列化格式。</p>
+<h3 id="2-1-文件后缀"><a href="#2-1-文件后缀" class="headerlink" title="2.1. 文件后缀"></a>2.1. 文件后缀</h3><p>矢量瓦片文件的后缀<strong>应该</strong>为<code>mvt</code>。例如，<code>vector.mvt</code>。</p>
+<h3 id="2-2-MIME类型"><a href="#2-2-MIME类型" class="headerlink" title="2.2 MIME类型"></a>2.2 MIME类型</h3><p>矢量瓦片的MIME类型<strong>应该</strong>设置为<code>application/vnd.mapbox-vector-tile</code>。</p>
+<h2 id="3-投影和范围"><a href="#3-投影和范围" class="headerlink" title="3. 投影和范围"></a>3. 投影和范围</h2><p>矢量瓦片表示的是投影在正方形区块上的数据。矢量瓦片<strong>不应该</strong>包含范围和投影信息。解码方被假定知道矢量瓦片的范围和投影信息。</p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Web_Mercator">Web Mercator</a>是默认的投影方式，<a target="_blank" rel="noopener" href="http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/">Google tile scheme</a>是默认的瓦片编号方式。两者一起完成了与任意范围、任意精度的地理区域的一一对应，例如<code>https://example.com/17/65535/43602.mvt</code>。</p>
+<p>矢量瓦片<strong>可以</strong>用来表示任意投影方式、任意瓦片编号方案的数据。</p>
+<h2 id="4-内部结构"><a href="#4-内部结构" class="headerlink" title="4. 内部结构"></a>4. 内部结构</h2><p>这部分内容描述矢量瓦片的数据结构。读者需要先了解<a target="_blank" rel="noopener" href="https://github.com/mapbox/vector-tile-spec/blob/master/2.1%2Fvector_tile.proto">矢量瓦片protobuf编码方案文件</a>中的结构定义。</p>
+<h3 id="4-1-图层"><a href="#4-1-图层" class="headerlink" title="4.1. 图层"></a>4.1. 图层</h3><p>矢量瓦片由一组命名的图层构成。每个图层包含几何要素和元数据信息。设计的图层格式能够保证图层数据能够在内存中按顺序排列，由此在图层组末尾添加一个新的图层就不用更改已有的数据。</p>
+<p>每块矢量瓦片<strong>应该</strong>至少包含一个图层。每个图层<strong>应该</strong>至少包含一个要素。</p>
+<p>图层<strong>必须</strong>包含一个<code>version</code>字段表示此图层所遵守的《矢量瓦片标准》的主版本号。例如，某个图层遵守2.1版本的标准，那么它的<code>version</code>字段的值则为整数<code>2</code>。<code>version</code>字段<strong>应该</strong>设定为图层的第一个字段。解码器<strong>应该</strong>首先解析<code>version</code>字段，以确定是否能够解析该版本的图层。当遇到一个未知版本的矢量瓦片图层时，解码器<strong>可以</strong>尝试去解析它，或者<strong>可以</strong>跳过该图层。以上两种情况下，解码器都<strong>应该</strong>继续解析后续的图层。</p>
+<p>图层<strong>必须</strong>包含一个<code>name</code>字段。每块矢量瓦片<strong>必须不</strong>包含两个或两个以上的图层具有相同<code>name</code>值。在向一块矢量瓦片添加一个新的图层之前，编码器<strong>必须</strong>检查已有的<code>name</code>值以防止重复。</p>
+<p>图层中的每个要素<strong>可以</strong>包含一个或多个key-value作为它的元数据（见下文）。所有要素的key和value被分别索引为两个列表——<code>keys</code>和<code>values</code>——为图层中的所有要素所共享。</p>
+<p>图层<code>keys</code>字段的每个元素都是字符串。<code>keys</code>字段包含了图层中所有要素的key，并且每个key可以通过它在<code>keys</code>列表中的索引号引用，第一个key的索引号是0 。<code>keys</code>列表<strong>必须不</strong>包含两个或两个以上key是一样的。</p>
+<p>图层<code>values</code>字段的每个元素是多种类型的值的编码（见下文）。<code>values</code>字段包含了图层中所有要素的value，并且每个value可以通过它在<code>values</code>列表中的索引号引用，第一个value的索引号是0 。<code>values</code>列表<strong>必须不</strong>包含两个或两个以上value是一样的。</p>
+<p>为了支持字符串型、布尔型、整型、浮点型多种类型的值，对<code>value</code>字段的编码包含了一组<code>optional</code>字段。每个value<strong>必须</strong>包含其中的一个字段。</p>
+<p>图层<strong>必须</strong>包含一个<code>extent</code>字段，表示瓦片的宽度和高度，以整数表示。矢量瓦片中的几何坐标<strong>可以</strong>超出<code>extent</code>定义的范围。超出<code>extent</code>范围的几何要素被经常用来作为缓冲区，以渲染重叠在多块相邻瓦片上的要素。</p>
+<p>例如，如果一块瓦片的<code>extent</code>范围是4096，那么坐标的单位是瓦片长宽的1/4096。坐标0在瓦片的顶部或左边缘，坐标4096在瓦片的底部或右边缘。坐标从1到4095都是在瓦片内部，坐标小于0或者大于4096在瓦片外部。坐标<code>(1,10)</code>或<code>(4095,10)</code>在瓦片内部。坐标<code>(0,10)</code>或<code>(4096,10)</code>在瓦片边缘。坐标<code>(-1,10)</code>或<code>(4097,10)</code>在瓦片外部。</p>
+<h3 id="4-2-要素"><a href="#4-2-要素" class="headerlink" title="4.2. 要素"></a>4.2. 要素</h3><p>每个要素<strong>必须</strong>包含一个<code>geometry</code>字段。</p>
+<p>每个要素<strong>必须</strong>包含一个<code>type</code>字段，该字段将在几何类型章节描述（4.3.4）。</p>
+<p>每个要素<strong>可以</strong>包含一个<code>tags</code>字段。如果存在属于要素级别的元数据，<strong>应该</strong>存储到<code>tags</code>字段中。</p>
+<p>每个要素<strong>可以</strong>包含一个<code>id</code>字段。如果一个要素包含一个<code>id</code>字段，那么<code>id</code>字段的值<strong>应该</strong>相对于图层中的其他要素是唯一的。</p>
+<h3 id="4-3-几何图形编码"><a href="#4-3-几何图形编码" class="headerlink" title="4.3. 几何图形编码"></a>4.3. 几何图形编码</h3><p>矢量瓦片中的几何数据被定义为屏幕坐标系。瓦片的左上角（显示默认如此）是坐标系的原点。X轴向右为正，Y轴向下为正。几何图形中的坐标<strong>必须</strong>为整数。</p>
+<p>几何图形被编码为要素的<code>geometry</code>字段的一个32位无符号型整数序列。每个整数是<code>CommandInteger</code>或者<code>ParameterInteger</code>。解码器解析这些整数序列作为生成几何图形的一系列有序操作。</p>
+<p>指令涉及到的位置是相对于“游标”的，即一个可重定义的点。对于要素中的第一条指令，游标在坐标系中的位置是<code>(0,0)</code>。有些指定能够移动游标，因而会影响到接下来执行的指令。</p>
+<h4 id="4-3-1-指令数"><a href="#4-3-1-指令数" class="headerlink" title="4.3.1. 指令数"></a>4.3.1. 指令数</h4><p><code>CommandInteger</code>指代所要执行的操作和执行的次数，分别以command ID和command count表示。</p>
+<p>command ID以<code>CommandInteger</code>最末尾的3个比特位表示，即从0到7。command count以<code>CommandInteger</code>剩下的29个比特位表示，即<code>0</code>到<code>pow(2, 29) - 1</code>。</p>
+<p>command ID、command count、和<code>CommandInteger</code>三者可以通过以下位运算相互转换。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">CommandInteger</span> = (id &amp; <span class="number">0x7</span>) | (count &lt;&lt; <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id = <span class="title class_">CommandInteger</span> &amp; <span class="number">0x7</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">count = <span class="title class_">CommandInteger</span> &gt;&gt; <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>每个command ID表示以下指令中的一种：</p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th align="center">Id</th>
+<th>参数</th>
+<th>参数个数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MoveTo</td>
+<td align="center"><code>1</code></td>
+<td><code>dX</code>, <code>dY</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>LineTo</td>
+<td align="center"><code>2</code></td>
+<td><code>dX</code>, <code>dY</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>ClosePath</td>
+<td align="center"><code>7</code></td>
+<td>无参数</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<h5 id="指令数示例"><a href="#指令数示例" class="headerlink" title="指令数示例"></a>指令数示例</h5><table>
+<thead>
+<tr>
+<th>指令</th>
+<th align="center">ID</th>
+<th align="center">Count</th>
+<th align="center">CommandInteger</th>
+<th align="center">二进制表示<code>[Count][Id]</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MoveTo</td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>9</code></td>
+<td align="center"><code>[00000000 00000000 0000000 00001][001]</code></td>
+</tr>
+<tr>
+<td>MoveTo</td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>120</code></td>
+<td align="center"><code>961</code></td>
+<td align="center"><code>[00000000 00000000 0000011 11000][001]</code></td>
+</tr>
+<tr>
+<td>LineTo</td>
+<td align="center"><code>2</code></td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>10</code></td>
+<td align="center"><code>[00000000 00000000 0000000 00001][010]</code></td>
+</tr>
+<tr>
+<td>LineTo</td>
+<td align="center"><code>2</code></td>
+<td align="center"><code>3</code></td>
+<td align="center"><code>26</code></td>
+<td align="center"><code>[00000000 00000000 0000000 00011][010]</code></td>
+</tr>
+<tr>
+<td>ClosePath</td>
+<td align="center"><code>7</code></td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>15</code></td>
+<td align="center"><code>[00000000 00000000 0000000 00001][111]</code></td>
+</tr>
+</tbody></table>
+<h4 id="4-3-2-参数数"><a href="#4-3-2-参数数" class="headerlink" title="4.3.2. 参数数"></a>4.3.2. 参数数</h4><p>指令的所有参数紧跟在<code>ParameterInteger</code>之后。跟在<code>CommandInteger</code>之后的<code>ParameterIntegers</code>个数等于指令所需要参数的个数乘以指令执行的次数。例如，一条指示<code>MoveTo</code>指令执行3次的<code>CommandInteger</code>之后会跟随6个<code>ParameterIntegers</code>。</p>
+<p><code>ParameterInteger</code>由<a target="_blank" rel="noopener" href="https://developers.google.com/protocol-buffers/docs/encoding#types">zigzag</a>方式编码得到，以使小负数和正数都被编码为小整数。将参数值编码为<code>ParameterInteger</code>按以下公式转换：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">ParameterInteger</span> = (value &lt;&lt; <span class="number">1</span>) ^ (value &gt;&gt; <span class="number">31</span>)</span><br></pre></td></tr></table></figure>
+
+<p>参数值不支持大于<code>pow(2,31) - 1</code>或<code>-1 * (pow(2,31) - 1)</code>的数值。</p>
+<p>以下的公式用来将<code>ParameterInteger</code>解码为实际值：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value = ((<span class="title class_">ParameterInteger</span> &gt;&gt; <span class="number">1</span>) ^ (-(<span class="title class_">ParameterInteger</span> &amp; <span class="number">1</span>)))</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-3-指令类型"><a href="#4-3-3-指令类型" class="headerlink" title="4.3.3. 指令类型"></a>4.3.3. 指令类型</h4><p>以下关于指令的描述中，游标的初始位置定义为坐标<code>(cX, cY)</code>，其中<code>cX</code>指代游标在X轴上的位置，<code>cY</code>指代游标在Y轴上的位置。</p>
+<h5 id="4-3-3-1-MoveTo指令"><a href="#4-3-3-1-MoveTo指令" class="headerlink" title="4.3.3.1. MoveTo指令"></a>4.3.3.1. MoveTo指令</h5><p>表示<code>MoveTo</code>指令执行<code>n</code>的<code>ParameterInteger</code><strong>必须</strong>立即接上<code>n</code>对<code>ParameterInteger</code>。对于<code>(dX, dY)</code>参数：</p>
+<ol>
+<li>定义坐标<code>(pX, pY)</code>，其中<code>pX = cX + dX</code>和<code>pY = cY + dY</code>。<ul>
+<li>对于点要素，这个坐标定义了一个新的点要素。</li>
+<li>对于线要素，这个坐标定义了一条新的线要素的起点。</li>
+<li>对于面要素，这个坐标定义了一个新环的起点。</li>
+</ul>
+</li>
+<li>将游标移至<code>(pX, pY)</code>。</li>
+</ol>
+<h5 id="4-3-3-1-LineTo指令"><a href="#4-3-3-1-LineTo指令" class="headerlink" title="4.3.3.1. LineTo指令"></a>4.3.3.1. LineTo指令</h5><p>表示<code>LineTo</code>指令执行<code>n</code>的<code>ParameterInteger</code><strong>必须</strong>立即接上<code>n</code>对<code>ParameterInteger</code>。对于<code>(dX, dY)</code>参数：</p>
+<ol>
+<li>定义一条以游标位置<code>(cX, cY)</code>为起点，<code>(pX, pY)</code>为终点的线段，其中<code>pX = cX + dX</code>和<code>pY = cY + dY</code>。<ul>
+<li>对于线要素，这条线段延长了当前线要素。</li>
+<li>对于面要素，这条线段延长了当前环。</li>
+</ul>
+</li>
+<li>将游标移至<code>(pX, pY)</code>。</li>
+</ol>
+<p>对于任意一对<code>(dX, dY)</code>，<code>dX</code>和<code>dY</code><strong>必须不</strong>能同时为<code>0</code>.</p>
+<h4 id="4-3-3-3-ClosePath指令"><a href="#4-3-3-3-ClosePath指令" class="headerlink" title="4.3.3.3. ClosePath指令"></a>4.3.3.3. ClosePath指令</h4><p>每条<code>ClosePath</code>指令<strong>必须</strong>只能执行一次并且无附带参数。这条指令通过构造一条以游标<code>(cX, cY)</code>为起点、当前环的起点为终点的线段，闭合面要素的当前环。</p>
+<p>这条指定不改变游标的位置。</p>
+<h4 id="4-3-4-几何类型"><a href="#4-3-4-几何类型" class="headerlink" title="4.3.4. 几何类型"></a>4.3.4. 几何类型</h4><p>要素<code>geometry</code>字段的<code>type</code>的取值<strong>必须</strong>是<code>GeomType</code>枚举值之一。支持的几何类型如下：</p>
+<ul>
+<li>UNKNOWN</li>
+<li>POINT</li>
+<li>LINESTRING</li>
+<li>POLYGON</li>
+</ul>
+<p>不支持<code>GeometryCollection</code>类型。</p>
+<h5 id="4-3-4-1-Unknown几何类型"><a href="#4-3-4-1-Unknown几何类型" class="headerlink" title="4.3.4.1. Unknown几何类型"></a>4.3.4.1. Unknown几何类型</h5><p>本标准有意设置一个Unknown几何类型。这种几何类型<strong>可以</strong>用来编码试验性的几何类型。解码器<strong>可以</strong>选择忽略这种几何类型的要素。</p>
+<h5 id="4-3-4-2-Point几何类型"><a href="#4-3-4-2-Point几何类型" class="headerlink" title="4.3.4.2. Point几何类型"></a>4.3.4.2. Point几何类型</h5><p><code>POINT</code>几何类型用来表示单点或多点几何。每个点几何的指令序列<strong>必须</strong>包含一个<code>MoveTo</code>指令，并且该指令的command count大于0。</p>
+<p>如果<code>POINT</code>几何的<code>MoveTo</code>的command count为1，那么<strong>必须</strong>将其解析为单点；否则<strong>必须</strong>解析为多点，指令后面的每对<code>ParameterInteger</code>表示一个单点。</p>
+<h5 id="4-3-4-3-Linestring几何类型"><a href="#4-3-4-3-Linestring几何类型" class="headerlink" title="4.3.4.3. Linestring几何类型"></a>4.3.4.3. Linestring几何类型</h5><p><code>LINESTRING</code>几何类型用来表示单线或多线几何。线几何的指令序列<strong>必须</strong>包含一个或多个下列序列：</p>
+<ol>
+<li>一个<code>MoveTo</code>指令，其command count为1</li>
+<li>一个<code>LineTo</code>指令，其command count大于0</li>
+</ol>
+<p>如果<code>LINESTRING</code>的指令序列只包含1个<code>MoveTo</code>指令，那么<strong>必须</strong>将其解析为单线；否则，<strong>必须</strong>将其解析为多线，其中的每个<code>MoveTo</code>指令开始构造一条新线几何。</p>
+<h5 id="4-3-4-4-Polygon几何类型"><a href="#4-3-4-4-Polygon几何类型" class="headerlink" title="4.3.4.4. Polygon几何类型"></a>4.3.4.4. Polygon几何类型</h5><p><code>POLYGON</code>几何类型表示面或多面几何，每个面有且只有一个外环和零个或多个内环。面几何的指令序列包含一个或多个下列序列：</p>
+<ol>
+<li>一个<code>ExteriorRing</code></li>
+<li>零个或多个<code>InteriorRing</code></li>
+</ol>
+<p>Each <code>ExteriorRing</code> and <code>InteriorRing</code> MUST consist of the following sequence:<br>每个<code>ExteriorRing</code>和<code>InteriorRing</code>必须包含以下序列：</p>
+<ol>
+<li>一个<code>MoveTo</code>指令，其command count为1</li>
+<li>一个<code>LineTo</code>指令，其command count大于1</li>
+<li>一个<code>ClosePath</code>指令</li>
+</ol>
+<p>一个外环被<strong>定义</strong>为一个线性的环，当应用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Shoelace_formula">surveyor’s formula</a>，以多边形的节点在瓦片坐标系下的坐标计算面积时，其面积为正。在瓦片坐标系下（X向右为正，Y向下为正），外环节点以顺时针旋转。</p>
+<p>一个内环被<strong>定义</strong>为一个线性的环，当应用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Shoelace_formula">surveyor’s formula</a>，以多边形的节点在瓦片坐标系下的坐标计算面积时，其面积为负。在瓦片坐标系下（X向右为正，Y向下为正），内环节点以逆时针旋转。</p>
+<p>如果<code>POLYGON</code>的指令序列只包含一个外环，那么<strong>必须</strong>将其解析为单面；否则，<strong>必须</strong>解析为多面几何，其中每个外环表示一个新面的开始。如果面几何包换内环，那么<strong>必须</strong>将其编码到所属的外环之后。</p>
+<p>线性环<strong>必须</strong>不包含异常点，例如自相交或自相切。在<code>ClosePath</code>之前的坐标<strong>不应该</strong>与线性环的起始点坐标相同，因为会产生零长度的线段。线性环经过surveyor’s formula计算的面积<strong>不应该</strong>为0，因为这意味着环包含有异常点。</p>
+<p>面几何<strong>必须不</strong>能有内环相交，并且内环<strong>必须</strong>被包围在内环之中。</p>
+<h4 id="4-3-5-几何要素编码示例"><a href="#4-3-5-几何要素编码示例" class="headerlink" title="4.3.5. 几何要素编码示例"></a>4.3.5. 几何要素编码示例</h4><h5 id="4-3-5-1-点要素示例"><a href="#4-3-5-1-点要素示例" class="headerlink" title="4.3.5.1. 点要素示例"></a>4.3.5.1. 点要素示例</h5><p>假设示例点的坐标为：</p>
+<ul>
+<li>(25, 17)</li>
+</ul>
+<p>表示它只需要一条指令：</p>
+<ul>
+<li>MoveTo(+25, +17)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">编码      : [ 9 50 34 ]</span><br><span class="line">              | |  `&gt; 解码: ((34 &gt;&gt; 1) ^ (-(34 &amp; 1))) = +17</span><br><span class="line">              | `&gt; 解码: ((50 &gt;&gt; 1) ^ (-(50 &amp; 1))) = +25</span><br><span class="line">              | ===== 相对地 MoveTo(+25, +17) == 创建点 (25,17)</span><br><span class="line">              `&gt; [00001 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 1</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-3-5-2-多点要素示例"><a href="#4-3-5-2-多点要素示例" class="headerlink" title="4.3.5.2. 多点要素示例"></a>4.3.5.2. 多点要素示例</h5><p>假设多点要素的坐标为:</p>
+<ul>
+<li>(5,7)</li>
+<li>(3,2)</li>
+</ul>
+<p>编码需要两条指令：</p>
+<ul>
+<li>MoveTo(+5,+7)</li>
+<li>MoveTo(-2,-5)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">编码      : [ 17 10 14 3 9 ]</span><br><span class="line">               |  |  | | `&gt; 解码: ((9 &gt;&gt; 1) ^ (-(9 &amp; 1))) = -5</span><br><span class="line">               |  |  | `&gt; 解码: ((3 &gt;&gt; 1) ^ (-(3 &amp; 1))) = -2</span><br><span class="line">               |  |  | === 相对地 MoveTo(-2, -5) == 创建点 (3,2)</span><br><span class="line">               |  |  `&gt; 解码: ((34 &gt;&gt; 1) ^ (-(34 &amp; 1))) = +7</span><br><span class="line">               |  `&gt; 解码: ((50 &gt;&gt; 1) ^ (-(50 &amp; 1))) = +5</span><br><span class="line">               | ===== relative MoveTo(+25, +17) == 创建点 (25,17)</span><br><span class="line">               `&gt; [00010 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 2</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-3-5-3-线要素示例"><a href="#4-3-5-3-线要素示例" class="headerlink" title="4.3.5.3. 线要素示例"></a>4.3.5.3. 线要素示例</h5><p>假设示例线要素的坐标为:</p>
+<ul>
+<li>(2,2)</li>
+<li>(2,10)</li>
+<li>(10,10)</li>
+</ul>
+<p>编码需要3条指令：</p>
+<ul>
+<li>MoveTo(+2,+2)</li>
+<li>LineTo(+0,+8)</li>
+<li>LineTo(+8,+0)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">编码      : [ 9 4 4 18 0 16 16 0 ]</span><br><span class="line">              |      |      ==== 相对地 LineTo(+8, +0) == 连接到点 (10, 10)</span><br><span class="line">              |      | ==== 相对地 LineTo(+0, +8) == 连接到点 (2, 10)</span><br><span class="line">              |      `&gt; [00010 010] = <span class="built_in">command</span> <span class="built_in">id</span> 2 (LineTo), <span class="built_in">command</span> count 2</span><br><span class="line">              | === 相对地 MoveTo(+2, +2)</span><br><span class="line">              `&gt; [00001 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 1</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-3-5-4-Example-Multi-Linestring"><a href="#4-3-5-4-Example-Multi-Linestring" class="headerlink" title="4.3.5.4. Example Multi Linestring"></a>4.3.5.4. Example Multi Linestring</h5><h5 id="4-3-5-4-多线要素示例"><a href="#4-3-5-4-多线要素示例" class="headerlink" title="4.3.5.4. 多线要素示例"></a>4.3.5.4. 多线要素示例</h5><p>假设示例要素的坐标为：</p>
+<ul>
+<li>Line 1:<ul>
+<li>(2,2)</li>
+<li>(2,10)</li>
+<li>(10,10)</li>
+</ul>
+</li>
+<li>Line 2:<ul>
+<li>(1,1)</li>
+<li>(3,5)</li>
+</ul>
+</li>
+</ul>
+<p>编码需要以下指令：</p>
+<ul>
+<li>MoveTo(+2,+2)</li>
+<li>LineTo(+0,+8)</li>
+<li>LineTo(+8,+0)</li>
+<li>MoveTo(-9,-9)</li>
+<li>LineTo(+2,+4)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">编码      : [ 9 4 4 18 0 16 16 0 9 17 17 10 4 8 ]</span><br><span class="line">              |      |           |        | === 相对地 LineTo(+2, +4) == 连接到点 (3,5)</span><br><span class="line">              |      |           |        `&gt; [00001 010] = <span class="built_in">command</span> <span class="built_in">id</span> 2 (LineTo), <span class="built_in">command</span> count 1</span><br><span class="line">              |      |           | ===== 相对地 MoveTo(-9, -9) == 新建一条线从 (1,1)</span><br><span class="line">              |      |           `&gt; [00001 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 1</span><br><span class="line">              |      |      ==== 相对地 LineTo(+8, +0) == 连接到点 (10, 10)</span><br><span class="line">              |      | ==== 相对地 LineTo(+0, +8) == 连接到点 (2, 10)</span><br><span class="line">              |      `&gt; [00010 010] = <span class="built_in">command</span> <span class="built_in">id</span> 2 (LineTo), <span class="built_in">command</span> count 2</span><br><span class="line">              | === 相对地 MoveTo(+2, +2)</span><br><span class="line">              `&gt; [00001 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 1</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-3-5-5-面要素示例"><a href="#4-3-5-5-面要素示例" class="headerlink" title="4.3.5.5. 面要素示例"></a>4.3.5.5. 面要素示例</h5><p>假设示例面要素的坐标为：</p>
+<ul>
+<li>(3,6)</li>
+<li>(8,12)</li>
+<li>(20,34)</li>
+<li>(3,6) <em>闭合</em></li>
+</ul>
+<p>编码需要以下指令：</p>
+<ul>
+<li>MoveTo(3, 6)</li>
+<li>LineTo(5, 6)</li>
+<li>LineTo(12, 22)</li>
+<li>ClosePath</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">编码      : [ 9 6 12 18 10 12 24 44 15 ]</span><br><span class="line">              |       |              `&gt; [00001 111] <span class="built_in">command</span> <span class="built_in">id</span> 7 (ClosePath), <span class="built_in">command</span> count 1</span><br><span class="line">              |       |       ===== 相对地 LineTo(+12, +22) == 连接到点 (20, 34)</span><br><span class="line">              |       | ===== 相对地 LineTo(+5, +6) == 连接到点 (8, 12)</span><br><span class="line">              |       `&gt; [00010 010] = <span class="built_in">command</span> <span class="built_in">id</span> 2 (LineTo), <span class="built_in">command</span> count 2</span><br><span class="line">              | ==== 相对地 MoveTo(+3, +6)</span><br><span class="line">              `&gt; [00001 001] = <span class="built_in">command</span> <span class="built_in">id</span> 1 (MoveTo), <span class="built_in">command</span> count 1</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-3-5-6-多面要素示例"><a href="#4-3-5-6-多面要素示例" class="headerlink" title="4.3.5.6. 多面要素示例"></a>4.3.5.6. 多面要素示例</h5><p>示例要素包含两个多边形，其中一个多边形有一个洞。多边形中的点如下。注意，多边形中的点环绕顺序<strong>非常</strong>重要，应为这个顺序被用来区别外环和内环。</p>
+<ul>
+<li>Polygon 1:<ul>
+<li>外环:<ul>
+<li>(0,0)</li>
+<li>(10,0)</li>
+<li>(10,10)</li>
+<li>(0,10)</li>
+<li>(0,0) <em>闭合</em></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Polygon 2:<ul>
+<li>外环:<ul>
+<li>(11,11)</li>
+<li>(20,11)</li>
+<li>(20,20)</li>
+<li>(11,20)</li>
+<li>(11,11) <em>闭合</em></li>
+</ul>
+</li>
+<li>内环:<ul>
+<li>(13,13)</li>
+<li>(13,17)</li>
+<li>(17,17)</li>
+<li>(17,13)</li>
+<li>(13,13) <em>闭合</em></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>编码需要以下一系列指令：</p>
+<ul>
+<li>MoveTo(+0,+0)</li>
+<li>LineTo(+10,+0)</li>
+<li>LineTo(+0,+10)</li>
+<li>LineTo(-10,+0) // 执行这条指令后，游标的位置在(0, 10)</li>
+<li>ClosePath // Polygon 1结束</li>
+<li>MoveTo(+11,+1) // <strong>这条指令相对于上面最后一条LineTo指令！</strong></li>
+<li>LineTo(+9,+0)</li>
+<li>LineTo(+0,+9)</li>
+<li>LineTo(-9,+0) // 执行这条指令后，游标的位置在（11, 20)</li>
+<li>ClosePath // 这是一个新面要素，因为面积为正</li>
+<li>MoveTo(+2,-7) // <strong>这条指令相对于上面最后一条LineTo指令！</strong></li>
+<li>LineTo(+0,+4)</li>
+<li>LineTo(+4,+0)</li>
+<li>LineTo(+0,-4) // 执行这条指令后，游标的位置在（17, 13)</li>
+<li>ClosePath // 这是一个内环，因为面积为负</li>
+</ul>
+<h3 id="4-4-要素属性"><a href="#4-4-要素属性" class="headerlink" title="4.4. 要素属性"></a>4.4. 要素属性</h3><p>要素属性被编码为<code>tag</code>字段中的一对对整数。在每对<code>tag</code>中，第一个整数表示key在其所属的<code>layer</code>的<code>keys</code>列表的中索引号（以0开始）。第二个整数表示value在其所属的<code>layer</code>的<code>values</code>列表的中索引号（以0开始）。一个要素的所有key索引<strong>必须唯一</strong>，以保证要素中没有重复的属性项。每个要素的<code>tag</code>字段<strong>必须</strong>为偶数。要素中的<code>tag</code>字段包含的key索引号或value索引号<strong>必须不</strong>能大于或等于相应图层中<code>keys</code>或<code>values</code>列表中的元素数目。</p>
+<h3 id="4-5-示例"><a href="#4-5-示例" class="headerlink" title="4.5. 示例"></a>4.5. 示例</h3><p>例如，一个GeoJSON格式的要素如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;FeatureCollection&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;features&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;geometry&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Point&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;coordinates&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">                    <span class="number">-8247861.1000836585</span><span class="punctuation">,</span></span><br><span class="line">                    <span class="number">4970241.327215323</span></span><br><span class="line">                <span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Feature&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;hello&quot;</span><span class="punctuation">:</span> <span class="string">&quot;world&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;h&quot;</span><span class="punctuation">:</span> <span class="string">&quot;world&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;count&quot;</span><span class="punctuation">:</span> <span class="number">1.23</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;geometry&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Point&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;coordinates&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">                    <span class="number">-8247861.1000836585</span><span class="punctuation">,</span></span><br><span class="line">                    <span class="number">4970241.327215323</span></span><br><span class="line">                <span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Feature&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;hello&quot;</span><span class="punctuation">:</span> <span class="string">&quot;again&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;count&quot;</span><span class="punctuation">:</span> <span class="number">2</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>会被结构化为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">layers &#123;</span><br><span class="line">  <span class="attr">version</span>: <span class="number">2</span></span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;points&quot;</span></span><br><span class="line">  <span class="attr">features</span>: &#123;</span><br><span class="line">    <span class="attr">id</span>: <span class="number">1</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">0</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">0</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">1</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">0</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">2</span></span><br><span class="line">    <span class="attr">tags</span>: <span class="number">1</span></span><br><span class="line">    <span class="attr">type</span>: <span class="title class_">Point</span></span><br><span class="line">    <span class="attr">geometry</span>: <span class="number">9</span></span><br><span class="line">    <span class="attr">geometry</span>: <span class="number">2410</span></span><br><span class="line">    <span class="attr">geometry</span>: <span class="number">3080</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attr">keys</span>: <span class="string">&quot;hello&quot;</span></span><br><span class="line">  <span class="attr">keys</span>: <span class="string">&quot;h&quot;</span></span><br><span class="line">  <span class="attr">keys</span>: <span class="string">&quot;count&quot;</span></span><br><span class="line">  <span class="attr">values</span>: &#123;</span><br><span class="line">    <span class="attr">string_value</span>: <span class="string">&quot;world&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attr">values</span>: &#123;</span><br><span class="line">    <span class="attr">double_value</span>: <span class="number">1.23</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attr">values</span>: &#123;</span><br><span class="line">    <span class="attr">string_value</span>: <span class="string">&quot;again&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attr">values</span>: &#123;</span><br><span class="line">    <span class="attr">int_value</span>: <span class="number">2</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attr">extent</span>: <span class="number">4096</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意几何要素的实际坐标取决于坐标系和瓦片的范围。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/47/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/49/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

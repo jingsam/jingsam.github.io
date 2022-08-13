@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="使用pkg打包Node.js应用"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/03/02/pkg.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>使用pkg打包Node.js应用 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">使用pkg打包Node.js应用
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-03-02
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%A8%E6%B3%95"><span class="toc-text">用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>Node.js应用不需要经过编译过程，可以直接把源代码拷贝到部署机上执行，确实比C++、Java这类编译型应用部署方便。然而，Node.js应用执行需要有运行环境，意味着你需要先在部署机器上安装Node.js。虽说没有麻烦到哪里去，但毕竟多了一个步骤，特别是对于离线环境下的部署机，麻烦程度还要上升一级。假设你用Node.js写一些小的桌面级工具软件，部署到客户机上还要先安装Node.js，有点“大炮打蚊子”的感觉。更严重的是，如果部署机器上游多个Node.js应用，而且这些应用要依赖于不同的Node.js版本，那就更难部署了。</p>
+<p>理想的情况是将Node.js打包为一个单独的可执行文件，部署的时候直接拷贝过去就行了。除了部署方便外，因为不需要再拷贝源代码了，还有利于保护知识产权。</p>
+<p>将Node.js打包为可执行文件的工具有pkg、nexe、node-packer、enclose等，从打包速度、使用便捷程度、功能完整性来说，pkg是最优秀的。这篇文章就来讲一讲半年来我使用pkg打包Node.js应用的一些经验。</p>
+<p>pkg的打包原理简单来说，就是将js代码以及相关的资源文件打包到可执行文件中，然后劫持<code>fs</code>里面的一些函数，使它能够读到可执行文件中的代码和资源文件。例如，原来的<code>require(&#39;./a.js&#39;)</code>会被劫持到一个虚拟目录<code>require(&#39;/snapshot/a.js&#39;)</code>。</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>pkg既可以全局安装也可以局部安装，推荐采用局部安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install pkg --save-dev</span><br></pre></td></tr></table></figure>
+
+<h1 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h1><p>pkg使用比较简单，执行下<code>pkg -h</code>就可以基本了解用法，基本语法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pkg [options] &lt;input&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>&lt;input&gt;</code>可以通过三种方式指定：</p>
+<p>1.一个脚本文件，例如<code>pkg index.js</code>;<br>2.<code>package.json</code>，例如<code>pkg package.json</code>，这时会使用<code>package.json</code>中的<code>bin</code>字段作为入口文件；<br>3.一个目录，例如<code>pkg .</code>，这时会寻找指定目录下的<code>package.json</code>文件，然后在找<code>bin</code>字段作为入口文件。</p>
+<p><code>[options]</code>中可以指定打包的参数：<br>1.<code>-t</code>指定打包的目标平台和Node版本，如<code>-t node6-win-x64,node6-linux-x64,node6-macos-x64</code>可以同时打包3个平台的可执行程序；<br>2.<code>-o</code>指定输出可执行文件的名称，但如果用<code>-t</code>指定了多个目标，那么就要用<code>--out-path</code>指定输出的目录；<br>3.<code>-c</code>指定一个JSON配置文件，用来指定需要额外打包脚本和资源文件，通常使用<code>package.json</code>配置。</p>
+<p>使用pkg的最佳实践是：在<code>package.json</code>中的<code>pkg</code>字段中指定打包参数，使用<code>npm scripts</code>来执行打包过程，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  &quot;bin&quot;: &quot;./bin/www&quot;,</span><br><span class="line">  &quot;scripts&quot;: &#123;</span><br><span class="line">    &quot;pkg&quot;: &quot;pkg . --out-path=dist/&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;pkg&quot;: &#123;</span><br><span class="line">    &quot;scripts&quot;: [...]</span><br><span class="line">    &quot;assets&quot;: [...],</span><br><span class="line">    &quot;targets&quot;: [...]</span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>scripts</code>和<code>assets</code>用来配置未打包进可执行文件的脚本和资源文件，文件路径可以使用glob通配符。这里就浮现出一个问题：为什么有的脚本和资源文件打包不进去呢？</p>
+<p>要回答这个问题，就涉及到pkg打包文件的机制。按照pkg文档的说法，pkg只会自动地打包相对于<code>__dirname</code>、<code>__filename</code>的文件，例如<code>path.join(__dirname, &#39;../path/to/asset&#39;)</code>。至于<code>require()</code>，因为require本身就是相对于<code>__dirname</code>的，所以能够自动打包。假设文件中有以下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">require(&#x27;./build/&#x27; + cmd + &#x27;.js&#x27;)</span><br><span class="line">path.join(__dirname, &#x27;views/&#x27; + viewName)</span><br></pre></td></tr></table></figure>
+
+<p>这些路径都不是常量，pkg没办法帮你自动识别要打包哪个文件，所以文件就丢失了，所以这时候就使用<code>scripts</code>和<code>assets</code>来告诉pkg，这些文件要打包进去。那么我们怎么知道哪些文件没有被打包呢？难倒要一行行地去翻源代码吗？其实很简单，只需要把打包好的文件运行下，报错信息一般就会告诉你缺失哪些文件，并且pkg在打包过程中也会提示一些它不能自动打包的文件。</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>如果说pkg还有哪儿还可以改进的地方，那就是无法自动打包二进制模块<code>*.node</code>文件。如果你的项目中引用了二进制模块，如sqlite3，那么你需要手动地将<code>*.node</code>文件复制到可执行文件同一目录，我通常使用命令<code>cp node_modules/**/*.node .</code>一键完成。但是，如果你要跨平台打包，例如在windows上打包linux版本，相应的二进制模块也要换成linux版本，通常需要你手动的下载或者编译。</p>
+<p>那为什么pkg不能将二进制模块打包进去呢？我猜想是require载入一个js文件和node文件，它们的机制是不一样的。另外从设计来说，不自动打包二进制模块也是合理的，因为二进制模块都是平台相关的。如果我在windows上生成一个linux文件，那么就需要拉取linux版本的<code>.node</code>文件，这是比较困难的。并且有些二进制模块不提供预编译版本，需要安装的时候编译，pkg再牛也不可能模拟一个其他平台的编译环境吧。nexe可以自动打包二进制模块，但是只能打包当前平台和当前版本的可执行文件。这意味着如果Node.js应用引用了二进制包，那么这个应用就不能跨平台打包了，所以我认为这方面，nexe不能算是一个好的设计。</p>
+<p>还有一点就是关于项目中的配置文件处理，比如数据库连接参数、环境变量等。因为这些配置文件会跟着不同的部署环境进行更改，所以为了方便更改，一般不希望把配置文件打包到exe。为了避免pkg自动地将配置文件打包到exe中，代码中不要采用以下方式读取配置文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fs.readFile(path.join(__dirname, &#x27;./config.json&#x27;)), callback)</span><br></pre></td></tr></table></figure>
+
+<p>而是采用相对于<code>process.CWD()</code>的方法读取：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fs.readFile(path.join(process.CWD(), &#x27;./config.json&#x27;), callback)</span><br><span class="line"></span><br><span class="line">// 或者</span><br><span class="line">fs.readFile(&#x27;./config.json&#x27;, callback)</span><br></pre></td></tr></table></figure>
+
+<p>如果配置文件是js格式的，那么不要直接<code>require(&#39;./config&#39;)</code>，而是采用动态require：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const config = require(process.CWD() + &#x27;./config&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>另外要提及的是pkg打包之后动态载入js文件会有安全性问题，即用户可以在js文件写任何处理逻辑，注入到打包后的exe中。例如，可以读取exe里面的虚拟文件系统，把源代码导出来。所以，尽量不要采用JS作为配置文件，也不要动态载入js模块。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/03/02/pkg.html">https://jingsam.github.io/2018/03/02/pkg.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/03/06/webpack.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Library项目的Webpack配置</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/02/27/thinkpad.html">
+        <span class="next-text nav-default">《ThinkPad之道》书评</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

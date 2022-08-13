@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/31/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/11/17/bundle-vue-components.html">打包 Vue 组件库的正确姿势</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-11-18
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>为了方便其他开发者使用组件库，开发的 Vue 组件库在发布之前需要对其打包。本文基于 Webpack 讨论打包 Vue 组件库的正确方法。</p>
+<h2 id="选择正确的打包格式"><a href="#选择正确的打包格式" class="headerlink" title="选择正确的打包格式"></a>选择正确的打包格式</h2><p>首先，我们必须明确组件库的使用场景。有些场景是直接使用 <code>&lt;script&gt;</code> 在 HTML 中引入，有些场景是使用打包工具在后台构建。作为组件库，应该兼容这些使用场景。组件库应该保持中立，不应该限定于某种使用方式或者打包工具。例如，虽然 Webpack 很流行，组件库不能声明只支持 Webpack 方式使用，忽略了其他选择。原因在于，打包工具并不只有 webpack，还有 browserify、rollup 等。另外，前端工具发展很快，今年流行的工具明年可能就没人用了，你肯定不希望你的组件库会随着某个工具不流行而消逝吧。回顾下曾经流行的 grunt、glup，一大堆基于它们的插件随着工具本身的不流行而被扔进了垃圾箱。</p>
+<p>为了支持多种使用场景，我们需要选择合适的打包格式。常见的打包格式有 CMD、AMD、UMD，CMD只能在 Node 环境执行，AMD 只能在浏览器端执行，UMD 同时支持两种执行环境。显而易见，我们应该选择 UMD 格式。Webpack 中指定输出格式的设置项为 <code>output.libraryTarget</code>，其支持的格式有：</p>
+<ul>
+<li>“var” - 以一个变量形式输出： var Library = xxx (default)；</li>
+<li>“this” - 以 this 的一个属性输出： this[“Library”] = xxx；</li>
+<li>“commonjs” - 以 exports 的一个属性输出：exports[“Library”] = xxx；</li>
+<li>“commonjs2” - 以 module.exports 形式输出：module.exports = xxx；</li>
+<li>“amd” - 以 AMD 格式输出；</li>
+<li>“umd” - 同时以 AMD、CommonJS2 和全局属性形式输出。</li>
+</ul>
+<p>以下是 <code>webpack.config.js</code> 中 <code>output</code> 设置的示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">output</span>: &#123;</span><br><span class="line">    <span class="attr">path</span>: path.<span class="title function_">resolve</span>(__dirname, <span class="string">&#x27;../dist&#x27;</span>),</span><br><span class="line">    <span class="attr">publicPath</span>: <span class="string">&#x27;/dist/&#x27;</span>,</span><br><span class="line">    <span class="attr">filename</span>: <span class="string">&#x27;iview.js&#x27;</span>,</span><br><span class="line">    <span class="attr">library</span>: <span class="string">&#x27;iview&#x27;</span>,       <span class="comment">// 模块名称</span></span><br><span class="line">    <span class="attr">libraryTarget</span>: <span class="string">&#x27;umd&#x27;</span>,   <span class="comment">// 输出格式</span></span><br><span class="line">    <span class="attr">umdNamedDefine</span>: <span class="literal">true</span>    <span class="comment">// 是否将模块名称作为 AMD 输出的命名空间</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到此，我们解决了组件库输出的问题。</p>
+<h2 id="如何打包组件依赖"><a href="#如何打包组件依赖" class="headerlink" title="如何打包组件依赖"></a>如何打包组件依赖</h2><p>在<a href="/2016/11/01/peerDependencies-in-Vue-components.html">前一篇</a>文章中我们讨论了组件库实质上是 Vue 的插件，Vue 应该是组件库的外部依赖。组件库的使用者会自行导入 Vue，打包的时候，不应该将 Vue 打包进组件库。</p>
+<p>在 webpack 中，我们可以将 Vue 设置为 <code>externals</code>，以避免将 Vue 打包进组件库，相应的设置如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">externals</span>: &#123;</span><br><span class="line">    <span class="attr">vue</span>: <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>啊哈，我们搞定了组件依赖问题。至此，读者可能很皱起眉头开始埋怨我了：这么简单的问题，查下 webpack 文档不就得了，还用得着我啰里啰嗦地写这么多！</p>
+<p>事实上，问题往往没有我们想得那么简单！如果你将打包后的组件库以 <code>&lt;script&gt;</code> 标签形式直接引入，你会发现并不能正常执行，提示 vue 未定义。</p>
+<p>为了分析问题，我们将打包的代码前几行拿出来看看：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> <span class="title function_">webpackUniversalModuleDefinition</span>(<span class="params">root, factory</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="built_in">exports</span> === <span class="string">&#x27;object&#x27;</span> &amp;&amp; <span class="keyword">typeof</span> <span class="variable language_">module</span> === <span class="string">&#x27;object&#x27;</span>)</span><br><span class="line">        <span class="variable language_">module</span>.<span class="property">exports</span> = <span class="title function_">factory</span>(<span class="built_in">require</span>(<span class="string">&quot;vue&quot;</span>));</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> define === <span class="string">&#x27;function&#x27;</span> &amp;&amp; define.<span class="property">amd</span>)</span><br><span class="line">        <span class="title function_">define</span>(<span class="string">&quot;iview&quot;</span>, [<span class="string">&quot;vue&quot;</span>], factory);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> <span class="built_in">exports</span> === <span class="string">&#x27;object&#x27;</span>)</span><br><span class="line">        <span class="built_in">exports</span>[<span class="string">&quot;iview&quot;</span>] = <span class="title function_">factory</span>(<span class="built_in">require</span>(<span class="string">&quot;vue&quot;</span>));</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        root[<span class="string">&quot;iview&quot;</span>] = <span class="title function_">factory</span>(root[<span class="string">&quot;vue&quot;</span>]);</span><br><span class="line">&#125;)(<span class="variable language_">this</span>, <span class="keyword">function</span>(<span class="params">__WEBPACK_EXTERNAL_MODULE_157__</span>) &#123;</span><br><span class="line">    <span class="comment">// ....</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看见，打包后的代码以 4 种形式声明了 Vue 依赖：</p>
+<ol>
+<li><code>module.exports = factory(require(&quot;vue&quot;))</code> - commonjs2 形式；</li>
+<li><code>define(&quot;iview&quot;, [&quot;vue&quot;], factory)</code> - AMD 形式；</li>
+<li><code>exports[&quot;iview&quot;] = factory(require(&quot;vue&quot;))</code> - commonjs 形式；</li>
+<li><code>root[&quot;iview&quot;] = factory(root[&quot;vue&quot;])</code> - 全局变量形式。</li>
+</ol>
+<p>以 <code>&lt;script&gt;</code> 标签形式使用组件时，会同样使用 <code>&lt;script&gt;</code> 标签导入 Vue。Vue 导入的变量是 “window.Vue” 而不是 “window.vue”，因此会出现 vue 未定义的错误。</p>
+<p>幸好，webpack 可以为各种导入形式设置不同名称，设置如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">externals</span>: &#123;</span><br><span class="line">    <span class="attr">vue</span>: &#123;</span><br><span class="line">        <span class="attr">root</span>: <span class="string">&#x27;Vue&#x27;</span>,</span><br><span class="line">        <span class="attr">commonjs</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">        <span class="attr">commonjs2</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">        <span class="attr">amd</span>: <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再次打包，你可以发现打包的组件库不管是 <code>&lt;script&gt;</code> 标签方式还是后端构建，都可以正常工作了。</p>
+<p>最后，帖一个打包 iView 组件库的 webpack 配置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> webpack = <span class="built_in">require</span>(<span class="string">&#x27;webpack&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">    <span class="attr">entry</span>: &#123;</span><br><span class="line">        <span class="attr">main</span>: <span class="string">&#x27;./src/index.js&#x27;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">output</span>: &#123;</span><br><span class="line">        <span class="attr">path</span>: path.<span class="title function_">resolve</span>(__dirname, <span class="string">&#x27;../dist&#x27;</span>),</span><br><span class="line">        <span class="attr">publicPath</span>: <span class="string">&#x27;/dist/&#x27;</span>,</span><br><span class="line">        <span class="attr">filename</span>: <span class="string">&#x27;iview.js&#x27;</span>,</span><br><span class="line">        <span class="attr">library</span>: <span class="string">&#x27;iview&#x27;</span>,</span><br><span class="line">        <span class="attr">libraryTarget</span>: <span class="string">&#x27;umd&#x27;</span>,</span><br><span class="line">        <span class="attr">umdNamedDefine</span>: <span class="literal">true</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">externals</span>: &#123;</span><br><span class="line">        <span class="attr">vue</span>: &#123;</span><br><span class="line">            <span class="attr">root</span>: <span class="string">&#x27;Vue&#x27;</span>,</span><br><span class="line">            <span class="attr">commonjs</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">            <span class="attr">commonjs2</span>: <span class="string">&#x27;vue&#x27;</span>,</span><br><span class="line">            <span class="attr">amd</span>: <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">resolve</span>: &#123;</span><br><span class="line">        <span class="attr">extensions</span>: [<span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;.js&#x27;</span>, <span class="string">&#x27;.vue&#x27;</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">module</span>: &#123;</span><br><span class="line">        <span class="attr">loaders</span>: [&#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.vue$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;vue&#x27;</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.js$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;babel&#x27;</span>,</span><br><span class="line">            <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.css$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;style!css!autoprefixer&#x27;</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.less$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;style!css!less&#x27;</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;url?limit=8192&#x27;</span></span><br><span class="line">        &#125;, &#123;</span><br><span class="line">            <span class="attr">test</span>: <span class="regexp">/\.(html|tpl)$/</span>,</span><br><span class="line">            <span class="attr">loader</span>: <span class="string">&#x27;vue-html&#x27;</span></span><br><span class="line">        &#125;]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">plugins</span>: [</span><br><span class="line">        <span class="keyword">new</span> webpack.<span class="title class_">DefinePlugin</span>(&#123;</span><br><span class="line">            <span class="string">&#x27;process.env&#x27;</span>: &#123;</span><br><span class="line">                <span class="attr">NODE_ENV</span>: <span class="string">&#x27;&quot;development&quot;&#x27;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/30/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/32/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

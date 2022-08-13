@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Git内部原理之Git对象哈希"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/06/09/git-hash.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Git内部原理之Git对象哈希 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Git内部原理之Git对象哈希
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-06-10
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Git%E5%AF%B9%E8%B1%A1%E7%9A%84hash%E6%96%B9%E6%B3%95"><span class="toc-text">Git对象的hash方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%AF%B9%E8%B1%A1"><span class="toc-text">数据对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%91%E5%AF%B9%E8%B1%A1"><span class="toc-text">树对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4%E5%AF%B9%E8%B1%A1"><span class="toc-text">提交对象</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>在上一篇<a href="https://jingsam.github.io/2018/06/03/git-objects.html">文章</a>中，将了数据对象、树对象和提交对象三种Git对象，每种对象会计算出一个hash值。那么，Git是如何计算出Git对象的hash值？本文的内容就是来解答这个问题。</p>
+<h1 id="Git对象的hash方法"><a href="#Git对象的hash方法" class="headerlink" title="Git对象的hash方法"></a>Git对象的hash方法</h1><p>Git中的数据对象、树对象和提交对象的hash方法原理是一样的，可以描述为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">header = &quot;&lt;type&gt; &quot; + content.length + &quot;\0&quot;</span><br><span class="line">hash = sha1(header + content)</span><br></pre></td></tr></table></figure>
+
+<p>上面公式表示，Git在计算对象hash时，首先会在对象头部添加一个<code>header</code>。这个<code>header</code>由3部分组成：第一部分表示对象的类型，可以取值<code>blob</code>、<code>tree</code>、<code>commit</code>以分别表示数据对象、树对象、提交对象；第二部分是数据的字节长度；第三部分是一个空字节，用来将<code>header</code>和<code>content</code>分隔开。将<code>header</code>添加到<code>content</code>头部之后，使用<code>sha1</code>算法计算出一个40位的hash值。</p>
+<p>在手动计算Git对象的hash时，有两点需要注意：<br>1.<strong><code>header</code>中第二部分关于数据长度的计算，一定是字节的长度而不是字符串的长度</strong>；<br>2.<strong><code>header + content</code>的操作并不是字符串级别的拼接，而是二进制级别的拼接</strong>。</p>
+<p>各种Git对象的hash方法相同，不同的在于：<br>1.头部类型不同，数据对象是<code>blob</code>，树对象是<code>tree</code>，提交对象是<code>commit</code>；<br>2.数据内容不同，数据对象的内容可以是任意内容，而树对象和提交对象的内容有固定的格式。</p>
+<p>接下来分别讲数据对象、树对象和提交对象的具体的hash方法。</p>
+<h2 id="数据对象"><a href="#数据对象" class="headerlink" title="数据对象"></a>数据对象</h2><p>数据对象的格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">blob &lt;content length&gt;&lt;NULL&gt;&lt;content&gt;</span><br></pre></td></tr></table></figure>
+
+<p>从上一篇<a href="https://jingsam.github.io/2018/06/03/git-objects.html">文章</a>中我们知道，使用<code>git hash-object</code>可以计算出一个40位的hash值，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;what is up, doc?&quot; | git hash-object --stdin</span><br><span class="line">bd9dbf5aae1a3862dd1526723246b20206e5fc37</span><br></pre></td></tr></table></figure>
+
+<p>注意，上面在<code>echo</code>后面使用了<code>-n</code>选项，用来阻止自动在字符串末尾添加换行符，否则会导致实际传给<code>git hash-object</code>是<code>what is up, doc?\n</code>，而不是我们直观认为的<code>what is up, doc?</code>。</p>
+<p>为验证前面提到的Git对象hash方法，我们使用<code>openssl sha1</code>来手动计算<code>what is up, doc?</code>的hash值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;blob 16\0what is up, doc?&quot; | openssl sha1</span><br><span class="line">bd9dbf5aae1a3862dd1526723246b20206e5fc37</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，手动计算出的hash值与<code>git hash-object</code>计算出来的一模一样。</p>
+<p>在Git对象hash方法的注意事项中，提到**<code>header</code>中第二部分关于数据长度的计算，一定是字节的长度而不是字符串的长度**。由于<code>what is up, doc?</code>只有英文字符，在UTF8中恰好字符的长度和字节的长度都等于16，很容易将这个长度误解为字符的长度。假设我们以<code>中文</code>来试验：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;中文&quot; | git hash-object --stdin</span><br><span class="line">efbb13322ba66f682e179ebff5eeb1bd6ef83972</span><br><span class="line">$ echo -n &quot;blob 2\0中文&quot; | openssl sha1</span><br><span class="line">d1dc2c3eed26b05289bddb857713b60b8c23ed29</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到，<code>git hash-object</code>和<code>openssl sha1</code>计算出来的hash值根本不一样。这是因为<code>中文</code>两个字符作为UTF格式存储后的字符长度不是2，具体是多少呢？可以使用<code>wc</code>来计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;中文&quot; | wc -c</span><br><span class="line">       6</span><br></pre></td></tr></table></figure>
+
+<p><code>中文</code>字符串的字节长度是6，重新手动计算发现得出的hash值就能对应上了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;blob 6\0中文&quot; | openssl sha1</span><br><span class="line">efbb13322ba66f682e179ebff5eeb1bd6ef83972</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="树对象"><a href="#树对象" class="headerlink" title="树对象"></a>树对象</h2><p>树对象的内容格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tree &lt;content length&gt;&lt;NUL&gt;&lt;file mode&gt; &lt;filename&gt;&lt;NUL&gt;&lt;item sha&gt;...</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，<code>&lt;item sha&gt;</code>部分是二进制形式的sha1码，而不是十六进制形式的sha1码。</p>
+<p>我们从上一篇<a href="https://jingsam.github.io/2018/06/03/git-objects.html">文章</a>摘出一个树对象做实验，其内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">100644 blob 83baae61804e65cc73a7201a7252750c76066a30  test.txt</span><br></pre></td></tr></table></figure>
+
+<p>我们首先使用<code>xxd</code>把<code>83baae61804e65cc73a7201a7252750c76066a30</code>转换成为二进制形式，并将结果保存为<code>sha1.txt</code>以方便后面做追加操作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;83baae61804e65cc73a7201a7252750c76066a30&quot; | xxd -r -p &gt; sha1.txt</span><br><span class="line">$ cat tree-items.txt</span><br><span class="line">���a�Ne�s� rRu</span><br><span class="line">              vj0%</span><br></pre></td></tr></table></figure>
+
+<p>接下来构造content部分，并保存至文件<code>content.txt</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;100644 test.txt\0&quot; | cat - sha1.txt &gt; content.txt</span><br><span class="line">$ cat content.txt</span><br><span class="line">100644 test.txt���a�Ne�s� rRu</span><br><span class="line">                             vj0%</span><br></pre></td></tr></table></figure>
+
+<p>计算content的长度：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat content.txt | wc -c</span><br><span class="line">      36</span><br></pre></td></tr></table></figure>
+
+<p>那么最终该树对象的内容为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;tree 36\0&quot; | cat - content.txt</span><br><span class="line">tree 36100644 test.txt���a�Ne�s� rRu</span><br><span class="line">                                    vj0%</span><br></pre></td></tr></table></figure>
+
+<p>最后使用<code>openssl sha1</code>计算hash值，可以发现和实验的hash值是一样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;tree 36\0&quot; | cat - content.txt | openssl sha1</span><br><span class="line">d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="提交对象"><a href="#提交对象" class="headerlink" title="提交对象"></a>提交对象</h2><p>提交对象的格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">commit &lt;content length&gt;&lt;NUL&gt;tree &lt;tree sha&gt;</span><br><span class="line">parent &lt;parent sha&gt;</span><br><span class="line">[parent &lt;parent sha&gt; if several parents from merges]</span><br><span class="line">author &lt;author name&gt; &lt;author e-mail&gt; &lt;timestamp&gt; &lt;timezone&gt;</span><br><span class="line">committer &lt;author name&gt; &lt;author e-mail&gt; &lt;timestamp&gt; &lt;timezone&gt;</span><br><span class="line"></span><br><span class="line">&lt;commit message&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们从上一篇<a href="https://jingsam.github.io/2018/06/03/git-objects.html">文章</a>摘出一个提交对象做实验，其内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;first commit&#x27; | git commit-tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">$ git cat-file -p db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line"></span><br><span class="line">first commit</span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意的是，由于<code>echo &#39;first commit&#39;</code>没有添加<code>-n</code>选项，因此实际的提交信息是<code>first commit\n</code>。使用<code>wc</code>计算出提交内容的字节数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line"></span><br><span class="line">first commit\n&quot; | wc -c</span><br><span class="line">     163</span><br></pre></td></tr></table></figure>
+
+<p>那么，这个提交对象的<code>header</code>就是<code>commit 163\0</code>，手动把头部添加到提交内容中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit 163\0tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line"></span><br><span class="line">first commit\n</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>openssl sha1</code>计算这个上面内容的hash值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ echo -n &quot;commit 163\0tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line"></span><br><span class="line">first commit\n&quot; | openssl sha1</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a</span><br></pre></td></tr></table></figure>
+
+<p>可以看见，与实验的hash值是一样的。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这篇文章详细地分析了Git中的数据对象、树对象和提交对象的hash方法，可以发现原理是非常简单的。数据对象和提交对象打印出来的内容与存储内容组织是一模一样的，可以很直观的理解。对于树对象，其打印出来的内容和实际存储是有区别的，增加了一些实现上的难度。例如，使用二进制形式的hash值而不是直观的十六进制形式，我现在还没有从已有资料中搜到这么设计的理由，这个问题留待以后解决。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/06/09/git-hash.html">https://jingsam.github.io/2018/06/09/git-hash.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/06/15/git-storage.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Git内部原理之Git对象存储</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/06/03/git-objects.html">
+        <span class="next-text nav-default">Git内部原理之Git对象</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

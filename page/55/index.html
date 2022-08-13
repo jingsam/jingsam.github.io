@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/55/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2015/12/30/arcpy-polygon.html">arcpy.Polygon 数据结构</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2015-12-31
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><code>arcpy.Polygon</code> 是描述多边形的几何类，并不像 ArcEngine 中区分 polygon 和 multipolygon，而是采用同一套数据结构描述两类多边形。</p>
+<p>在 arcpy 中，一个多边形（polygon）可能包含多个部件（part），而每个部件除了必须包含一个外环（exterior ring），还可能包含几个内环（interior ring），每个环由多个封合的坐标点（point）构成。polygon的层次结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">polygon</span><br><span class="line">├── part0</span><br><span class="line">│   ├── ring0</span><br><span class="line">│   │    ├── point0</span><br><span class="line">│   │    ├── point1</span><br><span class="line">│   │    ├── point2</span><br><span class="line">│   │    ├── ...</span><br><span class="line">│   ├── ring1</span><br><span class="line">│   ├── ring2</span><br><span class="line">│   └── ...</span><br><span class="line">├── part1</span><br><span class="line">├── part2</span><br><span class="line">├── ...</span><br></pre></td></tr></table></figure>
+
+<p>如下图是一个 multipolygon，它包含 3 个部件，其中第一个部件包含一个外环（ring0）和一个内环（ring1）。</p>
+<img src="/2015/12/30/arcpy-polygon/polygon.png" class="">
+
+<p>在 arcpy 中，每个 polygon 是由多个 part 构成的列表表示，每个 part 直接由一系列坐标串表示。在这里我们可以发现，没有表示 ring 的数据结构。其实 arcpy 会环与环之间添加一个 None 坐标点，在遍历坐标串的过程中，通过 None 结点来判断环的结束。如下如图是包含一个内环的 polygon：</p>
+<img src="/2015/12/30/arcpy-polygon/ring.png" class="">
+
+<p>如果打印这个polygon，我们将会看到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[(1, 2), (3, 4), (5, 6), (7, 8), None, (8, 9), (6, 7), (5, 4), (3, 2)]]</span><br></pre></td></tr></table></figure>
+
+<p>我们同时可以发现对于外环，坐标串是按照顺时针排列的；对于内环，按逆时针排列。当我们用梯形求和的方法计算多边形的面积时，采用这种顺序会使得外环的面积为正，内环为负，这样我们就可以直接对环的面积求和，而不用判断是外环还是内环。</p>
+<p>当我们打印坐标点（point）的时候，并不会看到是两个坐标的元组，而是 4 个：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Point (<span class="number">1</span>, <span class="number">2</span>, <span class="comment">#, #)</span></span><br></pre></td></tr></table></figure>
+<p>实际上，每个 point 包含 （X, Y, Z, M）4 个属性, 在大地坐标系的情况下，其中 X 表示经度，Y 表示纬度，Z 表示高程，M 表示里程。</p>
+<p>最后，附上一段求一个多边形的所有的环的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_rings</span>(<span class="params">polygon</span>):</span><br><span class="line">    rings = []</span><br><span class="line">    <span class="keyword">for</span> part <span class="keyword">in</span> polygon:</span><br><span class="line">        ring = []</span><br><span class="line">        <span class="keyword">for</span> point <span class="keyword">in</span> part:</span><br><span class="line">            <span class="keyword">if</span> point:</span><br><span class="line">                ring.append([point.X, point.Y])</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                rings.append(ring)</span><br><span class="line">                ring = []</span><br><span class="line">        <span class="keyword">if</span> ring:</span><br><span class="line">            rings.append(ring)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> rings</span><br></pre></td></tr></table></figure>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/54/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/56/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="利用travis-ci持续部署nodejs应用"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2017/01/23/deploy-nodejs-with-travis-ci.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>利用travis-ci持续部署nodejs应用 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">利用travis-ci持续部署nodejs应用
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-01-23
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-text">基本原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-text">配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>Travis-ci是一款持续集成（Continuous Integration）服务，它能够很好地与Github结合，每当代码更新时自动地触发集成过程。</p>
+<p>Travis-ci配置简单，很多nodejs项目都用它做自动测试。然而，对于持续集成，仅做到自动测试是不够的，还要有后续的自动部署，才能完成“提交代码 =&gt; 自动测试 =&gt; 自动部署”的集成链条。</p>
+<p>本文以nodejs应用为例，来谈谈如何利用travis-ci完成自动部署。</p>
+<h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>从自动测试到自动部署的核心问题是测试机与生产服务器的信任问题，即如何安全地把程序包传输到生产服务器。市面上的部署工具如scp、ansible、chef，都绕不开这个核心问题。</p>
+<p>以scp为例，测试机登录生产服务器的方式有两种：密码和秘钥。密码登录方式需要交互式地输入密码，总不能每次测试的时候，人为地输入密码吧，所以密码方式行不通。</p>
+<p>秘钥的方式可以实现自动登录，但首次将测试机的公钥传输给生产服务器仍然需要密码。似乎走入了死胡同，但办法总是有的。我们知道开发机是可以登录到生产服务器的，那么我们就可以<strong>将开发机的公钥复制到生产服务器，将开发机的私钥复制到测试机，测试机通过私钥来伪装成开发机，自动地登录到生产服务器</strong>。</p>
+<p>解决了自动登录的问题，另一个问题是怎么将开发机的私钥复制到测试机上。由于测试机每次都是新开的一个虚拟机，这个新开的虚拟机IP不固定，所以没办法直接登录上去。解决办法是将私钥文件作为代码库的一部分提交，这样测试机每次从代码库上拉取代码的同时也获取到了秘钥文件，通过这种方式就实现了私钥从开发机复制到测试机。</p>
+<p>将私钥文件提交到代码库有一个很严重的安全性问题，即任何人只要得到了这个私钥文件，他就可以随心所欲的操纵生产服务器。幸好，travis-ci提供了加密方案，它能够将私钥文件加密，加密后的文件只在当前代码库有效。</p>
+<p>总的来说，通过复制私钥完成自动登录以及对私钥加密来保障安全性，我们就可以建立起测试机与生产服务器的信任通道，测试机就可以安全地操作生产服务器完成自动部署。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>现在我以scp方式部署nodejs应用为例，来说明travis-ci做自动部署的配置。</p>
+<p>首先，建立起开发机与生产服务器的信任关系：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id username@host</span><br></pre></td></tr></table></figure>
+
+<p>然后，加密你的私钥，私钥文件通常在<code>~/.ssh/id_rsa</code>。加密私钥文件需要使用travis这个命令行工具，它是一个ruby包，使用gem安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gem install travis</span><br><span class="line">travis login</span><br></pre></td></tr></table></figure>
+
+<p>输入账号密码登录成功后，使用<code>travis encrypt-file</code>加密：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">travis encrypt-file ~/.ssh/id_rsa --add</span><br></pre></td></tr></table></figure>
+
+<p>上面命令执行完后，会生成一段解密命令并添加到<code>.travis.yml</code>中：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">before_install:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">openssl</span> <span class="string">aes-256-cbc</span> <span class="string">-K</span> <span class="string">$encrypted_830d3b21a25d_key</span> <span class="string">-iv</span> <span class="string">$encrypted_830d3b21a25d_iv</span></span><br><span class="line">    <span class="string">-in</span> <span class="string">~/.ssh/id_rsa.enc</span> <span class="string">-out</span> <span class="string">~/.ssh/id_rsa</span> <span class="string">-d</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来，把加密后的私钥文件（id_rsa.enc）复制到代码库中，千万要注意不要错把未加密的私钥文件（id_rsa）复制到你的代码库中。然后把上面的解密命令的<code>-in ~/.ssh/id_rsa.enc</code>改为<code>-in id_rsa.enc</code>。</p>
+<p>通过上面的过程就基本建立测试机与生产服务器的信任关系，但还有一些小细节要处理。例如，降低<code>id_rsa</code>文件的权限，否则ssh处于安全方面的原因会拒绝读取秘钥；将生产服务器地址加入到测试机的信任列表中，否则连接时会询问是否信任服务器。更改后的配置如下:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">before_install:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">openssl</span> <span class="string">aes-256-cbc</span> <span class="string">-K</span> <span class="string">$encrypted_830d3b21a25d_key</span> <span class="string">-iv</span> <span class="string">$encrypted_830d3b21a25d_iv</span></span><br><span class="line">    <span class="string">-in</span> <span class="string">id_rsa.enc</span> <span class="string">-out</span> <span class="string">~/.ssh/id_rsa</span> <span class="string">-d</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">chmod</span> <span class="number">600</span> <span class="string">~/.ssh/id_rsa</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">echo</span> <span class="string">-e</span> <span class="string">&quot;Host 102.201.64.94\n\tStrictHostKeyChecking no\n&quot;</span> <span class="string">&gt;&gt;</span> <span class="string">~/.ssh/config</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，测试机就可以愉快地操作生产服务器了，例如下面是一个nodejs应用的<code>.travis.yml</code>文件配置：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">language:</span> <span class="string">node_js</span></span><br><span class="line"><span class="attr">node_js:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">&#x27;4.4.4&#x27;</span></span><br><span class="line"><span class="attr">before_install:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">openssl</span> <span class="string">aes-256-cbc</span> <span class="string">-K</span> <span class="string">$encrypted_830d3b21a25d_key</span> <span class="string">-iv</span> <span class="string">$encrypted_830d3b21a25d_iv</span></span><br><span class="line">    <span class="string">-in</span> <span class="string">id_rsa.enc</span> <span class="string">-out</span> <span class="string">~/.ssh/id_rsa</span> <span class="string">-d</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">chmod</span> <span class="number">600</span> <span class="string">~/.ssh/id_rsa</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">echo</span> <span class="string">-e</span> <span class="string">&quot;Host 102.201.64.94\n\tStrictHostKeyChecking no\n&quot;</span> <span class="string">&gt;&gt;</span> <span class="string">~/.ssh/config</span></span><br><span class="line"><span class="attr">script:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">run</span> <span class="string">test</span></span><br><span class="line"><span class="attr">after_success:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">npm</span> <span class="string">prune</span> <span class="string">--production</span>  <span class="comment"># 删除devDependencies</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">tar</span> <span class="string">-jcf</span> <span class="string">indoor-server.tar.bz2</span> <span class="string">*</span>    <span class="comment"># 打包并压缩代码</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">scp</span> <span class="string">indoor-server.tar.bz2</span> <span class="string">jingsam@102.201.64.94:~/</span>  <span class="comment"># 复制到生产服务器上</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ssh</span> <span class="string">jingsam@102.201.64.94</span> <span class="string">&#x27;mkdir -p indoor-server &amp;&amp; tar -jxf indoor-server.tar.bz2 -C indoor-server&#x27;</span>   <span class="comment"># 解压</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">ssh</span> <span class="string">jingsam@102.201.64.94</span> <span class="string">&#x27;cd indoor-server &amp;&amp; pm2 startOrReload pm2.json&#x27;</span>  <span class="comment"># 重启pm2</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章讲的自动部署其实与nodejs关系不大，完全适用于各种语言的自动部署，其原理都是相通的。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2017/01/23/deploy-nodejs-with-travis-ci.html">https://jingsam.github.io/2017/01/23/deploy-nodejs-with-travis-ci.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2017/02/07/nodejs-on-android.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">手机上也可以愉快地搞nodejs开发</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2017/01/12/node-pre-gyp-mirror.html">
+        <span class="next-text nav-default">使用node-pre-gyp加速二进制包安装</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

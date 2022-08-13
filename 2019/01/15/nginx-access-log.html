@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="简单搞定Nginx日志分割"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2019/01/15/nginx-access-log.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>简单搞定Nginx日志分割 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">简单搞定Nginx日志分割
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-01-15
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>nginx日志分割是很常见的运维工作，关于这方面的文章也很多，通常无外乎两种做法：一是采用cron定期执行shell脚本对日志文件进行归档；二是使用专门日志归档工作logrotate。</p>
+<p>第一种写shell脚本的方法用得不多，毕竟太原始。相比之下，使用logrotate则要省心得多，配置logrotate很简单。关于如何配置logrotate不是本文要讲的内容，感兴趣的话可以自行搜索。</p>
+<p>虽然大多数Linux发行版都自带了logrotate，但在有些情况下不见得安装了logrotate，比如nginx的docker镜像、较老版本的Linux发行版。虽然我们可以使用包管理器安装logrotate，但前提是服务器能够访问互联网，企业内部的服务器可不一定能够联网。</p>
+<p>其实我们有更简单的方法，从nginx 0.7.6版本开始<code>access_log</code>的路径配置可以包含变量，我们可以利用这个特性来实现日志分割。例如，我们想按天来分割日志，那么我们可以这样配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">access_log logs/access-$logdate.log main;</span><br></pre></td></tr></table></figure>
+
+<p>那么接下来的问题是我们怎么提取出<code>$logdate</code>这个变量？网上有建议使用下面的方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if ($time_iso8601 ~ &quot;^(\d&#123;4&#125;)-(\d&#123;2&#125;)-(\d&#123;2&#125;)&quot;) &#123;</span><br><span class="line">  set $year $1;</span><br><span class="line">  set $month $2;</span><br><span class="line">  set $day $3;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">access_log logs/access-$year-$month-$day.log main;</span><br></pre></td></tr></table></figure>
+
+<p>上面的方法有两个问题：一是如果<code>if</code>条件不成立，那么<code>$year</code>、<code>$month</code>和<code>$month</code>这三个变量将不会被设置，那么日志将会记录到<code>access-$year-$month-$day.log</code>这个文件中；二是<code>if</code>只能出现在<code>server</code>和<code>location</code>块中，而<code>access_log</code>通常会配置到顶层的<code>http</code>块中，这时候<code>if</code>就不适用。</p>
+<p>如果要在<code>http</code>块中设置<code>access_log</code>，更好的方法是使用<code>map</code>指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map $time_iso8601 $logdate &#123;</span><br><span class="line">  &#x27;~^(?&lt;ymd&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;)&#x27; $ymd;</span><br><span class="line">  default                       &#x27;date-not-found&#x27;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">access_log logs/access-$logdate.log main;</span><br></pre></td></tr></table></figure>
+
+<p><code>map</code>指令通过设置默认值，保证<code>$logdate</code>始终有值，并且可以出现在<code>http</code>块中，完美地解决了<code>if</code>指令的问题。</p>
+<p>最后，为了提高日志的效率，建议配置<code>open_log_file_cache</code>，完整的日志分割配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span><br><span class="line">                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span><br><span class="line">                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span><br><span class="line"></span><br><span class="line">map $time_iso8601 $logdate &#123;</span><br><span class="line">  &#x27;~^(?&lt;ymd&gt;\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;)&#x27; $ymd;</span><br><span class="line">  default                       &#x27;date-not-found&#x27;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">access_log logs/access-$logdate.log main;</span><br><span class="line">open_log_file_cache max=10;</span><br></pre></td></tr></table></figure>
+
+<p>本文完。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2019/01/15/nginx-access-log.html">https://jingsam.github.io/2019/01/15/nginx-access-log.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2019/06/14/deploy-with-autossh.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">利用ssh反向穿透实现内网服务器自动部署</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/11/24/npm-package-offline-install.html">
+        <span class="next-text nav-default">离线安装npm包的几种方法</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

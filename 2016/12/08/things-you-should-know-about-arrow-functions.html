@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="少年，不要滥用箭头函数啊"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/12/08/things-you-should-know-about-arrow-functions.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>少年，不要滥用箭头函数啊 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">少年，不要滥用箭头函数啊
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-12-08
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">箭头函数是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E6%B2%A1%E6%9C%89this"><span class="toc-text">箭头函数没有this</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E8%AF%A5%E4%BD%BF%E7%94%A8%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0"><span class="toc-text">什么情况下该使用箭头函数</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>在ES6大行其道的今天，不应用点ES6特性似乎有些政治不正确。最近刚好有个Node的项目，最低要支持到nodejs 4.0，在<a href="1">node.green</a>看了下ES6的支持度，我想使用的特性基本都有支持，遂决定在新项目中采用ES6来写。</p>
+<p>当然第一件事情就是毫不留情地消灭var，项目中能用const的地方不用let，能用let的地方不用var。</p>
+<p>第二件事情就是使用劳动人民喜闻乐见的箭头函数替代function。当我心满意足地看到满屏的<code>=&gt;</code>时，现实给了我一记响亮的耳光——改过之后的程序错误百出！</p>
+<p>所以，当我们使用箭头函数时，一定要搞清楚箭头函数是什么回事，适用于什么场景。本文就针对以上问题来讨论下箭头函数。</p>
+<h2 id="箭头函数是什么？"><a href="#箭头函数是什么？" class="headerlink" title="箭头函数是什么？"></a>箭头函数是什么？</h2><p>箭头函数的语法我就不讲了，相信大家都见识过。跟我一样，大家喜欢箭头函数90%的原因是它好看。除了好看，它是不是与function等价呢？肯定不等价，因为TC39不可能仅因为好看而引入一个语法糖（class除外）。</p>
+<p>箭头函数的渊源可以追溯到上古时期一个叫lambda演算的东西。lambda演算是数学家提出来的，有些数学家跟我们程序员一样也很懒，数学定理那么多，今天要证三角定律，明天要证勾股定律，累不累！那能不能将所有的证明问题用一个统一的体系进行形式化描述，然后由机器来完成自动推导呢？lambda演算就是干这个的，图灵也搞了一套体系叫图灵机，两者是等价的。</p>
+<p>关于lambda演算说了这么多，好像跟今天要讲的箭头函数没什么关系？其实是有关系的，lambda演算深刻影响了箭头函数的设计。数学家们喜欢用纯函数式编程语言，纯函数的特点是没有副作用，给予特定的输入，总是产生确定的输出，甚至有些情况下通过输出能够反推输入。要实现纯函数，必须使函数的执行过程不依赖于任何外部状态，整个函数就像一个数学公式，给定一套输入参数，不管是在地球上还是火星上执行都是同一个结果。</p>
+<p>箭头函数要实现类似纯函数的效果，必须剔除外部状态。所以当你定义一个箭头函数，在普通函数里常见的<code>this</code>、<code>arguments</code>、<code>caller</code>是统统没有的。</p>
+<h2 id="箭头函数没有this"><a href="#箭头函数没有this" class="headerlink" title="箭头函数没有this"></a>箭头函数没有<code>this</code></h2><p>箭头函数没有<code>this</code>，那下面的代码明显可以取到<code>this</code>啊：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">a</span> = <span class="number">1</span></span><br><span class="line">  <span class="keyword">let</span> <span class="title function_">b</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">a</span>)</span><br><span class="line"></span><br><span class="line">  <span class="title function_">b</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">foo</span>()  <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>以上箭头函数中的<code>this</code>其实是父级作用域中的<code>this</code>，即函数<code>foo</code>的<code>this</code>。箭头函数引用了父级的变量，构成了一个闭包。以上代码等价于：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">a</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> self = <span class="variable language_">this</span></span><br><span class="line">  <span class="keyword">let</span> <span class="title function_">b</span> = (<span class="params"></span>) =&gt; <span class="variable language_">console</span>.<span class="title function_">log</span>(self.<span class="property">a</span>)</span><br><span class="line"></span><br><span class="line">  <span class="title function_">b</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">foo</span>()  <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>箭头函数不仅没有<code>this</code>，常用的<code>arguments</code>也没有。如果你能获取到<code>arguments</code>，那它一定是来自父作用域的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">arguments</span>[<span class="number">0</span>])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">foo</span>(<span class="number">1</span>, <span class="number">2</span>)(<span class="number">3</span>, <span class="number">4</span>)  <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>上例中如果箭头函数有<code>arguments</code>，就应该输出的是3而不是1。</p>
+<p>一个经常犯的错误是使用箭头函数定义对象的方法，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">bar</span>: <span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">foo</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">a.<span class="title function_">bar</span>()  <span class="comment">//undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>以上代码中，箭头函数中的<code>this</code>并不是指向<code>a</code>这个对象。对象<code>a</code>并不能构成一个作用域，所以再往上到达全局作用域，<code>this</code>就指向全局作用域。如果我们使用普通函数的定义方法，输出结果就符合预期，这是因为<code>a.bar()</code>函数执行时作用域绑定到了<code>a</code>对象。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = &#123;</span><br><span class="line">  <span class="attr">foo</span>: <span class="number">1</span>,</span><br><span class="line">  <span class="attr">bar</span>: <span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">foo</span>) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">a.<span class="title function_">bar</span>()  <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+
+<p>另一个错误是在原型上使用箭头函数，如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">A</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">foo</span> = <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">A.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">bar</span> = <span class="function">() =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">foo</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> a = <span class="keyword">new</span> <span class="title function_">A</span>()</span><br><span class="line">a.<span class="title function_">bar</span>()  <span class="comment">//undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>同样，箭头函数中的<code>this</code>不是指向<code>A</code>，而是根据变量查找规则回溯到了全局作用域。同样，使用普通函数就不存在问题。</p>
+<p>通过以上说明，我们可以看出，箭头函数除了传入的参数之外，真的是什么都没有！如果你在箭头函数引用了<code>this</code>、<code>arguments</code>或者参数之外的变量，那它们一定不是箭头函数本身包含的，而是从父级作用域继承的。</p>
+<h2 id="什么情况下该使用箭头函数"><a href="#什么情况下该使用箭头函数" class="headerlink" title="什么情况下该使用箭头函数"></a>什么情况下该使用箭头函数</h2><p>到这里，我们可以发现箭头函数并不是万金油，稍不留神就会踩坑。</p>
+<p>至于什么情况该使用箭头函数，《You Don’t Know About JS》给出了一个决策图：</p>
+<img src="/2016/12/08/things-you-should-know-about-arrow-functions/arrow-function.png" class="">
+
+<p>以上决策图看起来有点复杂，我认为有三点比较重要：</p>
+<ol>
+<li>箭头函数适合于无复杂逻辑或者无副作用的纯函数场景下，例如用在<code>map</code>、<code>reduce</code>、<code>filter</code>的回调函数定义中；</li>
+<li>不要在最外层定义箭头函数，因为在函数内部操作<code>this</code>会很容易污染全局作用域。最起码在箭头函数外部包一层普通函数，将<code>this</code>控制在可见的范围内；</li>
+<li>如开头所述，箭头函数最吸引人的地方是简洁。在有多层函数嵌套的情况下，箭头函数的简洁性并没有很大的提升，反而影响了函数的作用范围的识别度，这种情况不建议使用箭头函数。</li>
+</ol>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/12/08/things-you-should-know-about-arrow-functions.html">https://jingsam.github.io/2016/12/08/things-you-should-know-about-arrow-functions.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2017/01/12/node-pre-gyp-mirror.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">使用node-pre-gyp加速二进制包安装</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2016/11/17/bundle-vue-components.html">
+        <span class="next-text nav-default">打包 Vue 组件库的正确姿势</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

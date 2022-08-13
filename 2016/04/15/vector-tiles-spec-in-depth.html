@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="《Mapbox矢量瓦片标准》深度解析"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/04/15/vector-tiles-spec-in-depth.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>《Mapbox矢量瓦片标准》深度解析 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">《Mapbox矢量瓦片标准》深度解析
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-04-16
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9D%90%E6%A0%87"><span class="toc-text">坐标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#version%E5%AD%97%E6%AE%B5"><span class="toc-text">version字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%B8%E6%A0%87"><span class="toc-text">游标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tag"><span class="toc-text">tag</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p><a href="/2016/03/04/vector-tile-spec.html">Mapbox矢量瓦片标准</a>至今已发布至2.1版，各版本间只有细微的差别。标准的内容并不长，相信大部分人能够在半小时内读完。标准对矢量瓦片的编码格式做了详细地描述，大部分内容简洁易懂，但是仍然有些细节容易被误解。本文提炼出几点内容，对矢量瓦片标准进行补充说明。</p>
+<h2 id="坐标"><a href="#坐标" class="headerlink" title="坐标"></a>坐标</h2><p>矢量数据切片为瓦片后，其坐标从地理坐标转换为屏幕坐标，以整数形式存储。整型比浮点型所需的存储空间更小，大大降低了瓦片的传输成本。</p>
+<p>我们通常可以将矢量瓦片看作是一种带元数据的图片，因为它和栅格瓦片一样，都是存储的屏幕坐标，但是两者之间在坐标上还是有差别的。</p>
+<p>在栅格瓦片中，坐标(0, 0)代表瓦片最左上角的一个像素点；而在矢量瓦片中，坐标(0, 0)代表的是瓦片的左边缘与上边缘的交点。所以，如下图示例，我们可以认为栅格瓦片的坐标是在格网中心，而矢量瓦片的坐标位于格网的交点。</p>
+<img src="/2016/04/15/vector-tiles-spec-in-depth/raster-vector.png" class="">
+
+<p>瓦片的<code>extent</code>并不限定瓦片内的所有坐标必须在<code>extent</code>范围内。由于瓦片buffer的存在，矢量瓦片存储的坐标可以为负值或者大于<code>extent</code>。</p>
+<p>另外值得注意的是，瓦片的<code>extent</code>只是指明了瓦片的范围，并不是瓦片的渲染之后的大小。例如一张<code>extent</code>为4096的矢量瓦片，并不意味着最终渲染出来的是一张4096 X 4096大小的图片。渲染出的图片大小并不由<code>extent</code>决定，通常会被渲染为256 X 256或512 X 512大小的图片。假设将一张<code>extent</code>为4096的矢量瓦片渲染为256 X 256大小的图片，那么(0, 0)~(16, 16)坐标范围内的点都将被综合到图片上的(0, 0)像素点。</p>
+<h2 id="version字段"><a href="#version字段" class="headerlink" title="version字段"></a><code>version</code>字段</h2><p>矢量瓦片由一组命名的图层构成，每个图层必须包含一个<code>version</code>字段。标准并未规定所有的图层的<code>version</code>字段必须一致，所以我们可以认为矢量瓦片的图层可以包含不同<code>version</code>字段。按照旧版本编码的图层可以添加到新版本的图层中而互不影响，保持了对就版本的兼容性。</p>
+<p>虽然理论上图层的<code>version</code>可以不同，实践上还是应该保持所有<code>version</code>字段一致，免得为解析带来不必要的麻烦。</p>
+<h2 id="游标"><a href="#游标" class="headerlink" title="游标"></a>游标</h2><p>矢量瓦片存储的是相对坐标，总是存储相对于上一点在XY方向上的偏移量。游标在数据库中表示当前所指向的行，通过移动游标来遍历所有的记录。矢量瓦片构造点、线、面的过程也可以通过移动游标来模拟。游标可以看做是一只画笔，依次经过各个节点来画出几何要素，矢量瓦片记录就是画笔移动的偏移量。</p>
+<p>对于多边形的游标有一点需要注意，即多边形闭合时，游标保持在最后一点，并不折回起点。例如下图，ABCD是一个多边形，游标在到达D点后闭合多边形，并不回到起点A。所以开始构造下一个几何要素时，坐标要相对于D点计算偏移量。之所以这么设计，是因为这样可以少存一个点，以减少瓦片存储大小。</p>
+<img src="/2016/04/15/vector-tiles-spec-in-depth/cursor.png" class="">
+
+
+<h2 id="tag"><a href="#tag" class="headerlink" title="tag"></a><code>tag</code></h2><p>矢量瓦片会按图层提取出所有的字段和值的唯一值，然后构建索引序列。对于要素的每个属性用一对<code>tag</code>字段表示。每对<code>tag</code>中，第一个<code>tag</code>表示字段的索引号，第二个表示值的索引号。所以，一个要素的<code>tag</code>字段数目必定为偶数，并且<code>tag</code>字段的值要小于字段和值得唯一值个数。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/04/15/vector-tiles-spec-in-depth.html">https://jingsam.github.io/2016/04/15/vector-tiles-spec-in-depth.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2016/04/17/config-eslint.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Eslint配置实战</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2016/04/14/traps-with-nodejs.html">
+        <span class="next-text nav-default">Nodejs开发工具遇到的坑</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

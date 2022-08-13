@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/24/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2017/10/20/mapbox-gl-highlight.html">mapbox-gl如何高效地高亮要素</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-10-20
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>mapbox-gl基于矢量瓦片的前端渲染技术，使得要素高亮变得简单。要素高亮具体如何实现，有如下三种方法：</p>
+<h1 id="第一种：动态过滤"><a href="#第一种：动态过滤" class="headerlink" title="第一种：动态过滤"></a>第一种：动态过滤</h1><p>这种方法的基本思路是添加一个高亮图层，然后根据鼠标hover的要素id，动态地改变filter条件，实现要素的高亮。</p>
+<p>使用到的主要接口是<code>map.on(&#39;mousemove&#39;, layer, e)</code>，其中<code>e</code>可以获取到当前鼠标位置的features，效果如下：</p>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/f3au0qLo/4/embedded/result,js,html,css" frameborder="0"></iframe>
+
+<p>测试中发现，在图斑比较密集的情况下，高亮非常卡，滞后严重，效率并不高。</p>
+<h1 id="第二种：数据源镜像"><a href="#第二种：数据源镜像" class="headerlink" title="第二种：数据源镜像"></a>第二种：数据源镜像</h1><p>第二种方法是对第一种方法的改进，思路如下：对原始数据源做一个镜像，即添加一个新的数据源，名称不通但指向的是同一套数据,例如下面示例中的<code>source-mirror</code>，高亮图层的数据源指向<code>source-mirror</code>。改进后的效果如下：</p>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/rj16bqa4/4/embedded/result,js,html,css" frameborder="0"></iframe>
+
+<p>测试可以发现，稍微改进一下，高亮的效率提升很大。</p>
+<p>但为什么做一个数据源镜像就可以显著地提高高亮的效率呢？我猜想是mapbox-gl在绘制时，会按照数据源对图层分组。指向同一个数据源的图层组中，任意一个图层的渲染条件改变，将会以整个图层组为粒度重新进行运算。在第一种方法中，高亮图层和其他图层都指向同一个数据源，动态地改变高亮图层的过滤条件，导致了很大的运算开销。而第二种方法，为高亮图层单独分配一个数据源，动态地改变高亮图层的过滤条件，也只会导致高亮图层的重绘。</p>
+<h1 id="第三种：动态生成高亮数据源"><a href="#第三种：动态生成高亮数据源" class="headerlink" title="第三种：动态生成高亮数据源"></a>第三种：动态生成高亮数据源</h1><p>我们能不能再进一步提高高亮的效率呢？有。第三种方法的思路是：为高亮图层生成一个空的GeoJSON数据源，然后将鼠标hover到的要素动态地填充到数据源中。</p>
+<p>使用的接口只要是<code>map.getSource(source).setData(geojson)</code>，其中<code>getSource</code>用于根据sourceId获取数据源，<code>setData</code>用于动态更新数据。效果如下：</p>
+<iframe width="100%" height="500" src="//jsfiddle.net/jingsam/ykoyet0w/4/embedded/result,js,html,css" frameborder="0"></iframe>
+
+<p>测试可以发现，这种方法甚至比第二种方法效率更高。原因在于要高亮的要素往往很小，前段切成瓦片可能就一两张，因此不用去整体从原始数据源的瓦片种过滤，效率会更高。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>第一种方法最常用，小批量数据效率还行，但涉及到大数据量情况下，效率就不太理想了。</p>
+<p>第二种方法通过小小的改进，就可以极大地提高效率，实现起来也很简单。</p>
+<p>第三种方法效率最高，但其中引入了<code>turf.union</code>去合并features，带来了额外的依赖。因此，从简单和优雅的角度来说，我更推荐使用第二种方法。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/23/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/25/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

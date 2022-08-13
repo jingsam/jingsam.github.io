@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/42/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/04/20/deploy-to-digitialocean.html">Nodejs网站部署到DigtialOcean</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-04-20
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>最近基于Express + Mongodb开发了一个纯API服务，现在要部署到公网上。我选择的是DigitialOcean的主机，但整个部署过程不仅仅适用于DigitialOcean，其他VPS也可参考。</p>
+<h2 id="创建主机"><a href="#创建主机" class="headerlink" title="创建主机"></a>创建主机</h2><p>假设我们现在已经注册了DigitialOcean账号，并且通过了邮箱验证和信用卡绑定。<br>首先创建一个主机，登录后点击<code>Create Droplets</code>，即可开始创建主机。Droplets的意思是小水滴，DigitialOcean是数字海洋，两者之间的关系还是蛮形象的。<br>在创建主机界面，我们可以选择主机的操作系统、服务器的位置、服务器的硬件配置等。我选择的是Ubuntu 15.10，San Franscisco的机房，以及最便宜5美元一个月的配置：1 CPU + 512M RAM + 20G SSD。<br>选择完配置之后，先别忙着点确定。里面有一项叫SSH key，可以将你的SSH的公钥填进去，这样我们稍后登录主机的时候就不需要填密码了。当然，如果你不知道怎么生成SSH key或者嫌麻烦，也可以通过密码登录，密码会在你创建完主机之后发到你的注册邮箱。</p>
+<h2 id="创建用户"><a href="#创建用户" class="headerlink" title="创建用户"></a>创建用户</h2><p>当主机创建完之后，我们可以通过SSH远程登录到主机上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@xxx.xxx.xxx.xxx</span><br></pre></td></tr></table></figure>
+<p>这里有个问题就是，我们是以root身份登录到系统中，而我们网站不能在root权限下部署。否则，要是有黑客获取了网站控制权限，就掌握了主机的控制权限，这是很危险的。所以，我们需要创建一个普通权限的用户，以普通用户的身份部署网站。</p>
+<p>使用下面的命令添加新用户和密码，其中<code>-m</code>表示在<code>/home</code>目录下创建用户文件夹。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add user -m judy</span><br><span class="line">passwd judy</span><br></pre></td></tr></table></figure>
+
+<p>为了之后安装软件方便，我们将新用户添加到<code>sudo</code>组中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo adduser judy sudo</span><br></pre></td></tr></table></figure>
+
+<p>现在我们完成了新用户的创建。有些人在使用SSH登录到DigitalOcean后会发现很卡，打个命令半天才回显，在这里我推荐一款很好用的SSH替代软件：mosh。SSH的机制是我们输入一个字符，这个字符会发送到远程服务器，然后远程服务器收到后再发送回终端显示。在这个传输过程中，如果网络条件不好，会产生明显地卡顿。而mosh在你输入一个字符时，立即在终端上显示，然后再后台自动地将命令发送到远程服务器。因此即使在较差的网络条件下，mosh也可以很流畅。</p>
+<p>mosh需要在客户端和服务端同时安装，安装的的命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install mosh</span><br></pre></td></tr></table></figure>
+
+<p>退出root用户，然后用mosh重连，你将会发现比之前流畅多了，mosh连接的命令和SSH一样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mosh judy@xxx.xxx.xxx.xxx</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装nodejs"><a href="#安装nodejs" class="headerlink" title="安装nodejs"></a>安装nodejs</h2><p>由于我们的网站是基于Express的，因此需要安装nodejs。Ubuntu的官方源上没有nodejs，需要添加nodesource源，安装的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install curl</span><br><span class="line">curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -</span><br><span class="line">sudo apt-get install nodejs</span><br></pre></td></tr></table></figure>
+<p><code>sudo</code>命令是临时借用root的权限去执行命令。</p>
+<h2 id="安装mongodb和git"><a href="#安装mongodb和git" class="headerlink" title="安装mongodb和git"></a>安装mongodb和git</h2><p>网站的数据库采用的是mongodb，幸运的是Ubuntu的官方源收录了mongodb，所以我们可以直接用apt安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install mongodb</span><br></pre></td></tr></table></figure>
+<p>mongodb安装完之后会自动启动守护程序mongod，并设置了开机自启动。检查mongodb是否成功启动，可以运行<code>mongo</code>连接数据是否成功。</p>
+<p>网站的源代码托管在GitHub上，所以要把代码下载下来，我们还需要安装git：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git</span><br></pre></td></tr></table></figure>
+
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>通过git将网站源代码拉取下来，并安装相应的依赖：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/&#123;your_git_repo&#125; site</span><br><span class="line">cd site</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
+
+<p>网站的软件环境基本上准备好了，如果代码有测试的话，可以跑一遍测试看网站是否各项功能正常。</p>
+<p>Express网站开发的时候，默认的服务端口是3000。由于服务是公开发布的，总不能让用户还在网址后面加个端口号吧。所以，我们将网站切换到80端口：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PORT=80 node ./bin/www</span><br></pre></td></tr></table></figure>
+
+<p>不幸的是，你将马上看到出错信息，信息显示80端口只有root用户才能使用。实际上，任何小于1024的端口，都只能由root用户使用。所以我们用采取一定的措施，使得网站服务可以使用80端口。方法很简单，我们可以借助cap2实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libcap2-bin</span><br><span class="line">sudo <span class="built_in">setcap</span> cap_net_bind_service=+ep `<span class="built_in">which</span> nodejs`</span><br></pre></td></tr></table></figure>
+<p>后一条命令中的<code>which nodejs</code>是找出nodejs可执行文件的路径，一定要是nodejs的实际路径，不能是符号链接。</p>
+<p>执行以上命令后，再次测试就会发现能够使用80端口了。</p>
+<h2 id="更改时区"><a href="#更改时区" class="headerlink" title="更改时区"></a>更改时区</h2><p>新建的主机默认的时区是0时区，更改为北京时间可用交互式的命令行工具<code>tzselect</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tzselect</span><br><span class="line">sudo cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过以上过程，基本上完成了对服务器的配置。但是还有很多工作要做，例如nodejs进程自动重启、网站制动部署等，这将在以后的博文中逐步说明。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/41/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/43/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

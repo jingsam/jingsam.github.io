@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="TileJSON技术规范"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/04/18/tilejson-spec.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>TileJSON技术规范 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">TileJSON技术规范
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-04-18
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TileJSON-2-1-0"><span class="toc-text">TileJSON 2.1.0</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%9B%AE%E7%9A%84"><span class="toc-text">1. 目的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F"><span class="toc-text">2. 文件格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%BC%93%E5%AD%98"><span class="toc-text">3. 缓存</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><p>以下是<a target="_blank" rel="noopener" href="https://github.com/mapbox/tilejson-spec/tree/master/2.1.0">《TileJSON Specification》</a>最新的2.1.0版的中文翻译，以便查阅。</p>
+<h1 id="TileJSON-2-1-0"><a href="#TileJSON-2-1-0" class="headerlink" title="TileJSON 2.1.0"></a>TileJSON 2.1.0</h1><p>本文档中的“<strong>必须</strong>”、“<strong>必须不</strong>”、“<strong>必备</strong>”、”<strong>应该</strong>“、“<strong>不应该</strong>”、“<strong>建议</strong>”、“<strong>可以</strong>”、“<strong>可选</strong>”的含义参照<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a>。</p>
+<h2 id="1-目的"><a href="#1-目的" class="headerlink" title="1. 目的"></a>1. 目的</h2><p>本规范提出一种技术标准，来描述多种类型的网络地图图层的元数据信息，以方便客户端进行配置和浏览。</p>
+<h2 id="2-文件格式"><a href="#2-文件格式" class="headerlink" title="2. 文件格式"></a>2. 文件格式</h2><p>TileJSON描述文件采用JSON格式，参见RFC 4627。</p>
+<p>本规范的实现<strong>必须</strong>忽略掉未知key。但是，实现<strong>必须</strong>在他们的API中暴露出<br>这些未知的key/values，使得API用户可以选择性地处理这些keys。<br>实现<strong>必须</strong>忽略keys的无效values。如果key是必选的，实现<strong>必须</strong>认为整个<br>TileJSON描述文件无效并且拒绝进一步处理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// **必选**。表示语义化的版本号。描述本JSON对象所遵守的TileJSON版本。</span></span><br><span class="line">    <span class="string">&quot;tilejson&quot;</span>: <span class="string">&quot;2.1.0&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。表示瓦片集的名称。名称可以是任何合法字符。</span></span><br><span class="line">    <span class="comment">// 实现**不应该**将此名称当做HTML来解析。</span></span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;compositing&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。表示瓦片集的描述信息。描述可以是任何合法字符。</span></span><br><span class="line">    <span class="comment">// 实现**不应该**将此描述当做HTML来解析。</span></span><br><span class="line">    <span class="string">&quot;description&quot;</span>: <span class="string">&quot;A simple, light grey world.&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：&quot;1.0.0&quot;。表示语义化的版本号。当瓦片发生更改时，次版本号</span></span><br><span class="line">    <span class="comment">// **必须**相应地更改。这可能导致标签的变化。因此，实现方能够在次版本号变化时</span></span><br><span class="line">    <span class="comment">// 清除缓存。更新级别的更改，**必须**限制在单块瓦片之内。</span></span><br><span class="line">    <span class="comment">// 当瓦片更改较大时，主版本号**必须**增加。</span></span><br><span class="line">    <span class="comment">// 实现**必须不**要使用不同主版本号的瓦片。</span></span><br><span class="line">    <span class="string">&quot;version&quot;</span>: <span class="string">&quot;1.0.0&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。包含地图的所有者信息。</span></span><br><span class="line">    <span class="comment">// 实现**可以**把这部分内容当做HTML或者纯文本。</span></span><br><span class="line">    <span class="comment">// 处于安全方面的原因，要绝对确保本字段的不会被用来进行XSS攻击或beacon跟踪。</span></span><br><span class="line">    <span class="string">&quot;attribution&quot;</span>: <span class="string">&quot;&lt;a href=&#x27;http://openstreetmap.org&#x27;&gt;OSM contributors&lt;/a&gt;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。包含一个mustache模板，用来格式化grids数据来完成交互。</span></span><br><span class="line">    <span class="comment">// 参见https://github.com/mapbox/utfgrid-spec/tree/master/1.2的交互部分。</span></span><br><span class="line">    <span class="string">&quot;template&quot;</span>: <span class="string">&quot;&#123;&#123;#__teaser__&#125;&#125;&#123;&#123;NAME&#125;&#125;&#123;&#123;/__teaser__&#125;&#125;&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。包含地图图例信息。</span></span><br><span class="line">    <span class="comment">// 实现**可以**把这部分内容当做HTML或者纯文本。</span></span><br><span class="line">    <span class="comment">// 处于安全方面的原因，要绝对确保本字段的不会被用来进行XSS攻击或beacon跟踪。</span></span><br><span class="line">    <span class="string">&quot;legend&quot;</span>: <span class="string">&quot;Dangerous zones are red, safe zones are green&quot;</span>,</span><br><span class="line">、</span><br><span class="line">    <span class="comment">// **可选**。默认值：&quot;xyz&quot;。可以是&quot;xyz&quot;或&quot;tms&quot;。主要影响瓦片坐标的y轴方向。</span></span><br><span class="line">    <span class="comment">// 默认为global-mercator(Spherical Mercator)坐标系。</span></span><br><span class="line">    <span class="string">&quot;scheme&quot;</span>: <span class="string">&quot;xyz&quot;</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **必选**。表示一组瓦片资源。</span></span><br><span class="line">    <span class="comment">// 如果存在&#123;z&#125;、&#123;x&#125;和&#123;y&#125;，它们将会被相应的整数替换。</span></span><br><span class="line">    <span class="comment">// 如果指定了多个资源，客户端可以使用任意的资源组合。</span></span><br><span class="line">    <span class="comment">// 所有的资源**必须**为相同的URL返回相同的内容。</span></span><br><span class="line">    <span class="comment">// 本数组**必须**至少包含一个资源。</span></span><br><span class="line">    <span class="string">&quot;tiles&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;http://localhost:8888/admin/1.0.0/world-light,broadband/&#123;z&#125;/&#123;x&#125;/&#123;y&#125;.png&quot;</span></span><br><span class="line">    ],</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：[]。表示一组交互资源。</span></span><br><span class="line">    <span class="comment">// 如果存在&#123;z&#125;、&#123;x&#125;和&#123;y&#125;，它们将会被相应的整数替换。</span></span><br><span class="line">    <span class="comment">// 如果指定了多个资源，客户端可以使用任意的资源组合。</span></span><br><span class="line">    <span class="comment">// 所有的资源**必须**为相同的URL返回相同的内容。</span></span><br><span class="line">    <span class="comment">// 如果本数组没有任何内容，那么说明本瓦片集不支持交互数据。</span></span><br><span class="line">    <span class="comment">// 参见https://github.com/mapbox/utfgrid-spec/tree/master/1.2的交互部分</span></span><br><span class="line">    <span class="string">&quot;grids&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;http://localhost:8888/admin/1.0.0/broadband/&#123;z&#125;/&#123;x&#125;/&#123;y&#125;.grid.json&quot;</span></span><br><span class="line">    ],</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：[]。表示一组GeoJSON格式的数据文件。</span></span><br><span class="line">    <span class="comment">// 如果存在&#123;z&#125;、&#123;x&#125;和&#123;y&#125;，它们将会被相应的整数替换。</span></span><br><span class="line">    <span class="comment">// 如果指定了多个资源，客户端可以使用任意的资源组合。</span></span><br><span class="line">    <span class="comment">// 所有的资源**必须**为相同的URL返回相同的内容。</span></span><br><span class="line">    <span class="comment">// 如果本数组没有任何内容，那么地图上不会呈现数据内容。</span></span><br><span class="line">    <span class="string">&quot;data&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;http://localhost:8888/admin/data.geojson&quot;</span></span><br><span class="line">    ],</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：0。值域范围[0, 22]。</span></span><br><span class="line">    <span class="comment">// 表示最小缩放级别的一个整数。</span></span><br><span class="line">    <span class="string">&quot;minzoom&quot;</span>: <span class="number">0</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：22。值域范围[0, 22]。</span></span><br><span class="line">    <span class="comment">// 表示最大缩放级别的一个整数。**必须**大于等于minzoom</span></span><br><span class="line">    <span class="string">&quot;maxzoom&quot;</span>: <span class="number">11</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 表示地图瓦片的最大范围。这个范围**必须**覆盖到所有的缩放级别。</span></span><br><span class="line">    <span class="comment">// 范围用WGS84坐标系下的经纬度来表示，顺序为左、下、右、上。</span></span><br><span class="line">    <span class="comment">// 范围值可能是整数或者浮点数。</span></span><br><span class="line">    <span class="string">&quot;bounds&quot;</span>: [ -<span class="number">180</span>, -<span class="number">85.05112877980659</span>, <span class="number">180</span>, <span class="number">85.0511287798066</span> ],</span><br><span class="line"></span><br><span class="line">    <span class="comment">// **可选**。默认值：null。</span></span><br><span class="line">    <span class="comment">// 第一个值是经度，第二个是纬度（都为WGS84坐标系），第三个是表示缩放级别的整数。</span></span><br><span class="line">    <span class="comment">// 经度和纬度**必须**在bounds范围内。缩放级别**必须**在minzoom和maxzoom之间。</span></span><br><span class="line">    <span class="comment">// 实现可以根据这个值设置地图的默认显示位置。</span></span><br><span class="line">    <span class="comment">// 如果这个值为null，实现可以根据自己的算法自行决定默认位置。</span></span><br><span class="line">    <span class="string">&quot;center&quot;</span>: [ -<span class="number">76.275329586789</span>, <span class="number">39.153492567373</span>, <span class="number">8</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="3-缓存"><a href="#3-缓存" class="headerlink" title="3. 缓存"></a>3. 缓存</h2><p>客户端<strong>可以</strong>缓存从远程服务器获取的文件。当实现决定采用缓存措施时，<strong>必须</strong><br>遵从为瓦片数据和TileJSON描述文件定义的有效HTTP缓存控制头。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/04/18/tilejson-spec.html">https://jingsam.github.io/2016/04/18/tilejson-spec.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2016/04/20/deploy-to-digitialocean.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Nodejs网站部署到DigtialOcean</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2016/04/17/config-eslint.html">
+        <span class="next-text nav-default">Eslint配置实战</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

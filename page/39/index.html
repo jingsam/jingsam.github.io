@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/39/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/09/23/polylabel.html">多边形注记点搜索的算法原理</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-09-24
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>在制图过程中，对多边形进行标注是一个常见的需求。然而如何快速找到一个合适的注记点，确不是一个很容易的事情。</p>
+<p>最近，Leaflet的作者<a target="_blank" rel="noopener" href="https://github.com/mourner">Vladimir Agafonkin</a>大神发表了一篇<a target="_blank" rel="noopener" href="https://www.mapbox.com/blog/polygon-center/">博文</a>，描述了他如何用100多行JS代码，实现一个高效的多边形标注点搜寻<a target="_blank" rel="noopener" href="https://github.com/mapbox/polylabel">算法</a>。</p>
+<p>虽然他在博文中描述了算法的原理，但是对于我这种数学不好的人，有些细节方面的东西还不甚了解。因此，此篇文章将以我这种小白角度，事无巨细地解释下他的算法。</p>
+<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>对于一个多边形，哪一个点才适合做标注点呢？自然而然我们就会想到是重心，即<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Centroid">centroid</a>。然而对于凹多边形或者环，它们的重心会出现在多边形外部，这明显不是我们想要的。</p>
+<img src="/2016/09/23/polylabel/centeroid.png" class="">
+
+<p>一个合适的标注点，应该是多边形的视觉中心，即以该点为圆心在多边形内部画一个圆，该圆的面积是最大的。假如我们定义一个点到多边形的距离为该点到多边形各边的最短距离，并且规定点在多边形内部时距离为正，点在外部时距离为负。所以多边形标注问题就可以简化为寻找离多边形最远的点，即<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pole_of_inaccessibility">pole of inaccessibility</a>。</p>
+<h2 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h2><p>理论上，只要知道多边形的各点坐标，必定能够用数学公式求出这个离多边形最远的点。然而，求解这个标注点的精确坐标必定非常耗时，实际上我们只需要一个近似解就足够了。</p>
+<p>如何搜寻这个点呢？其实算法原理很简单，即利用分而治之的思想，先搜寻一小块区域的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pole_of_inaccessibility">pole of inaccessibility</a>，逐步淘汰差的区域，逐步缩小搜寻范围，最终找到最优点。具体步骤为：</p>
+<ol>
+<li>对多边形进行格网划分，求出格网内部的点到多边形的可能的最大距离。</li>
+<li>按可能的最大距离对格网进行排序，淘汰距离小的格网，保留距离大的格网。</li>
+<li>对剩下的格网再进行细分，重复步骤1和步骤2。</li>
+</ol>
+<p>在以上的步骤中，如何计算格网内部的点到多边形可能的最大距离是一个问题。如下图，格网中心点到多边形的距离为<code>dist</code>，到顶点的距为<code>radius</code>，那么格网到多边形可能的最大距离<code>maxd = dist + radius</code>。</p>
+<img src="/2016/09/23/polylabel/dist.jpg" class="">
+
+<p>如何证明上述计算最大距离的公式呢？我几何学得不好，没办法给出严密的数学证明，但是我可以通过图示予以说明。</p>
+<p>如下图，设多边形内部一点<code>O</code>，其距多边形的距离<code>OA</code>长度为<code>dist</code>。以<code>O</code>为圆心，以<code>radius</code>为半径作一个圆。延长AO，交圆于点<code>B</code>，那么<code>AB</code>的长度为<code>dist + radius</code>。在圆内部任意取一点<code>B&#39;</code>，显然<code>AB&#39; &lt;= AB = dist + radius</code>。假设点<code>B‘</code>到多边形的距离为<code>d</code>，那么<code>d &lt;= AB&#39; &lt;= AB = dist + radius</code>。所以对于圆内的任意一点，其到多边形的距离必定小于等于<code>dist + radius</code>。在圆内部取一个正方形区域，仍然符合<code>d &lt;= dist + radius</code>，这就证明格网区域的最大距离为<code>dist + radius</code>。</p>
+<img src="/2016/09/23/polylabel/proof.png" class="">
+
+<p>如何对格网进行细分呢？我们可以用四叉树，将一个格网分割为4个小格网。</p>
+<img src="/2016/09/23/polylabel/quadtree.jpg" class="">
+
+<p>搜寻标注点的算法原理是不是很简单？我将在下一篇博文中详细描述如何用JS实现该算法。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/38/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/40/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

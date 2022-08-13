@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Ubuntu离线部署snap软件包"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/11/22/install-snaps-offline.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Ubuntu离线部署snap软件包 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Ubuntu离线部署snap软件包
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-11-22
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD"><span class="toc-text">下载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>Ubuntu借助包管理器apt-get安装软件包很方便，前提是服务器要能够联网。政府或企业内网的服务器，通常是不与互联网连通的，这时候部署软件只能借助文件拷贝的方式，感觉回到了原始时代。更大的问题是，要部署的软件包需要先安装很多依赖，依赖自己可能还有依赖，并且各种依赖还有版本要求。如果通过手动下载各个依赖包的方法部署，对于复杂的软件，变成了不可能的任务。</p>
+<p>在离线部署方面，Windows明显比Linux做得好，Windows软件包通常会将软件所需的依赖打包，部署时只需拷贝一个软件安装包即可。那Linux有没有类似Windows软件安装包的东西呢？幸运的是，Ubuntu提供了snap软件包机制，可以用来简化离线部署。</p>
+<p>snap软件包类似于windows的软件安装包，将所需的依赖都统一打包到软件包中，部署时只需拷贝snap文件。另外，snap也加强了安全隔离机制，通过注册软件包的签名和权限控制信息，使得snap软件运行在“沙盒”环境中。</p>
+<p>从Ubuntu 16.04起，snap环境是自带的，可以直接使用。如果是早于16.04的版本且服务器不能联网，安装snap环境很困难，你只能自求多福了。下面以安装docker为例，来说明离线安装snap包的方法。</p>
+<h1 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h1><p>首先，我们需要在能联网的机器上将相关的snap包下载下来。不仅要下载docker软件包，还需要下载core软件包。core软件包是snap的核心运行时，几乎所有的snap包都依赖core运行时，Ubuntu 16.04自带了snap环境却没安装core运行时，实在是让人有些搞不懂。</p>
+<p>下载有snap包两种方式。一种方法是在能联网的Ubuntu上使用<code>snap download</code>命令下载：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ snap download core</span><br><span class="line">Fetching snap &quot;core&quot;</span><br><span class="line">Fetching assertions for &quot;core&quot;</span><br><span class="line">Install the snap with:</span><br><span class="line">   snap ack core_5897.assert</span><br><span class="line">   snap install core_5897.snap</span><br><span class="line">$ snap download docker</span><br><span class="line">Fetching snap &quot;docker&quot;</span><br><span class="line">Fetching assertions for &quot;docker&quot;</span><br><span class="line">Install the snap with:</span><br><span class="line">   snap ack docker_321.assert</span><br><span class="line">   snap install docker_321.snap</span><br></pre></td></tr></table></figure>
+
+<p>以上命令将会得到<code>.assert</code>和<code>.snap</code>两类文件，其中<code>.assert</code>是软件包的元数据信息，包括签名和权限控制信息，<code>.snap</code>是实际的安装文件。</p>
+<p>另外一种方法是到<a target="_blank" rel="noopener" href="https://uappexplorer.com/snaps">uApp Explorer</a>网站上下载，好处是不需要有Ubuntu环境，缺点是只能下载<code>.snap</code>文件，无法下载<code>.assert</code>文件。</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>安装snap包的方法很简单：将软件包拷贝到服务器上，安装时首先注册<code>.assert</code>，然后再安装<code>.assert</code>。对于首次安装，需要安装core和docker两个软件包：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo snap ack core_5897.assert</span><br><span class="line">$ sudo snap install core_5897.snap</span><br><span class="line">$ sudo snap ack docker_321.assert</span><br><span class="line">$ sudo snap install docker_321.snap</span><br></pre></td></tr></table></figure>
+
+<p>这样就完成了docker的安装。</p>
+<p>要是我们是从<a target="_blank" rel="noopener" href="https://uappexplorer.com/snaps">uApp Explorer</a>网站上下载的软件包，缺少<code>.assert</code>文件怎么办？其实我们可以使用<code>snap install --dangerous</code>方式安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo snap install core.snap --dangerous</span><br><span class="line">$ sudo snap install docker.snap --dangerous</span><br></pre></td></tr></table></figure>
+
+<p>如<code>--dangerous</code>所提示的是，这种模式有些“危险”。这是因为缺少<code>.assert</code>文件所描述的签名信息和权限控制信息，意味着软件不是在“沙盒”环境下执行的，运行过程不受控。其实，大可不必紧张，只要snap包来源可信，一般没什么问题，毕竟以前咱们没有snap包的时候不都是这么干的么。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/11/22/install-snaps-offline.html">https://jingsam.github.io/2018/11/22/install-snaps-offline.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/11/24/npm-package-offline-install.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">离线安装npm包的几种方法</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/10/16/host-in-docker.html">
+        <span class="next-text nav-default">Docker容器访问宿主机网络</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

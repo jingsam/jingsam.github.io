@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/62/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2015/10/21/blogging-with-octopress-3-0.html">Octopress 3.0博客搭建教程</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2015-10-21
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>Octopress是一款专为黑客准备的博客系统，它简洁美观且定制性强。相信大家已经在网上看到过很多Octopress 2.0的博客教程，但本文所要描述的是Octopress 3.0的博客搭建过程。</p>
+<p>Octopress 3.0相对于2.0有很大的不同。Octopress 2.0是通过git分发的，需要修改Octopress源代码来构建博客系统，因此难以合并未来的更新。Octopress的作者Mathis认为git并不是一个合适的软件分发方式，因此从3.0开始通过gem方式分发。并且增加了一系列octopress命令，代替之前的rake命令。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>Octopresss基于Jekyll，而jekyll是用Ruby开发的，因此系统要安装有Ruby。新建一个blog文件夹，作为博客的主目录。在主目录下新建文件<code>Gemfile</code>，文件内容如下：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">source <span class="string">&#x27;https://ruby.taobao.org/&#x27;</span>  <span class="comment"># 更改为淘宝镜像，下载更稳定</span></span><br><span class="line"></span><br><span class="line">gem <span class="string">&#x27;octopress&#x27;</span>, <span class="string">&#x27;~&gt; 3.0.0&#x27;</span>        <span class="comment"># 安装Octopress 3.0，依赖包包括jekyll会自动安装</span></span><br><span class="line"></span><br><span class="line">group <span class="symbol">:jekyll_plugins</span> <span class="keyword">do</span>           <span class="comment"># 安装插件，具体内容后面再讲</span></span><br><span class="line">  gem <span class="string">&#x27;octopress-genesis-theme&#x27;</span>    <span class="comment"># 主题插件</span></span><br><span class="line">  gem <span class="string">&#x27;octopress-codefence&#x27;</span>        <span class="comment"># GitHub风格代码块</span></span><br><span class="line">  gem <span class="string">&#x27;octopress-solarized&#x27;</span>        <span class="comment"># 代码块高亮采用solarized dark主题</span></span><br><span class="line">  gem <span class="string">&#x27;octopress-feeds&#x27;</span>            <span class="comment"># 订阅功能</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>更多Octopress插件可在<a target="_blank" rel="noopener" href="https://github.com/octopress">这里</a>找到。</p>
+<p>在主目录下，通过<code>bundle</code>命令安装所有需要gem包。如果提示<code>bundle</code>命令不存在，则需要先安装bundler，命令如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install bundler</span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><p>在主目录下，应用如下命令进行初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">octopress init .</span><br></pre></td></tr></table></figure>
+
+<p>初始化完成后会在目录下生成<code>_templates</code>文件夹，里面包含draft、page、post三个文件，这些文件是用来作为自定义模板的。其实还有一个<code>octopress new</code>初始化命令，其效果等同于<code>jekyll new</code> + <code>octopress init</code>。不推荐使用这种方式，因为<code>jekyll new</code>产生的文件octopress用不着。</p>
+<h2 id="配置yml"><a href="#配置yml" class="headerlink" title="配置yml"></a>配置yml</h2><p>在主目录下，新建<code>_config.yml</code>文件，添加如下配置</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">title:</span> <span class="string">your</span> <span class="string">blog</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">http://your-site.com</span></span><br><span class="line"></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">&quot;%Y-%m-%d&quot;</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">&quot;%H:%M&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Default extension for new posts and pages</span></span><br><span class="line"><span class="attr">post_ext:</span> <span class="string">md</span></span><br><span class="line"><span class="attr">page_ext:</span> <span class="string">html</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Default templates for posts and pages</span></span><br><span class="line"><span class="comment"># Found in _templates/</span></span><br><span class="line"><span class="attr">post_layout:</span> <span class="string">theme:post</span></span><br><span class="line"><span class="attr">page_layout:</span> <span class="string">theme:page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Format titles with titlecase?</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Change default template file (in _templates/)</span></span><br><span class="line"><span class="attr">post_template:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">page_template:</span> <span class="string">page</span></span><br><span class="line"><span class="attr">draft_template:</span> <span class="string">draft</span></span><br></pre></td></tr></table></figure>
+
+<p>octopress-genesis-theme主题插件的配置文件需在_plugins/theme下新建config.yml，我的配置文件内容如下</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Settings for main header</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">jingsam&#x27;s</span> <span class="string">blog</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">A</span> <span class="string">geospatial</span> <span class="string">hacker</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Links for main navigation</span></span><br><span class="line"><span class="attr">nav:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">url:</span> <span class="string">&#x27;/&#x27;</span>, <span class="attr">title:</span> <span class="string">&#x27;Post&#x27;</span> &#125;</span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">url:</span> <span class="string">&#x27;/archive/&#x27;</span>, <span class="attr">title:</span> <span class="string">&#x27;Archive&#x27;</span> &#125;</span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">url:</span> <span class="string">&#x27;/feed/&#x27;</span>, <span class="attr">title:</span> <span class="string">&#x27;Subscribe&#x27;</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Link labels</span></span><br><span class="line"><span class="attr">permalink_label:</span> <span class="string">&quot;Permalink&quot;</span></span><br><span class="line"><span class="attr">read_more_label:</span> <span class="string">&quot;Continue Reading →&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Show excerpts on post index</span></span><br><span class="line"><span class="attr">excerpt_posts:</span> <span class="literal">true</span></span><br><span class="line"><span class="comment"># Excerpt linkposts on index</span></span><br><span class="line"><span class="attr">excerpt_linkposts:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="attr">search:</span> <span class="string">google</span></span><br><span class="line"></span><br><span class="line"><span class="attr">sharing:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">facebook</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">twitter</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">gplus</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">email</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Defaults to sharing with links (for speed and privacy)</span></span><br><span class="line"><span class="comment"># To use javascript share buttons, set share_with: buttons</span></span><br><span class="line"><span class="attr">share_with:</span> <span class="string">links</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Embed comments, options: false, facebook, disqus</span></span><br><span class="line"><span class="attr">comments:</span> <span class="string">disqus</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Center the text in post and page headings.</span></span><br><span class="line"><span class="attr">center_headings:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="开始写作"><a href="#开始写作" class="headerlink" title="开始写作"></a>开始写作</h2><p>写作新的博文使用如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">octopress new post <span class="string">&quot;my title&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果从以前的博客系统迁移过来，只需将所有的markdown格式的文章放到<code>_posts</code>目录下。</p>
+<h2 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h2><p>Octopress支持rsync、s3、git方式发布。以发布到GitHub上为例，首先初始化deploy参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">octopress deploy init git git@github.com:user/project</span><br></pre></td></tr></table></figure>
+
+<p>以上命令将会生成一个<code>_deploy.yml</code>文件，填写相应的参数后完成配置。需注意的是如果<code>_deploy.yml</code>包含密码信息，请在<code>.gitignore</code>中设置忽略，避免密码泄露。另外，我们需要建立两个分支，<code>master</code>分支用来发布网页，<code>source</code>分支用来管理源代码，切不可直接deploy到<code>source</code>分支上破坏了源代码。如果发布分支和源代码分支是同一分支，deploy时Octopress会出现警告。</p>
+<p>最后使用如下命令完成发布：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">octopress deploy</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本教程介绍了Octopress 3.0博客搭建流程。Octopress 3.0相对于2.0几乎是重新设计，所做的修改不会污染到源代码，因此更安全地升级。然而Octopress 3.0的文档还不是很完善，需要长时间地摸索，用户可通过如下命令查看octopress及其插件的文档：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">octopress docs</span><br></pre></td></tr></table></figure>
+
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/61/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/63/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/16/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2018/05/07/linux-nohup.html">linux进程后台运行</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-05-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>在linux上启动Web服务，当退出终端后，Web服务进程也会随着关闭。产生这种问题的原因在于，当用户注销或者网络断开后，终端后收到挂断信号（SIGHUP）,并向子进程广播SIGHUP信号，子进程收到SIGHUP信号而关闭。因此，让linux后台持续运行的方法有以下几种：</p>
+<p>1.改变子进程的所属的父进程，只要父进程不关闭，子进程也不会关闭；<br>2.让子进程忽略挂断信号，即使收到SIGHUP信号，也任性地继续运行；<br>3.不向子进程广播SIGHUP信号，子进程收不到SIGHUP信号，因而不会关闭。</p>
+<h1 id="第一种方式"><a href="#第一种方式" class="headerlink" title="第一种方式"></a>第一种方式</h1><p>使用<code>setsid</code>可以新开一个session运行进程，此session不从属于当前终端，因此终端关闭时进程也不会退出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;setsid ping www.baidu.com</span><br><span class="line">&gt;ps -ef | grep www.baidu.com</span><br><span class="line">501 57697     1   0  5:55下午 ttys000    0:00.01 ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>从上面可以看出，ping进程的父进程是1，即init进程，因此只要电脑不关机，ping进程就不会停止。</p>
+<p>linux下自带<code>setsid</code>这个命令，但是macOS上并没有这个命令。此时，可以结合使用<code>()</code>和<code>&amp;</code>达到同样的效果。<code>()</code>可以新开一个subshell，<code>&amp;</code>让命令后台运行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;(ping www.baidu.com &amp;)</span><br><span class="line">&gt;ps -ef | grep www.baidu.com</span><br><span class="line">501 57781     1   0  6:01下午 ttys000    0:00.00 ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，效果与<code>setsid</code>是一样的。</p>
+<h1 id="第二种方式"><a href="#第二种方式" class="headerlink" title="第二种方式"></a>第二种方式</h1><p>使用<code>nohup</code>可以使进程忽略SIGHUP信号，这种方式也是最常用的。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;nohup ping www.baidu.com &amp;</span><br><span class="line">[1]  + 59193 exit 127   nohup www.baidu.com</span><br><span class="line"></span><br><span class="line">&gt;ps -ef | grep www.baidu.com</span><br><span class="line">501 59193 39100   0  6:05下午 ttys000    0:00.01 ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，ping进程的父进程并不为1，nohup是让进程忽略SIGHUP信号实现进程不退出的。</p>
+<p>需要注意的是，当在<code>zsh</code>中使用<code>nohup</code>时，退出终端时会提示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zsh: you have running jobs.</span><br></pre></td></tr></table></figure>
+
+<p>再次强行退出，那么进程仍然会被干掉。这时候，采用以下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ping www.baidu.com &amp;!</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="第三种方式"><a href="#第三种方式" class="headerlink" title="第三种方式"></a>第三种方式</h1><p>使用nohup的前提是，进程以nohup来启动。但是，如果启动时忘记了以nohup启动，有什么方法在不停止进程的情况，让它继续后台运行呢？接下来就要将另外一个命令：<code>disown</code>。<code>disown</code>的原理是，将子进程从终端任务队列中移除，所以即使终端挂断，子进程也收不到SIGHUP信号。</p>
+<p>假设现在使用ping命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;ping www.baidu.com</span><br><span class="line">64 bytes from 14.215.177.38: icmp_seq=0 ttl=51 time=19.642 ms</span><br><span class="line">64 bytes from 14.215.177.38: icmp_seq=1 ttl=51 time=97.976 ms</span><br><span class="line">64 bytes from 14.215.177.38: icmp_seq=2 ttl=51 time=88.996 ms</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这时采用<code>Ctrl + z</code>使它进入后台，使用<code>jobs</code>查看后台进程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;jobs</span><br><span class="line">[1]  + suspended  ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>可以看到虽然ping进程进入后台，但是进程被挂起了，没有继续运行。使用<code>bg</code>命令可以使他在后台继续运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;bg %1</span><br><span class="line">[1]  + 58174 continued  ping www.baidu.com</span><br><span class="line">&gt;jobs</span><br><span class="line">[1]  + running    ping www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>通过组合<code>Ctrl + z</code>和<code>bg</code>，成功地将前台进程变为了后台进程。为了让进程不随终端关闭而终止，还差最后一步：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;disown %1</span><br><span class="line">&gt;jobs</span><br></pre></td></tr></table></figure>
+
+<p>上面使用<code>jobs</code>命令查看任务队列，发现ping进程不在任务队列中，意味着进程不会收到SIGHUP信号。</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>以上我们通过三种方式，避免进程随着终端关闭而被杀掉：</p>
+<ol>
+<li><code>setsid</code>改变父进程，只要父进程不关闭，进程就可以持续运行；</li>
+<li><code>nohup</code>使得进程忽略SIGHUP信号，父进程即使发送挂断信号，进程也不会终止；</li>
+<li><code>disown</code>将进程从任务队列中移除，保证进程收不到SIGHUP信号。</li>
+</ol>
+<p>但是，以上种种方法只是避免了进程受到SIGHUP信号的影响，进程的持续运行还需要一些其他环境，例如stdin、stdout以及stderr。通常从终端启动的进程，会继承终端的stdin、stdout和stderr。当终端断掉之后，stdin、stdout和stderr也会随着消失，若此时后台进程需要读写stdin、stdout、stderr，该进程将会暂停或者挂住。所以，为保证进程正常后台运行，最好启动时对输入输出重定向：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;ping www.baidu.com &gt; a.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<p>此时，将stdout和stderr重定向到文件<code>a.log</code>中，文件<code>a.log</code>不受终端关闭的影响。如果进程依赖于stdin，意思是进程需要由于键盘输入，那就说明这是个交互式程序，交互式程序后台运行就没多大意义了。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/linux/l-cn-nohup/index.html">Linux 技巧：让进程在后台可靠运行的几种方法</a><br><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/3886/difference-between-nohup-disown-and">Difference between nohup, disown and &amp;</a></p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/15/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/17/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

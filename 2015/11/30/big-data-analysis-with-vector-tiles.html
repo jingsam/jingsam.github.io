@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="全世界的公路有多长？基于矢量瓦片的大数据分析"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2015/11/30/big-data-analysis-with-vector-tiles.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>全世界的公路有多长？基于矢量瓦片的大数据分析 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">全世界的公路有多长？基于矢量瓦片的大数据分析
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2015-12-01
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A2%E9%87%8F%E7%93%A6%E7%89%87"><span class="toc-text">矢量瓦片</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TileReduce"><span class="toc-text">TileReduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>随着地理位置服务（LBS）的兴起，当今地理数据的增长速度远超以往。地理数据的增长不仅表现在数据量的增长，其种类也多种多样，面面俱到。地理大数据以更精细的数据描述整个地球，使我们以更精细地尺度了解整个世界成为了可能。</p>
+<p>然而，地理大数据带来了机会也同时带来了挑战。巨量的数据使得传统地理分析方法无能为力，因此要提出与大数据相适应的理计算方法。针对基于单机、基于数据库的传统地理分析方法，一些研究人员探索并行处理的方法。但是这些方法仍然基于传统的数据模型和格式，当数据量增大到一定程度时最终会遇到处理瓶颈。为了处理地理大数据，需要突破传统地理分析方法的思维模式，扩展出新的数据模型和与之相适应的地理计算方法。</p>
+<h2 id="矢量瓦片"><a href="#矢量瓦片" class="headerlink" title="矢量瓦片"></a>矢量瓦片</h2><p>矢量瓦片（vector tiles）是一种新颖的数据格式，是将矢量要素按规则格网切割而形成的瓦片数据。矢量瓦片的数据组织方式，非常便于算法分块并行处理。矢量瓦片支持分而冶之的计算方法，使地理计算方法易于从单核到多核、从单机向集群的扩展。总而言之，矢量瓦片简直就是为处理地理大数据而生。</p>
+<p>接下来，我将通过统计全世界的公路里程这个示例，向大家展示矢量瓦片的威力。全世界的公路到底有多长？恐怕大多数人心里没底。要解决这个问题有个简单方法——查询统计数据，<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%90%84%E5%9B%BD%E5%85%AC%E8%B7%AF%E9%87%8C%E7%A8%8B%E5%88%97%E8%A1%A8">维基百科</a>上面有世界各国的公路里程。但是，我们不免怀疑统计数据的可信程度，俗话说相信别人比不上相信自己，我们为什么不亲自动手计算下呢？</p>
+<p>巧妇难为无米之炊，要统计公路里程首先要有公路的数据。OpenStreetMap（OSM）是一个由全世界志愿者贡献地理数据的网络地图项目，堪称地理数据的维基百科。OSM 公开了全世界地理矢量数据集，任何人都可以免费地下载使用。我下载了全球矢量瓦片（zoom 12）数据集 <a target="_blank" rel="noopener" href="http://osmlab.github.io/osm-qa-tiles/">OSM-QA-Tiles</a> ，数据集大小有 22 GB。这个数据集里面的矢量数据都是未经过制图综合，所以数据精度是有保障的。</p>
+<h2 id="TileReduce"><a href="#TileReduce" class="headerlink" title="TileReduce"></a>TileReduce</h2><p>然后，我要选择一个合适的计算框架来处理如此巨量的数据。<a target="_blank" rel="noopener" href="https://github.com/mapbox/tile-reduce">TileReduce</a> 是 Mapbox 的一个开源项目，它被设计用来对矢量瓦片做 MapReduce 操作。TileReduce 基于 Javascript 开发，可以借助 Nodejs 运行在各个平台上。运行以下命令，完成开发环境的搭建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> tile-reduce-test</span><br><span class="line"><span class="built_in">cd</span> tile-reduce-test</span><br><span class="line">npm init</span><br><span class="line">npm install tile-reduce --save</span><br></pre></td></tr></table></figure>
+
+<p>接下来，新建<code>index.js</code>，负责规约操作。其中<code>mbtiles</code>指定了数据的位置，所以记得将它指向你下载的数据的位置。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index.js</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tileReduce = <span class="built_in">require</span>(<span class="string">&#x27;tile-reduce&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> total = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> remoteSources = [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;osm&#x27;</span>,</span><br><span class="line">    <span class="attr">mbtiles</span>: path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;/latest.planet.z12.mbtiles&#x27;</span>),</span><br><span class="line">    <span class="attr">layers</span>: [<span class="string">&#x27;osm&#x27;</span>]</span><br><span class="line">  &#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="title function_">tileReduce</span>(&#123;</span><br><span class="line">    <span class="attr">bbox</span>: [-<span class="number">180.0</span>,-<span class="number">85.1</span>,<span class="number">180.0</span>,<span class="number">85.1</span>],</span><br><span class="line">    <span class="attr">zoom</span>: <span class="number">12</span>,</span><br><span class="line">    <span class="attr">map</span>: path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;/count.js&#x27;</span>),</span><br><span class="line">    <span class="attr">sources</span>: remoteSources</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">on</span>(<span class="string">&#x27;reduce&#x27;</span>, <span class="keyword">function</span>(<span class="params">num</span>) &#123;</span><br><span class="line">    total += num;</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">on</span>(<span class="string">&#x27;end&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;total: %d&#x27;</span>, total);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>新建<code>count.js</code>，负责对每个瓦片进行处理。里面用到了<code>turf</code>来计算道路线段的长度，所以需要<code>npm install turf --save</code>来安装这个库。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// count.js</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> turf = <span class="built_in">require</span>(<span class="string">&#x27;turf&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">function</span>(<span class="params">tilelayers, tile, writeData, done</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> length = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">var</span> layer = tilelayers.<span class="property">osm</span>.<span class="property">osm</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> roadTypes = [</span><br><span class="line">    <span class="string">&#x27;motorway&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;trunk&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;primary&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;secondary&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;tertiary&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;unclassified&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;residential&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;road&#x27;</span>,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; layer.<span class="property">features</span>.<span class="property">length</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> feature = layer.<span class="property">features</span>[i];</span><br><span class="line">    <span class="keyword">if</span> (roadTypes.<span class="title function_">indexOf</span>(feature.<span class="property">properties</span>.<span class="property">highway</span>) &gt; -<span class="number">1</span>) &#123;</span><br><span class="line">      length += <span class="title function_">line_length</span>(feature, <span class="string">&#x27;kilometers&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">done</span>(<span class="literal">null</span>, length);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">line_length</span>(<span class="params">feature, units</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> length = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (feature.<span class="property">geometry</span>.<span class="property">type</span> == <span class="string">&#x27;LineString&#x27;</span>) &#123;</span><br><span class="line">    length = turf.<span class="title function_">lineDistance</span>(feature, units);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (feature.<span class="property">geometry</span>.<span class="property">type</span> == <span class="string">&#x27;MultiLineString&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; feature.<span class="property">geometry</span>.<span class="property">coordinates</span>.<span class="property">length</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">var</span> linestring = turf.<span class="title function_">linestring</span>(feature.<span class="property">geometry</span>.<span class="property">coordinates</span>[i]);</span><br><span class="line">      length += turf.<span class="title function_">lineDistance</span>(linestring, units);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> length;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>大功即将告成，运行以下命令开始计算：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node index.js</span><br></pre></td></tr></table></figure>
+
+<p>我在一台 32 核服务器上运行了 30 min 58 s，处理了 1680 万个矢量瓦片，最终得到了全球公路总里程有 3215 万公里。考虑到这么大的数据量，这个速度比较令人接受的。</p>
+<p>查询维基百科上的数据得到的总里程是 6428 万公里，少了近一倍。我觉得有两方面的原因：</p>
+<ol>
+<li>我计算的道路只包括 OSM 中 Tag 为 <code>motorway, trunk, primary, secondary, tertiary, unclassified, residential, road</code>的公路，实际上还包括其他类型的公路没有统计；</li>
+<li>OSM 的数据完善程度在世界各地区不一样，欧洲和美洲比较完善，而中国和非洲的数据密度偏低，所以会造成部分道路未统计到。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然计算结果并不准确，重要的是我们验证了应用矢量瓦片进行地理大数据分析的技术可行性。在本文中只是做了一个简单的公路里程统计，矢量瓦片可以支持更深层次统计分析，这方面还有广泛的研究与应用价值。</p>
+<p>注：本文的所用的示例代码可以在<a target="_blank" rel="noopener" href="https://github.com/jingsam/tile-reduce-test">这里</a>找到。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2015/11/30/big-data-analysis-with-vector-tiles.html">https://jingsam.github.io/2015/11/30/big-data-analysis-with-vector-tiles.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2015/12/15/solve-octopress-genesis-theme-self-contradictory-dependencies.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">解决octopress-genesis-theme安装失败的问题</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2015/11/30/install-nodejs-on-centos.html">
+        <span class="next-text nav-default">CentOS 安装 Nodejs</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/26/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2017/03/08/vnode-deep-clone.html">Vue之slot深度复制</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-03-08
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>在Vue中，<code>slot</code>是一个很有用的特性，可以用来向组件内部插入一些内容。<code>slot</code>就是“插槽”的意思，用大白话说就是：定义组件的时候留几个口子，由用户来决定插入的内容。</p>
+<p>例如我们定义一个组件<code>MyComponent</code>，其包含一个<code>slot</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#x27;MyComponent&#x27;, &#123;</span><br><span class="line">  template: `</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;slot&gt;&lt;/slot&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  `</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>当调用<code>&lt;MyComponent&gt;123&lt;/MyComponent&gt;</code>时，会渲染为如下DOM结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">  123</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>现在又有新需求了，我们希望调用<code>&lt;MyComponent&gt;123&lt;/MyComponent&gt;</code>时，渲染出这样的DOM结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">  123</span><br><span class="line">  123</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>看起来很容易实现，即再为<code>MyComponent</code>添加一个<code>slot</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#x27;MyComponent&#x27;, &#123;</span><br><span class="line">  template: `</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;slot&gt;&lt;/slot&gt;</span><br><span class="line">      &lt;slot&gt;&lt;/slot&gt;</span><br><span class="line">    &lt;/div&gt;</span><br><span class="line">  `</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>渲染出的结构也确实如你所愿，唯一美中不足的是控制台有一个小小的Warning：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Duplicate presence of slot &quot;default&quot; found in the same render tree</span><br></pre></td></tr></table></figure>
+
+<p>如果你不是强迫症患者，这时候你可以收工安心回家睡觉了。直到有一天你的同事向你抱怨，为什么向<code>MyComponent</code>插入一个自定义组件会渲染不出来？</p>
+<p>例如有一自定义组件<code>MyComponent2</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#x27;MyComponent2&#x27;, &#123;</span><br><span class="line">  template: `</span><br><span class="line">    &lt;div&gt;456&lt;/div&gt;</span><br><span class="line">  `</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>当调用<code>&lt;MyComponent&gt;&lt;MyComponent2&gt;&lt;/MyComponent2&gt;&lt;/MyComponent&gt;</code>时，预期渲染为如下DOM结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">  &lt;div&gt;456&lt;/div&gt;</span><br><span class="line">  &lt;div&gt;456&lt;/div&gt;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>为什么不能正常工作呢？估计是前面的那个Warning搞得鬼，通过查询发现在Vue 2.0中不允许有重名的<code>slot</code>:</p>
+<blockquote>
+<p>重名的 Slots 移除<br>同一模板中的重名 <slot> 已经弃用。当一个 slot 已经被渲染过了，那么就不能在同一模板其它地方被再次渲染了。如果要在不同位置渲染同一内容，可一用 prop 来传递。</p>
+</blockquote>
+<p>文档中提示可以用<code>props</code>来实现，然而在我的用例中显然是不合适的。经过搜索后，最靠谱的方法是手写render函数，将<code>slot</code>中的内容复制到其他的位置。</p>
+<p>将之前的<code>MyComponent</code>改为render函数的方式定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#x27;MyComponent&#x27;, &#123;</span><br><span class="line">  render (createElement) &#123;</span><br><span class="line">    return createElement(&#x27;div&#x27;, [</span><br><span class="line">      ...this.$slots.default,</span><br><span class="line">      ...this.$slots.default</span><br><span class="line">    ])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>在上面的定义中我们插入了两个<code>this.$slots.default</code>，测试下能不能正常工作。然而并没有什么卵用，Vue文档在render函数这一章有以下说明：</p>
+<blockquote>
+<p>VNodes 必须唯一<br>所有组件树中的 VNodes 必须唯一</p>
+</blockquote>
+<p>这意味着我们不能简单地在不同位置引用<code>this.$slots.default</code>，必须对<code>slot</code>进行深度复制。深度复制的函数如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function deepClone(vnodes, createElement) &#123;</span><br><span class="line"></span><br><span class="line">  function cloneVNode (vnode) &#123;</span><br><span class="line">    const clonedChildren = vnode.children &amp;&amp; vnode.children.map(vnode =&gt; cloneVNode(vnode));</span><br><span class="line">    const cloned = createElement(vnode.tag, vnode.data, clonedChildren);</span><br><span class="line">    cloned.text = vnode.text;</span><br><span class="line">    cloned.isComment = vnode.isComment;</span><br><span class="line">    cloned.componentOptions = vnode.componentOptions;</span><br><span class="line">    cloned.elm = vnode.elm;</span><br><span class="line">    cloned.context = vnode.context;</span><br><span class="line">    cloned.ns = vnode.ns;</span><br><span class="line">    cloned.isStatic = vnode.isStatic;</span><br><span class="line">    cloned.key = vnode.key;</span><br><span class="line"></span><br><span class="line">    return cloned;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  const clonedVNodes = vnodes.map(vnode =&gt; cloneVNode(vnode))</span><br><span class="line">  return clonedVNodes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的核心函数就是<code>cloneVNode()</code>，它递归地创建VNode，实现深度复制。VNode的属性很多，我并不了解哪些是关键属性，只是参照着Vue的源码一并地复制过来。</p>
+<p>基于以上函数，我们更改<code>MyComponent</code>的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#x27;MyComponent&#x27;, &#123;</span><br><span class="line">  render (createElement) &#123;</span><br><span class="line">    return createElement(&#x27;div&#x27;, [</span><br><span class="line">      ...this.$slots.default,</span><br><span class="line">      ...deepClone(this.$slots.default, createElement)</span><br><span class="line">    ])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>经测试，一切正常。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在Vue 1.0中重名的slots并不会出现什么问题，不知道为什么在2.0中取消了这个功能。我听说React提供了复制Element的标准函数，希望Vue也能提供这个函数，免得大家踩坑。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/25/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/27/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

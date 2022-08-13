@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/10/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2018/10/12/lets-encrypt.html">手动挡模式申请Let's Encrypt通配符证书</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-10-12
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>本篇文章要讲的内容是申请Let’s Encrypt通配符证书，但是标题中加一个“手动挡”模式是什么意思呢？我们拿学车为例，当我们学会了开手动挡，开自动挡自然不在话下。同理，如果我们弄明白了手动申请Let’s Encrypt证书的步骤，以后使用自动化工具自然也是手到擒来。</p>
+<p>网上关于申请Let’s Encrypt证书的文章多如牛毛，本篇文章的不同在于以下几点：</p>
+<ol>
+<li>使用手动模式申请证书；</li>
+<li>申请的是通配符证书，一个证书适用多个域名；</li>
+<li>使用Docker来完成申请操作，避免安装一大堆软件污染系统；</li>
+<li>可以在本地电脑上完成申请操作，更灵活。</li>
+</ol>
+<h1 id="验证域名的三种模式"><a href="#验证域名的三种模式" class="headerlink" title="验证域名的三种模式"></a>验证域名的三种模式</h1><p>申请证书要解决的一个关键问题是：如何证明域名是你所拥有的？Let’s Encrypt提供了三种模式：http、dns、tls-sni。</p>
+<p>http模式就是Let’s Encrypt给你一个随机字符串，你需要在Web服务器的<code>/.well-known/acme-challenge/</code>服务路径下放置一个以该字符串命名的文件，当Let’s Encrypt能够访问到这个文件时，证明你是这个域名的所有者。</p>
+<p>dns模式同样是Let’s Encrypt给你一个随机字符串，你需要以该字符串建立一个DNS TXT记录，当Let’s Encrypt查询域名的TXT记录时，发现得到的字符串一致，则证明你是这个域名的所有者。</p>
+<p>tls-sni模式没有仔细研究过，似乎通过SSL加密传输。http走的是80端口，tls-sni走的是443端口。由于当前的tls-sni似乎有漏洞，该模式一度遭禁用，所以不推荐采用此模式，本文也不加以讨论。</p>
+<p>http模式和dns模式各有优劣，适用于不同的场景。http模式不需要操作DNS记录，只需要新建一个文件就可以完成验证，带来的限制就是验证过程必须操作服务器；dns模式不需要操作服务器，只需添加DNS TXT记录就行，缺点是必须登录到域名提供商的页面上修改DNS记录。不管是http模式还是dns模式，申请证书的操作都是可以在任意电脑上完成，申请完之后再将证书复制到服务器上。http模式验证过程需要操作服务器，dns模式验证过程需要操作DNS。</p>
+<p>由于我们要申请的是通配符证书，必须使用dns模式验证，为什么呢？以通配符域名<code>*.example.com</code>为例，它包含的域名千千万万，不太可能使用http模式去验证每个域名。dns模式的验证能力更强，如果用户具有操作<code>example.com</code>域名的DNS记录权限，那当然是拥有通配符域名<code>*.example.com</code>。</p>
+<p>搞清楚申请域名关键问题，接下来说明申请域名的步骤。</p>
+<h1 id="申请域名的步骤"><a href="#申请域名的步骤" class="headerlink" title="申请域名的步骤"></a>申请域名的步骤</h1><p>申请let’s encrypt的客户端软件很多，这里采用的是官方推荐的客户端certbot。运行certbot需要python环境，还需要在系统全局环境安装一些python包。考虑到证书的有效期是90天，申请证书并不是一个频繁的操作，我不想因为一个低频使用的软件污染我的全局系统，因此采用Docker作为运行环境。</p>
+<p>申请let’s encrypt只需要一条命令，之后certbot通过交互的方式询问申请信息，很人性化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --rm --name certbot \</span><br><span class="line">    -v $PWD:/etc/letsencrypt \</span><br><span class="line">    certbot/certbot \</span><br><span class="line">    certonly --manual --preferred-challenges=dns-01 \</span><br><span class="line">    --server=https://acme-v02.api.letsencrypt.org/directory</span><br></pre></td></tr></table></figure>
+
+<p>上述命令中，<code>-v $PWD:/etc/letsencrypt</code>表示把当前文件夹映射到docker中的<code>/etc/letsencrypt</code>文件夹，这样certbot生成的证书将出现在当前文件夹中；<code>certonly</code>表示证书申请子命令，还有<code>renew</code>、<code>revoke</code>、<code>delete</code>等其他子命令；<code>--manual</code>是手动申请模式；<code>--preferred-challenges=dns-01</code>表示采用dns模式验证，默认采用http模式验证；<code>--server=https://acme-v02.api.letsencrypt.org/directory</code>表示指向ACME V2版本服务器，默认指向ACME V1版本服务器，但只有ACME V2才支持通配符证书。</p>
+<p>接着需要提供一个email地址用于接收证书更新和安全问题提醒：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Saving debug log to /var/log/letsencrypt/letsencrypt.log</span><br><span class="line">Plugins selected: Authenticator manual, Installer None</span><br><span class="line">Enter email address (used for urgent renewal and security notices) (Enter &#x27;c&#x27; to</span><br><span class="line">cancel): XXX@XX.com</span><br></pre></td></tr></table></figure>
+
+<p>需要同意用户协议：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">Please read the Terms of Service at</span><br><span class="line">https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf. You must</span><br><span class="line">agree in order to register with the ACME server at</span><br><span class="line">https://acme-v02.api.letsencrypt.org/directory</span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">(A)gree/(C)ancel: A</span><br></pre></td></tr></table></figure>
+
+<p>询问你需不需要接收电子前哨基金会（EFF）的新闻、活动，可以选择不接收：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">Would you be willing to share your email address with the Electronic Frontier</span><br><span class="line">Foundation, a founding partner of the Let&#x27;s Encrypt project and the non-profit</span><br><span class="line">organization that develops Certbot? We&#x27;d like to send you email about our work</span><br><span class="line">encrypting the web, EFF news, campaigns, and ways to support digital freedom.</span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">(Y)es/(N)o: N</span><br></pre></td></tr></table></figure>
+
+<p>接下来就需要填写要申请证书的域名，这里需要注意一点的是<code>*.example.com</code>并不包括裸域名<code>example.com</code>，如果申请的证书需要囊括<code>example.com</code>，就必须要同时包含<code>example.com</code>和<code>*.example.com</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Please enter in your domain name(s) (comma and/or space separated)  (Enter &#x27;c&#x27;</span><br><span class="line">to cancel): example.com, *.example.com</span><br><span class="line">Obtaining a new certificate</span><br><span class="line">Performing the following challenges:</span><br><span class="line">dns-01 challenge for example.com</span><br><span class="line">dns-01 challenge for example.com</span><br></pre></td></tr></table></figure>
+
+<p>申请证书的电脑的IP会被记录，可能是防治滥用吧，需要同意记录IP：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">NOTE: The IP of this machine will be publicly logged as having requested this</span><br><span class="line">certificate. If you&#x27;re running certbot in manual mode on a machine that is not</span><br><span class="line">your server, please ensure you&#x27;re okay with that.</span><br><span class="line"></span><br><span class="line">Are you OK with your IP being logged?</span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">(Y)es/(N)o: Y</span><br></pre></td></tr></table></figure>
+
+<p>然后开始使用dns模式验证域名，这时候需要登录到你的域名服务商的DNS编辑页面上，在<code>_acme-challenge.example.com</code>增加两个TXT记录，一个用来验证<code>example.com</code>，另一个用来验证<code>*.example.com</code>。TXT记录的内容就是命令行中提供的随机字符串：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">Please deploy a DNS TXT record under the name</span><br><span class="line">_acme-challenge.example.com with the following value:</span><br><span class="line"></span><br><span class="line">FvMdm......6scC4</span><br><span class="line"></span><br><span class="line">Before continuing, verify the record is deployed.</span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">Press Enter to Continue</span><br><span class="line"></span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br><span class="line">Please deploy a DNS TXT record under the name</span><br><span class="line">_acme-challenge.example.com with the following value:</span><br><span class="line"></span><br><span class="line">H1UHs......Lc90en4dY</span><br><span class="line"></span><br><span class="line">Before continuing, verify the record is deployed.</span><br><span class="line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span><br></pre></td></tr></table></figure>
+
+<p>TXT记录修改好之后，使用<code>dig -t TXT _acme-challenge.example.com</code>来验证TXT记录是否生效了。如果确认生效了，则按回车完成证书的申请：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Press Enter to Continue</span><br><span class="line">Waiting for verification...</span><br><span class="line">Cleaning up challenges</span><br><span class="line"></span><br><span class="line">IMPORTANT NOTES:</span><br><span class="line"> - Congratulations! Your certificate and chain have been saved at:</span><br><span class="line">   /etc/letsencrypt/live/example.com/fullchain.pem</span><br><span class="line">   Your key file has been saved at:</span><br><span class="line">   /etc/letsencrypt/live/example.com/privkey.pem</span><br><span class="line">   Your cert will expire on 2019-01-10. To obtain a new or tweaked</span><br><span class="line">   version of this certificate in the future, simply run certbot</span><br><span class="line">   again. To non-interactively renew *all* of your certificates, run</span><br><span class="line">   &quot;certbot renew&quot;</span><br><span class="line"> - Your account credentials have been saved in your Certbot</span><br><span class="line">   configuration directory at /etc/letsencrypt. You should make a</span><br><span class="line">   secure backup of this folder now. This configuration directory will</span><br><span class="line">   also contain certificates and private keys obtained by Certbot so</span><br><span class="line">   making regular backups of this folder is ideal.</span><br><span class="line"> - If you like Certbot, please consider supporting our work by:</span><br><span class="line"></span><br><span class="line">   Donating to ISRG / Let&#x27;s Encrypt:   https://letsencrypt.org/donate</span><br><span class="line">   Donating to EFF:                    https://eff.org/donate-le</span><br></pre></td></tr></table></figure>
+
+<p>上面的信息告诉我们，证书保存在<code>/etc/letsencrypt/live/example.com/fullchain.pem</code>，证书的秘钥保存在<code>/etc/letsencrypt/live/example.com/privkey.pem</code>，我们可以把这两个文件拷贝到服务器上用于设置https。</p>
+<h1 id="证书更新"><a href="#证书更新" class="headerlink" title="证书更新"></a>证书更新</h1><p>证书的有效期是90天，在证书失效前30天之内，Let’s Encrypt会发邮件通知我们。</p>
+<p>虽然有专门的<code>renew</code>命令用来自动更新证书，但是我们申请的是通配符证书，仍然需要手动验证域名。因此，我们需要重新运行原来申请证书的命令来更新证书：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --rm --name certbot \</span><br><span class="line">    -v $PWD:/etc/letsencrypt \</span><br><span class="line">    certbot/certbot \</span><br><span class="line">    certonly --manual --preferred-challenges=dns-01 \</span><br><span class="line">    --server=https://acme-v02.api.letsencrypt.org/directory</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过手动模式一步一步操作，完成了通配符域名的申请。只要理解了let’s encrypt验证域名的http模式和dns模式的原理，申请域名就能做到心中有数。下一篇将讲一讲在nginx环境下，如何使用申请到的证书配置https。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/9/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/11/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

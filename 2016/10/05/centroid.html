@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="多边形centroid的计算方法"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/10/05/centroid.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>多边形centroid的计算方法 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">多边形centroid的计算方法
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-10-05
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Centroid%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-text">Centroid的定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86"><span class="toc-text">算法原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="toc-text">具体实现</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>在<a href="/2016/09/26/polylabel2.html">上一篇</a>计算多边形的最佳注记点的算法中，需要计算多边形的centroid。本文就来讲一讲多边形centroid的计算方法。</p>
+<h2 id="Centroid的定义"><a href="#Centroid的定义" class="headerlink" title="Centroid的定义"></a>Centroid的定义</h2><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Centroid">Centroid</a>是多边形的质量中心（Center of mass）。假设多边形是一块厚度均匀的薄板，当我们用一根绳子从一个平衡点吊起薄板时，薄板能够保持水平稳定，那么这个平衡点就是centroid。</p>
+<img src="/2016/10/05/centroid/tilt-slab-construction.jpg" class="">
+
+
+<h2 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h2><p>我们先从1维直线说起，如下图，在原点的一端不同位置上分别挂着重10kg、5kg、7kg的砝码。如果我们将三个砝码当成一个整体，挂在同一个位置，使其产生的杠杆效应与之前相同，那么这个位置点就相当于质心。</p>
+<img src="/2016/10/05/centroid/Image1203.gif" class="">
+
+<p>计算方法如下：</p>
+<p>总惯性 = 10 × 2 + 5 × 4 + 7 × 5 = 75 kg.m<br>总质量 = 10 + 5 + 7 = 22 kg<br>假设质心距离原点为d，那么 22 x d = 75，得出 d = 75 / 22 ≈ 3.4 m</p>
+<img src="/2016/10/05/centroid/Image1207.gif" class="">
+
+<p>上述计算1维直线上的质心很简单，那么现在扩展到2维平面。如下图，矩形的质心很容易求得为 (2，1)。</p>
+<img src="/2016/10/05/centroid/Image1208.gif" class="">
+
+<p>如果更复杂的形状呢？</p>
+<img src="/2016/10/05/centroid/Image1211.gif" class="">
+
+<p>计算方法是将多边形分解为多个容易求质心的规则矩形，过程如下：</p>
+<p>首先将多边形分解为左右两个规则矩形，如下图：</p>
+<img src="/2016/10/05/centroid/Image1212.gif" class="">
+
+<p>左矩形的面积为 3 x 2 = 6，质心为 (-0.5, 1)<br>左矩形的面积为 2 x 4 = 8，质心为 (2, 2)</p>
+<p>我们假设多边形质量是均匀分布的，那么矩形的面积就可以代表它的质量，所以在x轴上：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">6 x -0.5 + 8 x 2 = (6 + 8) x dx</span><br><span class="line">-3 + 16 = 14 x dx</span><br><span class="line">13 = 14 x dx</span><br><span class="line">dx = 13 / 14</span><br></pre></td></tr></table></figure>
+
+<p>同理，在y轴上：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">6 x 1 + 8 x 2 = (6 + 8) x dy</span><br><span class="line">6 + 16 = 14 x dy</span><br><span class="line">22 = 14 x dy</span><br><span class="line">dy = 11 / 7</span><br></pre></td></tr></table></figure>
+<p>最终求得多边形的质心为(13/14, 11/7)</p>
+<p>由以上过程，我们可以得出一个更为普遍的结论：</p>
+<p>质心 = 惯性 / 质量</p>
+<p>用公式表达即为：</p>
+<img src="/2016/10/05/centroid/eq1.png" class="">
+
+<p>对于任意不规则多边形，如何利用上述公式计算质心呢？其原理是将多边形剖分为三角形，然后分别计算每个三角形的面积和质心。</p>
+<img src="/2016/10/05/centroid/PolygonArea1.png" class="">
+
+<p>对于三角形的面积，我们可以采用向量积公式计算:<br>$$<br>signedArea(ABC)=\frac{1}{2}(x_1y_2 - x_2y_1)<br>$$</p>
+<img src="/2016/10/05/centroid/figure7.jpg" class="">
+
+<p>对于三角形的质心，采用如下公式计算：<br>$$<br>centroid(ABC)=(\frac{A_x + B_x + C_x}{3}, \frac{A_y + B_y + C_y}{3})<br>$$</p>
+<img src="/2016/10/05/centroid/figure8.jpg" class="">
+
+<p>剩下的任务是选择一个剖分点P，将多边形剖分为多个三角形。由于我们在用向量积计算三角形面积时，其结果是有正负的。选择哪一个剖分点，并不影响最终加和后的总面积，<strong>前提是多边形的坐标点按逆时针排列</strong>。所以，为了简便期间，选取坐标原点作为剖分点。</p>
+<img src="/2016/10/05/centroid/PolygonArea3.png" class="">
+
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// polygon按顺时针排列顶点</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getCentroid</span>(<span class="params">polygon</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> totalArea = <span class="number">0</span></span><br><span class="line">  <span class="keyword">var</span> totalX = <span class="number">0</span></span><br><span class="line">  <span class="keyword">var</span> totalY = <span class="number">0</span></span><br><span class="line">  <span class="keyword">var</span> points = polygon[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; points.<span class="property">length</span>; ++i) &#123;</span><br><span class="line">    <span class="comment">// a、b以及原点构成一个三角形</span></span><br><span class="line">    <span class="keyword">var</span> a = points[i + <span class="number">1</span>]</span><br><span class="line">    <span class="keyword">var</span> b = points[i]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> area = <span class="number">0.5</span> * (a[<span class="number">0</span>] * b[<span class="number">1</span>] - b[<span class="number">0</span>] * a[<span class="number">1</span>])  <span class="comment">// 计算面积</span></span><br><span class="line">    <span class="keyword">var</span> x = (a[<span class="number">0</span>] + b[<span class="number">0</span>]) / <span class="number">3</span>  <span class="comment">// 计算x方向质心</span></span><br><span class="line">    <span class="keyword">var</span> y = (a[<span class="number">1</span>] + b[<span class="number">1</span>]) / <span class="number">3</span>  <span class="comment">// 计算y方向质心</span></span><br><span class="line"></span><br><span class="line">    totalArea += area</span><br><span class="line">    totalX += area * x</span><br><span class="line">    totalY += area * y</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> [totalX / totalArea, totalY/ totalArea]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/10/05/centroid.html">https://jingsam.github.io/2016/10/05/centroid.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2016/10/19/mapbox-gl-style-spec.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">《Mapbox 地图样式规范》中文版上线啦</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2016/09/26/polydist.html">
+        <span class="next-text nav-default">求点到多边形的距离的算法实现</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

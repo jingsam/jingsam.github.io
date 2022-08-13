@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/7/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2018/11/24/npm-package-offline-install.html">离线安装npm包的几种方法</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-11-24
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>这段时间的工作主题就是Linux<br>下的“离线部署”，包括mongo、mysql、postgresql、nodejs、nginx等软件的离线部署。平常在服务器上借助apt-get就能轻松搞定的事情，在离线环境下就变得异常艰难。<a href="/2018/11/24/npm-package-offline-install.html">上一篇文章</a>讲了使用snap离线安装软件的方式，但对于npm包怎么离线部署，snap是无能为力的。本篇文章就来讲一讲离线安装npm包的几种方法。</p>
+<p>接下来的部分，我将以离线安装pm2为例来进行说明。pm2是一个进程守护程序，用于启动node集群和服务进程出错时自动重启，在生产环境下部署nodejs应用一般都会使用到。</p>
+<h1 id="使用npm-link"><a href="#使用npm-link" class="headerlink" title="使用npm link"></a>使用<code>npm link</code></h1><p>使用<code>npm link</code>的方式是最常用的方法，具体做法是在联网机器上下载pm2的源码并安装好依赖，拷贝到离线服务器上，最后借助<code>npm link</code>将pm2链接到全局区域。</p>
+<p>首先，将pm2的源代码克隆下来：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/Unitech/pm2.git</span><br></pre></td></tr></table></figure>
+
+<p>然后进入到pm2项目中，安装好所有的依赖：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd pm2</span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+
+<p>将安装好依赖的pm2文件夹拷贝到目标服务器上，进入pm2目录链接到全局区域：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cd pm2</span><br><span class="line">$ npm link</span><br></pre></td></tr></table></figure>
+
+<p>这种方式最关键的是借助<code>npm link</code>完成链接，但<code>npm link</code>这条命令本意是设计给开发人员调试用的。但开发人员开发某个全局命令工具的时候，通过将命令从本地工程目录链接到全局，这样调试的时候，可以实时查看本地代码在全局环境下的执行情况。所以，<code>npm link</code>的项目需要安装所有的依赖，包括<code>dependencies</code>以及<code>devDependencies</code>，而我们如果只是使用而不是开发某个包的话，正常情况下不应该安装<code>devDependencies</code>。</p>
+<p>总而言之，这种方式优点是比较简单，缺点是安装了不需要的<code>devDependencies</code>，对于有“洁癖”的人是难以忍受的。</p>
+<h1 id="使用npm-bundle"><a href="#使用npm-bundle" class="headerlink" title="使用npm bundle"></a>使用<code>npm bundle</code></h1><p>那有什么方法相比于上一种方法更干净呢？答案是使用npm-bundle工具将pm2的所有依赖打包，然后到目标服务器上使用<code>npm install &lt;tarball file&gt;</code>安装。</p>
+<p>首先在联网机器上安装npm-bundle工具：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g npm-bundle</span><br></pre></td></tr></table></figure>
+
+<p>然后打包pm2：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm-bundle pm2</span><br></pre></td></tr></table></figure>
+
+<p>上面的命令会生成一个tgz的包文件，复制到目标服务器上安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install -g ./pm2-3.2.2.tgz</span><br></pre></td></tr></table></figure>
+
+<p>npm-bundle的本质是借助<code>npm pack</code>来实现打包的。<code>npm pack</code>会打包包本身以及<code>bundledDependencies</code>中的依赖，npm-bundle则是将pm2的所有<code>dependencies</code>记录到<code>bundledDependencies</code>，来实现所有依赖的打包。</p>
+<p>这种方式不需要安装多余的<code>devDependencies</code>，并且不需要克隆pm2的源码，比第一种方法更方便。</p>
+<p>更新：<code>npm-bundle</code>对于scoped packages的处理有bug，不能正确地打包，这时考虑采用第一种方式。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/6/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/8/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

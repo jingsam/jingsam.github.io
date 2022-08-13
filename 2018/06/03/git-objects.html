@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Git内部原理之Git对象"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/06/03/git-objects.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Git内部原理之Git对象 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Git内部原理之Git对象
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-06-03
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%AF%B9%E8%B1%A1"><span class="toc-text">数据对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%91%E5%AF%B9%E8%B1%A1"><span class="toc-text">树对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4%E5%AF%B9%E8%B1%A1"><span class="toc-text">提交对象</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>最近在读《Pro Git》这本书，其中有一章讲Git的内部原理，写得非常好，读完之后对于Git的理解会提升到一个新的层次。今后，我会写一系列的关于Git内部原理的文章，以帮助读者加深对Git的认识。内容主要参考《Pro Git》这本书，但不同的是，我会对内容进行重新组织，以使大家更容易理解。</p>
+<p>这篇文章的主题的Git对象。</p>
+<p><strong>从根本上来讲，Git是一个内容寻址的文件系统，其次才是一个版本控制系统。</strong>记住这点，对于理解Git的内部原理及其重要。所谓“内容寻址的文件系统”，意思是根据文件内容的hash码来定位文件。这就意味着同样内容的文件，在这个文件系统中会指向同一个位置，不会重复存储。</p>
+<p>Git对象包含三种：数据对象、树对象、提交对象。Git文件系统的设计思路与linux文件系统相似，即将文件的内容与文件的属性分开存储，文件内容以“装满字节的袋子”存储在文件系统中，文件名、所有者、权限等文件属性信息则另外开辟区域进行存储。在Git中，数据对象相当于文件内容，树对象相当于文件目录树，提交对象则是对文件系统的快照。</p>
+<p>下面的章节，会分别对每种对象进行说明。开始说明之前，先初始化一个Git文件系统：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir git-test</span><br><span class="line">$ cd git-test</span><br><span class="line">$ git init</span><br></pre></td></tr></table></figure>
+
+<p>接下来的操作都会在<code>git-test</code>这个目录中进行。</p>
+<h1 id="数据对象"><a href="#数据对象" class="headerlink" title="数据对象"></a>数据对象</h1><p>数据对象是文件的内容，不包括文件名、权限等信息。Git会根据文件内容计算出一个hash值，以hash值作为文件索引存储在Git文件系统中。由于相同的文件内容的hash值是一样的，因此Git将同样内容的文件只会存储一次。<code>git hash-object</code>可以用来计算文件内容的hash值，并将生成的数据对象存储到Git文件系统中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;version 1&#x27; | git hash-object -w --stdin</span><br><span class="line">83baae61804e65cc73a7201a7252750c76066a30</span><br><span class="line">$ echo &#x27;version 2&#x27; | git hash-object -w --stdin</span><br><span class="line">1f7a7a472abf3dd9643fd615f6da379c4acb3e3a</span><br><span class="line">$ echo &#x27;new file&#x27; | git hash-object -w --stdin</span><br><span class="line">fa49b077972391ad58037050f2a75f74e3671e92</span><br></pre></td></tr></table></figure>
+
+<p>上面示例中，<code>-w</code>表示将数据对象写入到Git文件系统中，如果不加这个选项，那么只计算文件的hash值而不写入；<code>--stdin</code>表示从标准输入中获取文件内容，当然也可以指定一个文件路径代替此选项。</p>
+<p>上面讲数据对象写入到Git文件系统中，那如何读取数据对象呢？<code>git cat-file</code>可以用来实现所有Git对象的读取，包括数据对象、树对象、提交对象的查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p 83baae61804e65cc73a7201a7252750c76066a30</span><br><span class="line">version 1</span><br><span class="line">$ git cat-file -t 83baae61804e65cc73a7201a7252750c76066a30</span><br><span class="line">blob</span><br></pre></td></tr></table></figure>
+
+<p>上面示例中，<code>-p</code>表示查看Git对象的内容，<code>-t</code>表示查看Git对象的类型。</p>
+<p>通过这一节，我们能够对Git文件系统中的数据对象进行读写。但是，我们需要记住每一个数据对象的hash值，才能访问到Git文件系统中的任意数据对象，这显然是不现实的。数据对象只是解决了文件内容存储的问题，而文件名的存储则需要通过下一节的树对象来解决。</p>
+<h1 id="树对象"><a href="#树对象" class="headerlink" title="树对象"></a>树对象</h1><p>树对象是文件目录树，记录了文件获取目录的名称、类型、模式信息。使用<code>git update-index</code>可以为数据对象指定名称和模式，然后使用<code>git write-tree</code>将树对象写入到Git文件系统中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git update-index --add --cacheinfo 100644 83baae61804e65cc73a7201a7252750c76066a30 test.txt</span><br><span class="line">$ git write-tree</span><br><span class="line">d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br></pre></td></tr></table></figure>
+
+<p><code>--add</code>表示新增文件名，如果第一次添加某一文件名，必须使用此选项；<code>--cacheinfo &lt;mode&gt; &lt;object&gt; &lt;path&gt;</code>是要添加的数据对象的模式、hash值和路径，<code>&lt;path&gt;</code>意味着为数据对象不仅可以指定单纯的文件名，也可以使用路径。另外要注意的是，使用<code>git update-index</code>添加完文件后，一定要使用<code>git write-tree</code>写入到Git文件系统中，否则只会存在于index区域。</p>
+<p>树对象仍然可以使用<code>git cat-file</code>查看：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">100644 blob 83baae61804e65cc73a7201a7252750c76066a30  test.txt</span><br><span class="line">$ git cat-file -t d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">tree</span><br></pre></td></tr></table></figure>
+
+<p>上面表示这个树对象只有<code>test.txt</code>这个文件，接下来我们将<code>version 2</code>的数据对象指定为<code>test.txt</code>，并添加一个新文件<code>new.txt</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git update-index --cacheinfo 100644 1f7a7a472abf3dd9643fd615f6da379c4acb3e3a test.txt</span><br><span class="line">$ git update-index --add --cacheinfo 100644 fa49b077972391ad58037050f2a75f74e3671e92 new.txt</span><br><span class="line">$ git write-tree</span><br><span class="line">0155eb4229851634a0f03eb265b69f5a2d56f341</span><br></pre></td></tr></table></figure>
+
+<p>查看树对象<code>0155eb</code>，可以发现这个树对象有两个文件了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p 0155eb4229851634a0f03eb265b69f5a2d56f341</span><br><span class="line">100644 blob fa49b077972391ad58037050f2a75f74e3671e92  new.txt</span><br><span class="line">100644 blob 1f7a7a472abf3dd9643fd615f6da379c4acb3e3a  test.txt</span><br></pre></td></tr></table></figure>
+
+<p>我们甚至可以使用<code>git read-tree</code>，将已添加的树对象读取出来，作为当前树的子树：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git read-tree --prefix=bak d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">$ git write-tree</span><br><span class="line">3c4e9cd789d88d8d89c1073707c3585e41b0e614</span><br></pre></td></tr></table></figure>
+
+<p><code>--prefix</code>表示把子树对象放到哪个目录下。查看树对象，可以发现当前树对象有一个文件夹和两个文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p 3c4e9cd789d88d8d89c1073707c3585e41b0e614</span><br><span class="line">040000 tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579  bak</span><br><span class="line">100644 blob fa49b077972391ad58037050f2a75f74e3671e92  new.txt</span><br><span class="line">100644 blob 1f7a7a472abf3dd9643fd615f6da379c4acb3e3a  test.txt</span><br></pre></td></tr></table></figure>
+
+<p>最终，整个树对象的结构如下图：</p>
+<img src="/2018/06/03/git-objects/2018-06-03-1.png" class="">
+
+<p>树对象解决了文件名的问题，而且，由于我们是分阶段提交树对象的，树对象可以看做是开发阶段源代码目录树的一次次快照，因此我们可以是用树对象作为源代码版本管理。但是，这里仍然有问题需要解决，即我们需要记住每个树对象的hash值，才能找到个阶段的源代码文件目录树。在源代码版本控制中，我们还需要知道谁提交了代码、什么时候提交的、提交的说明信息等，接下来的提交对象就是为了解决这个问题的。</p>
+<h1 id="提交对象"><a href="#提交对象" class="headerlink" title="提交对象"></a>提交对象</h1><p>提交对象是用来保存提交的作者、时间、说明这些信息的，可以使用<code>git commit-tree</code>来将提交对象写入到Git文件系统中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;first commit&#x27; | git commit-tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a</span><br></pre></td></tr></table></figure>
+
+<p>上面<code>commit-tree</code>除了要指定提交的树对象，也要提供提交说明，至于提交的作者和时间，则是根据环境变量自动生成，并不需要指定。这里需要提醒一点的是，读者在测试时，得到的提交对象hash值一般和这里不一样，这是因为提交的作者和时间是因人而异的。</p>
+<p>提交对象的查看，也是使用<code>git cat-file</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">tree d8329fc1cc938780ffdd9f94e0d364e0ea74f579</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022503 +0800</span><br><span class="line"></span><br><span class="line">first commit</span><br></pre></td></tr></table></figure>
+
+<p>上面是属于首次提交，那么接下来的提交还需要指定使用<code>-p</code>指定父提交对象，这样代码版本才能成为一条时间线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;second commit&#x27; | git commit-tree 0155eb4229851634a0f03eb265b69f5a2d56f341 -p db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>git cat-file</code>查看一下新的提交对象，可以看到相比于第一次提交，多了<code>parent</code>部分：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br><span class="line">tree 0155eb4229851634a0f03eb265b69f5a2d56f341</span><br><span class="line">parent db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">author jingsam &lt;jing-sam@qq.com&gt; 1528022722 +0800</span><br><span class="line">committer jingsam &lt;jing-sam@qq.com&gt; 1528022722 +0800</span><br><span class="line"></span><br><span class="line">second commit</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们再将树对象<code>3c4e9c</code>提交：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ echo &#x27;third commit&#x27; | git commit-tree 3c4e9cd789d88d8d89c1073707c3585e41b0e614 -p d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>git log</code>可以查看整个提交历史：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ git log --stat 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br><span class="line">commit 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br><span class="line">Author: jingsam &lt;jing-sam@qq.com&gt;</span><br><span class="line">Date:   Sun Jun 3 18:47:29 2018 +0800</span><br><span class="line"></span><br><span class="line">    third commit</span><br><span class="line"></span><br><span class="line"> bak/test.txt | 1 +</span><br><span class="line"> 1 file changed, 1 insertion(+)</span><br><span class="line"></span><br><span class="line">commit d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br><span class="line">Author: jingsam &lt;jing-sam@qq.com&gt;</span><br><span class="line">Date:   Sun Jun 3 18:45:22 2018 +0800</span><br><span class="line"></span><br><span class="line">    second commit</span><br><span class="line"></span><br><span class="line"> new.txt  | 1 +</span><br><span class="line"> test.txt | 2 +-</span><br><span class="line"> 2 files changed, 2 insertions(+), 1 deletion(-)</span><br><span class="line"></span><br><span class="line">commit db1d6f137952f2b24e3c85724ebd7528587a067a</span><br><span class="line">Author: jingsam &lt;jing-sam@qq.com&gt;</span><br><span class="line">Date:   Sun Jun 3 18:41:43 2018 +0800</span><br><span class="line"></span><br><span class="line">    first commit</span><br><span class="line"></span><br><span class="line"> test.txt | 1 +</span><br><span class="line"> 1 file changed, 1 insertion(+)</span><br></pre></td></tr></table></figure>
+
+
+<p>最终的提交对象的结构如下图：</p>
+<img src="/2018/06/03/git-objects/2018-06-03-2.png" class="">
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Git中的数据对象解决了数据存储的问题，树对象解决了文件名存储问题，提交对象解决了提交信息的存储问题。从Git设计中可以看出，Linus对一个源代码版本控制系统做了很好的抽象和解耦，每种对象解决的问题都很明确，相比于使用一种数据结构，无疑更灵活和更易维护。每种Git对象都有一个hash值，这个值是怎么计算出来的？Git的各种对象是如何存储的？这些问题将在下一篇文章中讲解。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/06/03/git-objects.html">https://jingsam.github.io/2018/06/03/git-objects.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/06/09/git-hash.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Git内部原理之Git对象哈希</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/05/23/edit-a-brew-formula.html">
+        <span class="next-text nav-default">手动更新Homebrew formula</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

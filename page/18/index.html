@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/18/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2018/03/12/npm-main.html">关于package.json中main字段的指向问题</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-03-12
+        </span></div>
+    </header>
+
+    <div class="post-content"><p><code>package.json</code>中的<code>main</code>字段指向的是Library的入口，通常有3个选择：</p>
+<p>1.指向源代码入口文件，如<code>src/index.js</code>;<br>2.指向打包后的开发版本，如<code>dist/library.js</code>;<br>3.指向打包后的发布版本，如<code>dist/library.min.js</code>。</p>
+<p>引用Library的方式也分为两种：</p>
+<p>1.通过script标签直接引用，适用于简单页面；<br>2.通过require或import方式引用，需要借助打包工具打包，适用于复杂页面。</p>
+<p>本文探讨一下<code>main</code>字段如何指定，才能兼顾各种引用方式。</p>
+<h1 id="指向源代码入口文件"><a href="#指向源代码入口文件" class="headerlink" title="指向源代码入口文件"></a>指向源代码入口文件</h1><p>第一种方式指向源码入口，这种情况仅适用于require方式引用。由于指向的是源代码，需要库使用者借助打包工具如webpack，自行对库进行打包。此方式存在以下问题：</p>
+<p>1.webpack配置babel-loader一般会排除node_modules，意味着不会对library进行转译，可能会导致打包后的代码中包含ES6代码，造成低版本浏览器兼容问题；<br>2.如果library的编译需要一些特别的loader或loader配置，使用者需要在自己的配置中加上这些配置，否则会造成编译失败；<br>3.使用者的打包工具需要收集library的依赖，造成打包编译速度慢，影响开发体验。</p>
+<p>总的来说，第一种方式需要使用者自行对library进行编译打包，对使用者造成额外的负担，因此源代码入口文件不适宜作为库的入口。但是，如果library的目标运行环境只是node端，由于node端不需要对源代码进行编译打包，所以这种情况下可以使用<code>src/index.js</code>作为库入口。</p>
+<h1 id="指向打包后的开发版本"><a href="#指向打包后的开发版本" class="headerlink" title="指向打包后的开发版本"></a>指向打包后的开发版本</h1><p>开发版本的主要作用是便于调试，文件体积并不是开发版本所关心的问题，这是因为开发版本通常是托管在localhost上，文件大小基本没影响。</p>
+<p>开发版本主要通过以下手段来方便调试，提升开发体验：</p>
+<p>1.预先进行依赖收集和babel转译，即使用者不再需要对library进行这两步工作了，提高编译打包的效率；<br>2.尽量保留源代码的格式，保证开发版本里面的源代码基本可读；<br>3.保留警告信息，对开发者对库的错误或不合理调用进行提示。</p>
+<p>其中第3点是通过库代码中添加如下类似代码实现的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (process.env.NODE_ENV === &#x27;development&#x27;) &#123;</span><br><span class="line">  console.warn(&#x27;Some useful warnings.&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成开发版本的似乎，webpack的DefinePlugin会将<code>process.env.NODE_ENV</code>替换为<code>development</code>，所以以上代码变为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (&#x27;development&#x27; === &#x27;development&#x27;) &#123;</span><br><span class="line">  console.warn(&#x27;Some useful warnings.&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这就表示上述条件一直成立，warning信息会显示出来。</p>
+<p>最近和iview的开发者争论一件事，即在生成library的开发版本的时候，<code>NODE_ENV</code>应该设置为<code>development</code>还是<code>production</code>。他们认为应该设置为<code>production</code>，理由是可以减小开发版本的体积。假设DefinePlugin将<code>process.env.NODE_ENV</code>替换为<code>production</code>，之前的示例代码会变为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (&#x27;production&#x27; === &#x27;development&#x27;) &#123;</span><br><span class="line">  console.warn(&#x27;Some useful warnings.&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这就意味着你使用库开发应用时，不会看到任何警告信息，这不利于提前发现错误。可能有的人会说，我的源代码中没有<code>if (process.env.NODE_ENV === &#39;development&#39;) &#123;&#125;</code>这类代码，所以设置为<code>production</code>也不会有任何问题呀。殊不知，虽然你的源代码中这种没有这类提示代码，但是你的devependencies里面可能会有啊，这样做就会关闭依赖中的warning信息。</p>
+<p>可能又有疑问：“引用开发版本的包体积很大，岂不是让我的应用打包上线版本很大？”其实完全不用担心，因为应用打包为上线版本时，会经过两个额外的工作：</p>
+<p>1.使用DefinePlugin将<code>process.env.NODE_ENV</code>替换为<code>production</code>，关闭所有警告信息；<br>2.使用UglifyJsPlugin对应用代码进行minify，减小应用体积。同时会删除<code>if (&#39;production&#39; === &#39;development&#39;) &#123;&#125;</code>这类永远不会执行的代码，进一步减小应用体积。</p>
+<p>所以，在开发时应用开发版本，不必担心最后的应用体积。但是如果开发时是以script标签的方式引用库的开发版本，上线时应该替换为响应的发布版本。</p>
+<h1 id="指向打包后的发布版本"><a href="#指向打包后的发布版本" class="headerlink" title="指向打包后的发布版本"></a>指向打包后的发布版本</h1><p>发布版本追求的是尽量减小体积，因为相比于JS引擎解析的时间，网络传输是最慢的，所以要通过减小库的体积，减少网络传输的时间。</p>
+<p>减小发布版本的文件体积，主要是通过将<code>process.env.NODE_ENV</code>设置为<code>production</code>，然后再使用UglifyJsPlugin对应用代码进行minify以及删除永不执行的代码。</p>
+<p>那么将库的发布版本作为入口文件合不合适呢？显然不合适，因为发布版本的是经过高度压缩精简的，代码完全不可读，应用开发阶段难以调试。</p>
+<p>发布版本是适用于在应用上线时，通过script标签形式引用。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>通过上面的分析，可以发现将库的开发版本作为库的入口才是正确合理的做法，即设置<code>&quot;main&quot;: &quot;dist/library.js&quot;</code>。而作为库的开发者，也要遵循约定，生成库的开发版本的时候，使用<code>development</code>环境变量，保留警告信息。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/17/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/19/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

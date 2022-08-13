@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Cygwin 安装 Postgresql"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/01/11/installing-postgresql-on-cygwin.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Cygwin 安装 Postgresql - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Cygwin 安装 Postgresql
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-01-12
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9-PostgreSQL%EF%BC%9F"><span class="toc-text">为什么选择 PostgreSQL？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%9C%A8-Cygwin-%E4%B8%8A%E5%AE%89%E8%A3%85-PostgreSQL"><span class="toc-text">为什么要在 Cygwin 上安装 PostgreSQL?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-PostgreSQL"><span class="toc-text">配置 PostgreSQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%97%AD-PostgreSQL-%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-text">关闭 PostgreSQL 数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>最近开始研究 PostgreSQL, 这篇文章主要讲如何在 Cygwin 上安装和使用 PostgreSQL。</p>
+<h3 id="为什么选择-PostgreSQL？"><a href="#为什么选择-PostgreSQL？" class="headerlink" title="为什么选择 PostgreSQL？"></a>为什么选择 PostgreSQL？</h3><p>市面上有各种各样的数据库系统，商业数据库如 Oracle、SQL Server，开源数据库如 SQLite、MySQL、PostgreSQL，为什么从众多的数据库中我选择了 PostgreSQL 呢？</p>
+<p>开源且免费是我考虑的首要因素，其次是要支持多用户并发的大型数据库系统，最后数据库要成熟稳定。满足要求的就只有 MySQL 和 PostgreSQL 了， 两者之间的差别可以从它们首页的标题可以一窥大概：</p>
+<blockquote>
+<p>The world’s most popular open source database.   (MySQL)<br>The world’s most advanced open source database.  (PostgreSQL)</p>
+</blockquote>
+<p>MySQL 是最流行的数据库系统，说明用的人最多；PostgreSQL 是最先进的数据库系统，说明技术更先进。</p>
+<p>MySQL 自从被 Oracle 收购之后，也沾染了些大公司的习气，变得趋于保守。MySQL 社区的一部分成员担心 MySQL 会被大公司主导而偏离了方向，因而 fork 出了一个新的数据库 MariaDB。MariaDB 虽然由社区主导，开发更为激进，但是生态环境远不足 MySQL 丰富。MySQL 的命运与同被 Oracle 收购的 OpenOffice 极其相似，我对它的未来持怀疑态度。 同时，我也感慨 Oracle 公司不要再将魔爪伸向开源社区了，手下留情啊！</p>
+<p>PostgreSQL 这边完全是另一番风景，它完全由社区主导，对新技术更为开放。更重要的是，PostgreSQL 对空间数据的支持是最好的，借助 PostGIS 扩展我们可以直接用 SQL 语句进行空间查询。考虑到我后续的工作都会与空间数据有关，所以 PostgreSQL 是我的不二选择。</p>
+<h3 id="为什么要在-Cygwin-上安装-PostgreSQL"><a href="#为什么要在-Cygwin-上安装-PostgreSQL" class="headerlink" title="为什么要在 Cygwin 上安装 PostgreSQL?"></a>为什么要在 Cygwin 上安装 PostgreSQL?</h3><p>PostgreSQL 在 Windows 上有原生的安装包，那为什么还要大费周章地在 Cygwin 上安装呢？原因是 Cygwin 提供了与 Linux 一致的开发环境，将来我的程序部署到 Linux 上时更为简单方便。</p>
+<p>PostgreSQL 可以直接从 Cygwin 的软件仓库中安装。一种方式是通过 Cygwin 的安装程序安装，另一种方式是通过包管理工具安装。后一种方式需要先安装 apt-cyg，安装的方法可以从我的另一篇博文中找到。安装好 apt-cyg 之后，运行以下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-cyg install postgresql</span><br></pre></td></tr></table></figure>
+
+<p>接下来运行 <code>cygserver-config</code>，使 Cygwin 新建一个 Windows 服务。必须注意的是，这条命令必须在管理员权限下运行，因此 Cygwin 命令窗口需以管理员身份打开。然后运行以下命令开启服务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cygrunsrv -S cygserver</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置-PostgreSQL"><a href="#配置-PostgreSQL" class="headerlink" title="配置 PostgreSQL"></a>配置 PostgreSQL</h3><p>首次使用 PostgreSQL 数据库，需要运行以下命令完成数据库初始化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">initdb -D /var/lib/postgresql/data</span><br></pre></td></tr></table></figure>
+<p>其中参数 <code>-D</code> 指定数据库文件的存储位置</p>
+<p>然后使用 <code>pg_ctl</code> 来开启数据库服务，命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pg_ctl start -D /var/lib/postgresql/data -l /var/log/postgresql.log</span><br></pre></td></tr></table></figure>
+<p>其中参数<code>-l</code>指定日志文件的位置。</p>
+<p>接下来我们就可以新建一个数据库：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">createdb mydb</span><br></pre></td></tr></table></figure>
+
+<p>通过以下命令连接到数据库控制台：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psql mydb</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="关闭-PostgreSQL-数据库"><a href="#关闭-PostgreSQL-数据库" class="headerlink" title="关闭 PostgreSQL 数据库"></a>关闭 PostgreSQL 数据库</h3><p>当我们使用完数据库之后，不希望数据库服务占用系统资源，因此需要关闭数据相关服务。</p>
+<p>同样使用 <code>pg_ctl</code> 来关闭数据库服务，命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pg_ctl stop -D /var/lib/postgresql/data</span><br></pre></td></tr></table></figure>
+
+<p>最后终止 cygserver：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cygrunsrv -E cygserver</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>以下是本文安装与配置 PostgreSQL 时，所有涉及到的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// 安装</span><br><span class="line">apt-cyg install postgresql</span><br><span class="line"></span><br><span class="line">// 初始化 cygserver</span><br><span class="line">cygserver-config</span><br><span class="line"></span><br><span class="line">// 启动 cygserver</span><br><span class="line">cygrunsrv -S cygserver</span><br><span class="line"></span><br><span class="line">// 初始化数据库</span><br><span class="line">initdb -D /var/lib/postgresql/data</span><br><span class="line"></span><br><span class="line">// 开启数据库服务</span><br><span class="line">pg_ctl start -D /var/lib/postgresql/data -l /var/log/postgresql.log</span><br><span class="line"></span><br><span class="line">// 新建数据库</span><br><span class="line">createdb mydb</span><br><span class="line"></span><br><span class="line">// 连接数据库</span><br><span class="line">psql mydb</span><br><span class="line"></span><br><span class="line">// 关闭数据库服务</span><br><span class="line">pg_ctl stop -D /var/lib/postgresql/data</span><br><span class="line"></span><br><span class="line">// 终止 cygserver</span><br><span class="line">cygrunsrv -E cygserver</span><br></pre></td></tr></table></figure>
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/01/11/installing-postgresql-on-cygwin.html">https://jingsam.github.io/2016/01/11/installing-postgresql-on-cygwin.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2016/01/16/compiling-geos-on-cygwin.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">在 Cygwin 上编译 GEOS</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2016/01/09/string-in-python.html">
+        <span class="next-text nav-default">Python 检测生僻字</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

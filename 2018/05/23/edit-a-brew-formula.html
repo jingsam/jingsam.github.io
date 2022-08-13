@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="手动更新Homebrew formula"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/05/23/edit-a-brew-formula.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>手动更新Homebrew formula - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">手动更新Homebrew formula
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-05-23
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-text">基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="toc-text">具体步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%BE%91%E9%85%8D%E7%BD%AE"><span class="toc-text">编辑配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E8%B0%83%E8%AF%95"><span class="toc-text">安装调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A8%E9%80%81%E6%9B%B4%E6%96%B0"><span class="toc-text">推送更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E9%94%AE%E6%9B%B4%E6%96%B0"><span class="toc-text">一键更新</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><p>Homebrew是macOS上的软件包管理神器，类似于Ubuntu的apt-get，是使用mac作为开发机时的必装软件之一。Homebrew的软件包术语叫Formula，中文解释就是”配方”。Homebrew有“家酿、自制”的意思，80年代硅谷有一个著名的计算机俱乐部叫“Homebrew Homebrew Computer Club”，苹果的创始人Steve Jobs和Steve Wozniak都曾是这个俱乐部的活跃分子。“家酿”一个东西当然得有“配方”，所以这个取名很形象。</p>
+<p>使用homebrew安装软件很方便，一条命令<code>brew install your-formula-name</code>就可以搞定。更新formula到最新版本，使用<code>brew upgrade your-formula-name</code>即可。</p>
+<p>但是，各种formula是人工维护的，当软件包更新后，formula不见得能及时更新到最新版本。本文就以gdal为例，说明如何手动编辑formula文件，以此来将软件更新到最新版本。</p>
+<h1 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h1><p>Homebrew中的每个软件包都是通过一个<code>formula.rb</code>文件来配置软件的源代码URL、依赖、编译规则和选项，例如以下是gdal的formula文件：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Gdal</span> &lt; <span class="title class_ inherited__">Formula</span></span><br><span class="line">  desc <span class="string">&quot;Geospatial Data Abstraction Library&quot;</span></span><br><span class="line">  homepage <span class="string">&quot;http://www.gdal.org/&quot;</span></span><br><span class="line">  url <span class="string">&quot;https://download.osgeo.org/gdal/2.2.4/gdal-2.2.4.tar.xz&quot;</span></span><br><span class="line">  sha256 <span class="string">&quot;6f75e49aa30de140525ccb58688667efe3a2d770576feb7fbc91023b7f552aa2&quot;</span></span><br><span class="line">  revision <span class="number">2</span></span><br><span class="line"></span><br><span class="line">  bottle <span class="keyword">do</span></span><br><span class="line">    rebuild <span class="number">2</span></span><br><span class="line">    sha256 <span class="string">&quot;00b28455769c3d5d6ea13dc119f213f320c247489cb2ce9d03f7791d4b53919b&quot;</span> =&gt; <span class="symbol">:high_sierra</span></span><br><span class="line">    sha256 <span class="string">&quot;1365de6a18caeb84d6a50e466a63be9c7541b1fab21edfc3012812157464f2c0&quot;</span> =&gt; <span class="symbol">:sierra</span></span><br><span class="line">    sha256 <span class="string">&quot;8c0fd81eda5a91c8a75a78795f96b6dd9c53e74974bd38cc004b55a44ae95932&quot;</span> =&gt; <span class="symbol">:el_capitan</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  ....</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以上是一个ruby文件，好在并不需要懂ruby的语法就能看懂formula文件。<code>desc</code>和<code>homepage</code>都是描述性信息，不对软件安装产生什么影响。<code>url</code>是软件源代码的位置，编译安装时从此位置将源代码下载下来。<code>sha256</code>是源代码包的校验码，这是保证下载下来的包不被篡改。<code>revision</code>是修订版本号，主要用来保持版本号不变的情况下，对软件包打补丁，每打一次补丁，修订版本号就自增一次。当使用<code>brew install</code>安装软件包时，除非使用<code>--build-from-source</code>强制指定使用源代码安装，大部分情况下，brew会下载编译好的二进制包，这样安装起来更快。<code>bottle</code>选项就记录了各版本macOS下预编译的二进制包的校验码，这部分内容是homebrew的自动集成工具自动维护的，我们并不需要编辑修改。</p>
+<p>更改上面的<code>url</code>和<code>sha256</code>，即可将formula的配置更新到任意版本。编辑好后，使用<code>brew install</code>或者<code>brew upgrade</code>进行安装或者更新升级。</p>
+<p>Homebrew实际上是通过git来管理formula配置文件的，因此我们还可以发送Pull request，将我们的更新推送到GitHub上，让别人也能够方便地更新软件包。</p>
+<h1 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h1><p>这部分以更新gdal 2.2.4到2.3.0为例，来说明手动更新formula的步骤。由于写作本文时，gdal已经更新到2.3.0，所以某些步骤的输出可能与本文不一致，但不妨碍理解更新步骤。</p>
+<h2 id="编辑配置"><a href="#编辑配置" class="headerlink" title="编辑配置"></a>编辑配置</h2><p>使用<code>brew edit gdal</code>即可打开<code>gdal.rb</code>开始编辑，我们将<code>url</code>更新为2.3.0版本的源代码链接：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Gdal</span> &lt; <span class="title class_ inherited__">Formula</span></span><br><span class="line">  desc <span class="string">&quot;Geospatial Data Abstraction Library&quot;</span></span><br><span class="line">  homepage <span class="string">&quot;http://www.gdal.org/&quot;</span></span><br><span class="line">  url <span class="string">&quot;https://download.osgeo.org/gdal/2.3.0/gdal-2.3.0.tar.xz&quot;</span></span><br><span class="line">  sha256 <span class="string">&quot;6f75e49aa30de140525ccb58688667efe3a2d770576feb7fbc91023b7f552aa2&quot;</span></span><br><span class="line">  revision <span class="number">2</span></span><br><span class="line"></span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>理论上我们还需要更新<code>sha256</code>，使它和<code>url</code>相匹配。但是<code>sha256</code>需要我们使用工具计算或者从发布网站上找，不是很方便。我们可以通过下一步的安装调试，来自动计算<code>sha256</code>。</p>
+<h2 id="安装调试"><a href="#安装调试" class="headerlink" title="安装调试"></a>安装调试</h2><p>使用<code>brew install gdal --verbose --debug --build-from-source</code>来安装调试gdal的formula，如果已经安装旧版本的gdal，那么使用<code>brew upgrade gdal --verbose --debug --build-from-source</code>。<code>--verbose</code>表示显示详细输出，便于调试；<code>--debug</code>打开调试；<code>--build-from-source</code>强制从源代码编译。</p>
+<p>安装过程中，会报sha256校验码不匹配的警告，并打印出<code>url</code>所指向的源代码包的sha256校验值，这是因为在上一步我们并没有修改<code>sha256</code>，配置文件中<code>sha256</code>还是gdal 2.2.4版本的。这时候重新使用<code>brew edit gdal</code>打开并编辑formula文件，将<code>sha256</code>更改为正确的校验值。</p>
+<p>最后，再安装调试，经过漫长的编译，成功地安装上了gdal的最新版本。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>测试包括对软件包的测试和对formula文件的测试。使用<code>brew test gdal</code>可以测试gdal的功能是否正常，使用<code>brew audit --strict gdal</code>测试formula文件是否正确。运行<code>brew audit</code>时，会报告<code>revision 2</code>需被删除，这是因为当前homebrew线上库中还没有gdal 2.3.0，意味着本地端的gdal应该是第一版本，不存在修订版本之说。同样地，使用<code>brew edit gdal</code>打开并删除<code>revision</code>部分，然后再重新测试。</p>
+<h2 id="推送更新"><a href="#推送更新" class="headerlink" title="推送更新"></a>推送更新</h2><p>通过上述步骤，我们完成了gdal的手动更新，如果将更新推送到homebrew的线上库中，那么其他人就可以方便地更新到最新版本。并且推送到线上库后，homebrew的自动集成工具会自动地编译生成二进制包，这样就不需要从源代码编译那么耗时了，可谓是利人利己。</p>
+<p>由于homebrew是在GitHub上协作的，所以更新一个formula就和发一个Pull request是一样的，基本步骤如下：</p>
+<p>1.使用<code>cd $(brew --repository homebrew/homebrew-core)</code>切换到本地的homebrew-core目录；<br>2.使用<code>git commit</code>提交自己的修改；<br>3.把<a target="_blank" rel="noopener" href="https://github.com/Homebrew/homebrew-core">https://github.com/Homebrew/homebrew-core</a> fork一份；<br>4.使用<code>git remote add</code>命令添加自己的fork的homebrew-core库；<br>5.使用<code>git push</code>推送将本地提交推送到自己的fork的homebrew-core库中；<br>6.在GitHub网页上发起Pull request。</p>
+<h2 id="一键更新"><a href="#一键更新" class="headerlink" title="一键更新"></a>一键更新</h2><p>上面一步步完成了编辑配置、安装调试、测试、推送更新，操作起来有些繁琐。但其实homebrew还提供了一个工具，能够一键完成上面4个步骤，命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew bump-formula-pr gdal --URL=https://download.osgeo.org/gdal/2.3.0/gdal-2.3.0.tar.xz --audit --strict</span><br></pre></td></tr></table></figure>
+
+<p><code>brew bump-formula-pr</code>自动的修改formula配置文件、检查文件错误、提交并推送更新，其中提交并推送更新的过程需要使用<code>hub</code>来在终端上操作GitHub，可以使用<code>brew install hub</code>来安装这个工具。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/05/23/edit-a-brew-formula.html">https://jingsam.github.io/2018/05/23/edit-a-brew-formula.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/06/03/git-objects.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Git内部原理之Git对象</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/05/07/linux-nohup.html">
+        <span class="next-text nav-default">linux进程后台运行</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

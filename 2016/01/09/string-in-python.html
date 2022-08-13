@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Python 检测生僻字"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2016/01/09/string-in-python.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Python 检测生僻字 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Python 检测生僻字
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-01-09
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#python-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">python 正则表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98"><span class="toc-text">编码问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">解决方案</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>最近碰到一个需求，要求检测字段是否包含生僻字以及一些非法字符如 <code>~!@#$%^&amp;* </code>。</p>
+<p>首先想到的就是利用 python 的正则表达式来匹配非法字符，然后找出非法记录。然而理想总是丰满的，现实却是残酷的。在实现的过程中，才发现自己对于字符编码、以及 python 内部字符串表示的相关知识的缺乏。在这期间，踩过了不少坑，到最后虽然还有些模糊的地方，但总算有一个总体清晰的了解。在此记录下心得，避免以后在同一个地方跌倒。</p>
+<p>以下的测试环境是 ArcGIS 10.3 自带的 python 2.7.8 环境，不保证其他 python 环境也适用。</p>
+<h3 id="python-正则表达式"><a href="#python-正则表达式" class="headerlink" title="python 正则表达式"></a>python 正则表达式</h3><p>python 中的正则功能由内嵌的 re 函数库提供，主要用到 3 个函数。<code>re.compile()</code> 提供可重用的正则表达式，<code>match()</code> 和 <code>search()</code> 函数返回匹配结果，两者之间的区别在于： <code>match()</code> 从指定位置开始匹配，<code>search()</code> 会从指定位置向后搜索直到找到匹配字符串。例如下面的代码中，<code>match_result</code> 从第一个字符 f 开始匹配，匹配失败返回空值；<code>search_result</code> 从 f 开始向后搜索，直到找到第一个匹配的字符 a, 然后通过 <code>group()</code> 函数输出匹配结果为字符 a。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">&#x27;[abc]&#x27;</span>)</span><br><span class="line">match_result = pattern.<span class="keyword">match</span>(<span class="string">&#x27;fabc&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> match_result:</span><br><span class="line">	<span class="built_in">print</span> match_result.group()</span><br><span class="line"></span><br><span class="line">search_result = pattern.search(<span class="string">&#x27;fabc&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> search_result:</span><br><span class="line">	<span class="built_in">print</span> search_result.group()</span><br></pre></td></tr></table></figure>
+
+<p>以上的实现方式需要先编译一个 pattern，然后再进行匹配。实际上，我们可以直接利用 <code>re.match(pattern, string)</code> 函数来实现相同的功能。但是直接匹配的方式没有先编译再匹配的方式灵活，首先是正则表达式没办法重用，如果大量数据进行同一模式匹配，意味着每次都需要内部编译，造成性能损失；另外，<code>re.match()</code> 函数没有 <code>pattern.match()</code> 功能强大，后者可以指定从哪个位置开始匹配。</p>
+<h3 id="编码问题"><a href="#编码问题" class="headerlink" title="编码问题"></a>编码问题</h3><p>了解 python 正则的基本功能后，剩下的事情就是找到一个合适的正则表达式来匹配生僻字和非法字符。非法字符很简单，采用以下 pattern 就可以实现匹配：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;[~!@#$%^&amp;* ]&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然而对于生僻字的匹配，着实难倒了我。首先是对于生僻字的定义，什么样的字算生僻字？经过咨询项目经理，规定非 GB2312 的字符属于生僻字。接下来的问题是，如何匹配 GB2312 字符？</p>
+<p>经过查询，GB2312 的范围是 <code>[\xA1-\xF7][\xA1-\xFE]</code>，其中汉字区的范围是 <code>[\xB0-\xF7][\xA1-\xFE]</code>。因此，添加生僻字匹配后的表达式为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">r&#x27;[~!@#$%^&amp;* ]|[^\xA1-\xF7][^\xA1-\xFE]&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>问题似乎是顺理得当地解决了，然而我还是 too simple too naive 。由于要判断的字符串都是从图层文件读取的，arcpy 贴心地将读取的字符编码为 unicode 格式。因此，我需要找出 GB2312 字符集在 unicode 中的编码范围。但现实是，GB2312 字符集在 unicode 中的分布并不是连续的，使用正则表示这个范围必定是非常复杂的。使用正则表达式匹配生僻字的构想，似乎陷入了死胡同。</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>既然提供的字符串是 unicode 格式，那么我可不可以将其转换为 GB2312 再进行匹配呢？实际上是不行，因为 unicode 字符集要远大于 GB2312 字符集，因此 <code>GB2312 =&gt; unicode</code> 总是可以实现的，而反过来 <code>unicode =&gt; GB2312</code> 不一定能成功。</p>
+<p>这突然为我提供了另外一种思路，假设一个字符串的 <code>unicode =&gt; GB2312</code> 转换会失败，那么是不是恰恰说明了它不属于 GB2312 字符集？所以，我使用 <code>unicode_string.encode(&#39;GB2312&#39;)</code> 函数尝试转换字符串，捕获 <code>UnicodeEncodeError</code> 异常来识别生僻字。</p>
+<p>最终的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_rare_name</span>(<span class="params">string</span>):</span><br><span class="line">	pattern = re.<span class="built_in">compile</span>(<span class="string">u&quot;[~!@#$%^&amp;* ]&quot;</span>)</span><br><span class="line">	<span class="keyword">match</span> = pattern.search(string)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">match</span>:</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">        string.encode(<span class="string">&quot;gb2312&quot;</span>)</span><br><span class="line">    <span class="keyword">except</span> UnicodeEncodeError:</span><br><span class="line">    	<span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2016/01/09/string-in-python.html">https://jingsam.github.io/2016/01/09/string-in-python.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2016/01/11/installing-postgresql-on-cygwin.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Cygwin 安装 Postgresql</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2015/12/30/arcpy-polygon.html">
+        <span class="next-text nav-default">arcpy.Polygon 数据结构</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

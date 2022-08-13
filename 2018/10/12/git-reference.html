@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="Git内部原理之Git引用"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/2018/10/12/git-reference.html"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>Git内部原理之Git引用 - jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">Git内部原理之Git引用
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-10-12
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HEAD%E5%BC%95%E7%94%A8"><span class="toc-text">HEAD引用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E5%BC%95%E7%94%A8"><span class="toc-text">标签引用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E5%BC%95%E7%94%A8"><span class="toc-text">远程引用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><p>这篇文章本应该在6月份就完成，拖了4个月之后，终于鼓起勇气捡起来，实在惭愧。坚持写文章就像长跑，途中跑起来基本是靠惯性，如果停下来再起跑就很累很困难。</p>
+<p>闲话不多说，本篇继续承接前文讲一讲Git内部原理，本篇的主题是Git引用的原理。</p>
+<p>首先来搞清楚什么是Git引用，前文讲了Git提交对象的哈希、存储原理，理论上我们只要知道该对象的hash值，就能往前推出整个提交历史，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git log --pretty=oneline 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31 third commit</span><br><span class="line">d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c second commit</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a first commit</span><br></pre></td></tr></table></figure>
+
+<p>现在问题来了，提交对象的这40位hash值不好记忆，Git引用相当于给40位hash值取一个别名，便于识别和读取。Git引用对象都存储在<code>.git/refs</code>目录下，该目录下有3个子文件夹<code>heads</code>、<code>tags</code>和<code>remotes</code>，分别对应于HEAD引用、标签引用和远程引用，下面分别讲一讲每种引用的原理。</p>
+<h1 id="HEAD引用"><a href="#HEAD引用" class="headerlink" title="HEAD引用"></a>HEAD引用</h1><p>HEAD引用是用来指向每个分支的最后一次提交对象，这样切换到一个分支之后，才能知道分支的“尾巴”在哪里。HEAD引用存储在<code>.git/refs/heads</code>目录下，有多少个分支，就有相应的同名HEAD引用对象。例如代码库里面有<code>master</code>和<code>test</code>两个分支，那么<code>.git/refs/heads</code>目录下就存在<code>master</code>和<code>test</code>两个文件，分别记录了分支的最后一次提交。</p>
+<p>HEAD引用的内容就是提交对象的hash值，理论上我们可以手动地构造一个HEAD引用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ echo &quot;3ac728ac62f0a7b5ac201fd3ed1f69165df8be31&quot; &gt; .git/refs/heads/master</span><br></pre></td></tr></table></figure>
+
+<p>Git提供了一个专有命令<code>update-ref</code>，用来查看和修改Git引用对象，当然也包括HEAD引用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git update-ref refs/heads/master 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br><span class="line">$ git update-ref refs/heads/master</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br></pre></td></tr></table></figure>
+
+<p>上面的命令我们将<code>master</code>分支的HEAD指向了<code>3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</code>，现在用<code>git log</code>查看下<code>master</code>的提交历史，可以发现最后一次提交就是所更新的hash值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git log --pretty=oneline master</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31 (HEAD -&gt; master) third commit</span><br><span class="line">d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c second commit</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a first commit</span><br></pre></td></tr></table></figure>
+
+<p>同理，可以使用同样的方法更新<code>test</code>分支的HEAD：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git update-ref refs/heads/test d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br><span class="line">$ git log --pretty=oneline test</span><br><span class="line">d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c (test) second commit</span><br><span class="line">db1d6f137952f2b24e3c85724ebd7528587a067a first commit</span><br></pre></td></tr></table></figure>
+
+<p><code>.git/refs/heads</code>目录下存储了每个分支的HEAD，那怎么知道代码库当前处于哪个分支呢？这就需要一个代码库级别的HEAD引用。<code>.git/HEAD</code>这个文件就是整个代码库级别的HEAD引用。我们先查看一下<code>.git/HEAD</code>文件的内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat .git/HEAD</span><br><span class="line">ref: refs/heads/master</span><br></pre></td></tr></table></figure>
+
+<p>我们发现<code>.git/HEAD</code>文件的内容不是40位hash值，而像是指向<code>.git/refs/heads/master</code>。尝试切换到<code>test</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git checkout test</span><br><span class="line">$ cat .git/HEAD</span><br><span class="line">ref: refs/heads/test</span><br></pre></td></tr></table></figure>
+
+<p>切换分支后，<code>.git/HEAD</code>文件的内容也跟着指向<code>.git/refs/heads/test</code>。<code>.git/HEAD</code>也是HEAD引用对象，与一般引用不同的是，它是“符号引用”。符号引用类似于文件的快捷方式，链接到要引用的对象上。</p>
+<p>Git提供专门的命令<code>git symbolic-ref </code>，用来查看和更新符号引用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ git symbolic-ref HEAD refs/heads/master</span><br><span class="line">$ git symbolic-ref HEAD refs/heads/test</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们分析了两种HEAD引用，一种是分支级别的HEAD引用，用来记录各分支的最后一次提交，存储在<code>.git/refs/heads</code>目录下，使用<code>git update-ref</code>来维护；一种是代码库级别的HEAD引用，用来记录代码库所处的分支，存储在<code>.git/HEAD</code>文件，使用<code>git symbolic-ref</code>来维护。</p>
+<h1 id="标签引用"><a href="#标签引用" class="headerlink" title="标签引用"></a>标签引用</h1><p>标签引用，顾名思义就是给Git对象打标签，便于记忆。例如，我们可以将某个提交对象打v1.0标签，表示是1.0版本。标签引用都存储在<code>.git/refs/tags</code>里面。</p>
+<p>标签引用和HEAD引用本质是Git引用对象，同样使用<code>git update-ref</code>来查看和修改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git update-ref refs/tags/v1.0 d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br><span class="line">$ cat .git/refs/tags/v1.0</span><br><span class="line">d4d2c6cffb408d978cb6f1eb6cfc70e977378a5c</span><br></pre></td></tr></table></figure>
+
+<p>还有一种标签引用称为“附注引用”，可以为标签添加说明信息。上面的标签引用打了一个<code>v1.0</code>的标签表示发布1.0版本，有时候发布软件的时候除了版本号信息，还要写更新说明。附注引用就是用来实现打标签的同时，也可以附带说明信息。</p>
+<p>附注引用是怎么实现的呢？与常规标签引用不同的是，它不直接指向提交对象，而是新建一个Git对象存储到<code>.git/objects</code>中，用来记录附注信息，然后附注标签指向这个Git对象。</p>
+<p>使用<code>git tag</code>建立一个附注标签：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git tag -a v1.1 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31 -m &quot;test tag&quot;</span><br><span class="line">$ cat .git/refs/tags/v1.1</span><br><span class="line">8be4d8e4e8e80711dd7bae304ccfa63b35a6eb8c</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>git cat-file</code>来查看附注标签所指向的Git对象：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ git cat-file -p 8be4d8e4e8e80711dd7bae304ccfa63b35a6eb8c</span><br><span class="line">object 3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br><span class="line">type commit</span><br><span class="line">tag v1.1</span><br><span class="line">tagger jingsam &lt;jing-sam@qq.com&gt; 1529481368 +0800</span><br><span class="line"></span><br><span class="line">test tag</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，上面的Git对象存储了我们填写的附注信息。</p>
+<p>总之，普通的标签引用和附注引用同样都是存储的是40位hash值，指向一个Git对象，所不同的是普通的标签引用是直接指向提交对象，而附注标签是指向一个附注对象，附注对象再指向具体的提交对象。</p>
+<p>另外，本质上标签引用并不是只可以指向提交对象，实际上可以指向任何Git对象，即可以给任何Git对象打标签。</p>
+<h1 id="远程引用"><a href="#远程引用" class="headerlink" title="远程引用"></a>远程引用</h1><p>远程引用，类似于<code>.git/refs/heads</code>中存储的本地仓库各分支的最后一次提交，在<code>.git/refs/remotes</code>是用来记录多个远程仓库各分支的最后一次提交。</p>
+<p>我们可以使用<code>git remote</code>来管理远程分支：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git remote add origin git@github.com:jingsam/git-test.git</span><br></pre></td></tr></table></figure>
+
+<p>上面添加了一个<code>origin</code>远程分支，接下来我们把本地仓库的<code>master</code>推送到远程仓库上：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ git push origin master</span><br><span class="line">Counting objects: 9, done.</span><br><span class="line">Delta compression using up to 4 threads.</span><br><span class="line">Compressing objects: 100% (5/5), done.</span><br><span class="line">Writing objects: 100% (9/9), 720 bytes | 360.00 KiB/s, done.</span><br><span class="line">Total 9 (delta 0), reused 0 (delta 0)</span><br><span class="line">To github.com:jingsam/git-test.git</span><br><span class="line"> * [new branch]      master -&gt; master</span><br></pre></td></tr></table></figure>
+
+<p>这时候在<code>.git/refs/remotes</code>中的远程引用就会更新：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat .git/refs/remotes/origin/master</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br></pre></td></tr></table></figure>
+
+<p>和本地仓库的<code>master</code>比较一下，发现是一模一样的，表示远程分支和本地分支是同步的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat .git/refs/heads/master</span><br><span class="line">3ac728ac62f0a7b5ac201fd3ed1f69165df8be31</span><br></pre></td></tr></table></figure>
+
+<p>由于远程引用也是Git引用对象，所以理论上也可以使用<code>git update-ref</code>来手动维护。但是，我们需要先把代码与远程仓库进行同步，在远程仓库中找到对应分支的HEAD，然后使用<code>git update-ref</code>进行更新，过程比较麻烦。而我们在执行<code>git pull</code>或<code>git push</code>这样的高层命令的时候，远程引用会自动更新。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>到这里，三种Git引用都已分析完毕。总的来说，三种Git引用都统一存储到<code>.git/refs</code>目录下，Git引用中的内容都是40位的hash值，指向某个Git对象，这个对象可以是任意的Git对象，可以是数据对象、树对象、提交对象。三种Git引用都可以使用<code>git update-ref</code>来手动维护。</p>
+<p>三种Git引用对象所不同的是，分别存储于<code>.git/refs/heads</code>、<code>.git/refs/tags</code>、<code>.git/refs/remotes</code>,存储的文件夹不同，赋予了引用对象不同的功能。HEAD引用用来记录本地分支的最后一次提交，标签引用用来给任意Git对象打标签，远程引用正式用来记录远程分支的最后一次提交。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="https://jingsam.github.io">jingsam</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="https://jingsam.github.io/2018/10/12/git-reference.html">https://jingsam.github.io/2018/10/12/git-reference.html</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        
+        <nav class="post-nav"><a class="prev" href="/2018/10/12/lets-encrypt.html">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">手动挡模式申请Let's Encrypt通配符证书</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/06/15/git-storage.html">
+        <span class="next-text nav-default">Git内部原理之Git对象存储</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="utterances-container"></div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script>
+    var container = document.getElementById('utterances-container')
+    var script = document.createElement('script')
+    script.src = 'https://utteranc.es/client.js'
+    script.setAttribute('repo', 'jingsam/jingsam.github.io')
+    script.setAttribute('issue-term', 'title')
+    script.setAttribute('theme', 'github-light')
+    script.setAttribute('label', 'utterances')
+    script.crossorigin = 'anonymous'
+    script.async = true
+
+    container.appendChild(script)
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

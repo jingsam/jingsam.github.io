@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/2/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/07/speed-up-docker-multi-stage-builds.html">加速Docker多阶段构建的方法</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>使用多阶段构建（multi-stage build）是减小docker镜像体积很有效的方法，例如拿一个常见的Java应用为例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">FROM maven:3.6-jdk-8-alpine</span><br><span class="line">WORKDIR /app</span><br><span class="line">COPY pom.xml .</span><br><span class="line">RUN mvn -e -B dependency:resolve</span><br><span class="line">COPY src ./src</span><br><span class="line">RUN mvn -e -B package</span><br><span class="line">CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;/app/target/app.jar&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>粗看之下似乎没有改进的空间，但是细看之后发现镜像里安装了完整的jdk环境，包含java的sdk和runtime。实际上，运行jar包只需要java runtime，sdk是多余的。</p>
+<p>通过使用多阶段构建，将应用的编译环境和运行环境分离，可以极大地减少最终镜像的体积。例如，对将上面的Dockerfile修改为多阶段构建：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">FROM maven:3.6-jdk-8-alpine AS builder</span><br><span class="line">WORKDIR /app</span><br><span class="line">COPY pom.xml .</span><br><span class="line">RUN mvn -e -B dependency:resolve</span><br><span class="line">COPY src ./src</span><br><span class="line">RUN mvn -e -B package</span><br><span class="line"></span><br><span class="line">FROM openjdk:8-jre-alpine</span><br><span class="line">COPY --from=builder /app/target/app.jar /</span><br><span class="line">CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;/app.jar&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>以上Dockerfile生成的最终镜像只包含runtime，不再有sdk。</p>
+<p>但是凡事皆有两面性，多阶段构建虽然能够减小镜像体积，但是构建的速度慢了许多。原因在于：一是相比于原先的单阶段构建，多了一些构建步骤；二是缓存失效，多阶段编译之后只保留最终镜像的缓存，中间镜像的缓存丢失。其中缓存失效的问题在CI环境中尤为显著。</p>
+<p>加快多阶段构建的措施有两项：并行构建和保留缓存。</p>
+<h2 id="并行构建"><a href="#并行构建" class="headerlink" title="并行构建"></a>并行构建</h2><p>如果把多阶段构建中各阶段之间的依赖关系画出来，实际上是一个有向无环图（DAG, Directed Acyclic Graph）。在图中，有些节点之间是没有前后关系的，意味着某些阶段可以并行构建。</p>
+<p>从Docker 18.09开始引入了并行构建，启用方法有两种：</p>
+<ol>
+<li>临时启用：设置环境变量<code>DOCKER_BUILDKIT=1</code>；</li>
+<li>默认启用：在<code>/etc/docker/daemon.json</code>中设置<code>&#123; &quot;features&quot;: &#123; &quot;buidkit&quot;: true &#125;&#125;</code>。</li>
+</ol>
+<h2 id="保留缓存"><a href="#保留缓存" class="headerlink" title="保留缓存"></a>保留缓存</h2><p>保留缓存意思是不仅保留最终镜像的缓存，还保留中间镜像的缓存。</p>
+<p><code>docker build</code>有两个与缓存相关的参数：<code>--cache-from</code>和<code>BUILDKIT_INLINE_CACHE=1</code>。<code>--cache-from</code>表示可以指定镜像作为缓存源，可以指定多个镜像，指定后会从镜像仓库自动拉取本地不存在的镜像。<code>BUILDKIT_INLINE_CACHE=1</code>表示在构建时将缓存的元数据打包到镜像中，使之可以作为缓存源。默认构建的镜像不包含缓存的元数据，不能被<code>--cache-from</code>使用。</p>
+<p>还是拿文章开头的java应用为例：</p>
+<p>首先将编译阶段的镜像进行构建和上传：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker build --build-arg BUILDKIT_INLINE_CACHE=1 \</span><br><span class="line">  --cache-from=builder \</span><br><span class="line">  --target builder \</span><br><span class="line">  --tag builder .</span><br><span class="line">docker push builder</span><br></pre></td></tr></table></figure>
+
+<p>然后将最终阶段利用前一阶段和当前阶段的缓存进行构建：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker build --build-arg BUILDKIT_INLINE_CACHE=1 \</span><br><span class="line">  --cache-from=builder \</span><br><span class="line">  --cache-from=app \</span><br><span class="line">  --tag app .</span><br><span class="line">docker push app</span><br></pre></td></tr></table></figure>
+
+<p>通过以上过程，就可以在多阶段构建过程中充分利用缓存来加快构建速度。</p>
+<p>本文完。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/3/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/33/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/10/30/vue-components-naming.html">聊聊 Vue 组件命名那些事</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-10-30
+        </span></div>
+    </header>
+
+    <div class="post-content"><blockquote>
+<p>There are only two things in Computer Sciences: cache invalidation and naming things.<br>—— Phil Karlton</p>
+</blockquote>
+<p>诚如上述所言，编程中变量命名确实令人很头疼。我们模糊地知道，Vue 组件的名称最好不要和原生 HTML 标签相同。为了避免重名，通常会在组件名称前面加上一个前缀，如 <code>el-button</code>、<code>el-input</code>、<code>el-date-picker</code>。这通常不会有什么问题，但有时候你的模板中混杂了原生 HTML 标签和组件标签，要想区分它们并不是很容易。</p>
+<p>当我看到 Ant.design 的 React 组件是下面这样的时候，我感觉到一种自由的味道。首先，组件名可以使用原生 HTML 标签名，意味着再也不用较劲脑汁去规避原生 HTML 标签了。另外，这些组件都使用了首字母大写标签名，使它们很容易地与原生小写的 HTML 标签区分。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">ReactDOM</span>.<span class="title function_">render</span>(</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Button</span> <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span>&gt;</span>Primary<span class="tag">&lt;/<span class="name">Button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Input</span> <span class="attr">placeholder</span>=<span class="string">&quot;Basic usage&quot;</span> /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">Select</span> <span class="attr">defaultValue</span>=<span class="string">&quot;.com&quot;</span> <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">width:</span> <span class="attr">70</span> &#125;&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Option</span> <span class="attr">value</span>=<span class="string">&quot;.com&quot;</span>&gt;</span>.com<span class="tag">&lt;/<span class="name">Option</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Option</span> <span class="attr">value</span>=<span class="string">&quot;.jp&quot;</span>&gt;</span>.jp<span class="tag">&lt;/<span class="name">Option</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Option</span> <span class="attr">value</span>=<span class="string">&quot;.cn&quot;</span>&gt;</span>.cn<span class="tag">&lt;/<span class="name">Option</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">Option</span> <span class="attr">value</span>=<span class="string">&quot;.org&quot;</span>&gt;</span>.org<span class="tag">&lt;/<span class="name">Option</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">Select</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>,</span><br><span class="line">  mountNode</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>受 Ant.design 的启发，我思考 Vue 组件命名能不能达到同样的效果呢？要找到答案，必须摸清楚 Vue 组件命名到底有什么限制。下面将分别从 Vue 1.0 和 Vue 2.0 来谈谈组件命名的机制：</p>
+<h2 id="Vue-1-0-组件命名机制"><a href="#Vue-1-0-组件命名机制" class="headerlink" title="Vue 1.0 组件命名机制"></a>Vue 1.0 组件命名机制</h2><h3 id="组件注册"><a href="#组件注册" class="headerlink" title="组件注册"></a>组件注册</h3><p>我们以一个最简单的例子来研究 Vue 组件的注册过程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Vue</span>.<span class="title function_">component</span>(<span class="string">&#x27;MyComponent&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;div&gt;hello, world&lt;/div&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>通过跟踪代码的执行过程，发现对组件的名称有两处检查。</p>
+<ol>
+<li><p>检查名称是否与 HTML 元素或者 Vue 保留标签重名，不区分大小写。可以发现，只检查了常用的 HTML 元素，还有很多元素没有检查，例如 <code>button</code>、<code>main</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (type === <span class="string">&#x27;component&#x27;</span> &amp;&amp; (commonTagRE.<span class="title function_">test</span>(id) || reservedTagRE.<span class="title function_">test</span>(id))) &#123;</span><br><span class="line">  <span class="title function_">warn</span>(<span class="string">&#x27;Do not use built-in or reserved HTML elements as component &#x27;</span> + <span class="string">&#x27;id: &#x27;</span> + id);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// var commonTagRE = /^(div|p|span|img|a|b|i|br|ul|ol|li|h1|h2|h3|h4|h5|h6|code|pre|table|th|td|tr|form|label|input|select|option|nav|article|section|header|footer)$/i;</span></span><br><span class="line"><span class="comment">// var reservedTagRE = /^(slot|partial|component)$/i;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>检查组件名称是否以字母开头，后面跟字母、数值或下划线。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="regexp">/^[a-zA-Z][\w-]*$/</span>.<span class="title function_">test</span>(name)) &#123;</span><br><span class="line">  <span class="title function_">warn</span>(<span class="string">&#x27;Invalid component name: &quot;&#x27;</span> + name + <span class="string">&#x27;&quot;. Component names &#x27;</span> + <span class="string">&#x27;can only contain alphanumeric characaters and the hyphen.&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>基于以上两点，可以总结出组件的命名规则为：组件名以字母开头，后面跟字母、数值或下划线，并且不与 HTML 元素或 Vue 保留标签重名。</p>
+<p>然而我们注意到，在上面的检查中，不符合规则的组件名称是 warn 而不是 error，意味着检查并不是强制的。实际上，<strong>Vue 组件注册的名称是没有限制的</strong>。你可以用任何 JavaScript 能够表示的字符串，不管是数字、特殊符号、甚至汉字，都可以成功注册。</p>
+<h3 id="模板解析"><a href="#模板解析" class="headerlink" title="模板解析"></a>模板解析</h3><p>虽然 Vue 组件没有命名限制，但是我们终究是要在模板中引用的，不合理的组件名可能会导致我们无法引用它。</p>
+<p>为了弄清楚 Vue 是如何将模板中的标签对应到自定义组件的，我们以一段简单的代码说明：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">  <span class="attr">el</span>: <span class="string">&#x27;#app&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;my-component&gt;&lt;/my-component&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>总体来说，模板解析分为两个过程：</p>
+<p>首先，Vue 会将 <code>template</code> 中的内容插到 DOM 中，以方便解析标签。由于 HTML 标签不区分大小写，所以在生成的标签名都会转换为小写。例如，当你的 <code>template</code> 为 <code>&lt;MyComponent&gt;&lt;/MyComponent&gt;</code> 时，插入 DOM 后会被转换为 <code>&lt;mycomponent&gt;&lt;/mycomponent&gt;</code>。</p>
+<p>然后，通过标签名寻找对应的自定义组件。<strong>匹配的优先顺序从高到低为：原标签名、camelCase化的标签名、PascalCase化的标签名。</strong>例如 <code>&lt;my-component&gt;</code> 会依次匹配 my-component、myComponent、MyComponent。camelCase 和 PascalCase 的代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> camelizeRE = <span class="regexp">/-(\w)/g</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">camelize</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> str.<span class="title function_">replace</span>(camelizeRE, toUpper);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">toUpper</span>(<span class="params">_, c</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> c ? c.<span class="title function_">toUpperCase</span>() : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">pascalize</span>(<span class="params">str</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> camelCase = <span class="title function_">camelize</span>(str);</span><br><span class="line">  <span class="keyword">return</span> camelCase.<span class="title function_">charAt</span>(<span class="number">0</span>).<span class="title function_">toUpperCase</span>() + camelCase.<span class="title function_">slice</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于一个 Vue 新手，经常对以下示例代码不能正常运行感到非常疑惑：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Vue</span>.<span class="title function_">component</span>(<span class="string">&#x27;MyComponent&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;div&gt;hello, world&lt;/div&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">  <span class="attr">el</span>: <span class="string">&#x27;#app&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;MyComponent&gt;&lt;/MyComponent&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>如果我们按照模板解析的过程推理，就很好解释了。模板 <code>&lt;MyComponent&gt;&lt;/MyComponent&gt;</code> 插入到 DOM 后会变成 <code>&lt;mycomponent&gt;&lt;/mycomponent&gt;</code>。标签 mycomponent 匹配的组件依次为 mycomponent（原标签名）、mycomponent（camelCase形式）、Mycomponent（PascalCase形式），并没有匹配到注册的组件名 MyComponent，所以会报找不到组件 <mycomponent> 的警告。</p>
+<h3 id="命名限制"><a href="#命名限制" class="headerlink" title="命名限制"></a>命名限制</h3><p>通过分析组件注册和模板解析的过程，发现 Vue 组件命名限制并没有我们想象得多。大家可以尝试一下各种命名，我试过 <code>&lt;a_=-*%按钮&gt;&lt;/a_=-*%按钮&gt;</code> 都可正常运行。</p>
+<p>但是，并不意味着完全没有限制。由于在模板需要插入到 DOM 中，所以模板中的标签名必须能够被 DOM 正确地解析。主要有三种情况：一是完全不合法的标签名，例如 &lt;/&gt;；二是与 HTML 元素重名会产生不确定的行为，例如使用 input 做组件名不会解析到自定义组件，使用 button 在 Chrome 上正常但在 IE 上不正常；三是与 Vue 保留的 slot、partial、component 重名，因为会优先以本身的意义解析，从而产生非预期的结果。</p>
+<p>上述命名限制存在的根本原因，在于模板解析的过程依赖了 DOM。能不能对模板解析过程改进一下，使其不依赖于 DOM 呢？实际上，这正是 Vue 2.0 的主要改进，将模板解析过程使用 Virtual DOM 实现，使得组件命名更加灵活。</p>
+<h2 id="Vue-2-0-组件命名机制"><a href="#Vue-2-0-组件命名机制" class="headerlink" title="Vue 2.0 组件命名机制"></a>Vue 2.0 组件命名机制</h2><h3 id="组件注册-1"><a href="#组件注册-1" class="headerlink" title="组件注册"></a>组件注册</h3><p>Vue 2.0 的组件注册过程与 Vue 1.0 基本相同，只是 HTML 标签和 Vue 保留标签范围有些不同：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 区分大小写</span></span><br><span class="line"><span class="keyword">var</span> isHTMLTag = <span class="title function_">makeMap</span>(</span><br><span class="line">  <span class="string">&#x27;html,body,base,head,link,meta,style,title,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;address,article,aside,footer,header,h1,h2,h3,h4,h5,h6,hgroup,nav,section,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;div,dd,dl,dt,figcaption,figure,hr,img,li,main,ol,p,pre,ul,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;a,b,abbr,bdi,bdo,br,cite,code,data,dfn,em,i,kbd,mark,q,rp,rt,rtc,ruby,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;s,samp,small,span,strong,sub,sup,time,u,var,wbr,area,audio,map,track,video,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;embed,object,param,source,canvas,script,noscript,del,ins,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;caption,col,colgroup,table,thead,tbody,td,th,tr,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;button,datalist,fieldset,form,input,label,legend,meter,optgroup,option,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;output,progress,select,textarea,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;details,dialog,menu,menuitem,summary,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;content,element,shadow,template&#x27;</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不区分大小写</span></span><br><span class="line"><span class="keyword">var</span> isSVG = <span class="title function_">makeMap</span>(</span><br><span class="line">  <span class="string">&#x27;svg,animate,circle,clippath,cursor,defs,desc,ellipse,filter,font,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;font-face,g,glyph,image,line,marker,mask,missing-glyph,path,pattern,&#x27;</span> +</span><br><span class="line">  <span class="string">&#x27;polygon,polyline,rect,switch,symbol,text,textpath,tspan,use,view&#x27;</span>,</span><br><span class="line">  <span class="literal">true</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> isReservedTag = <span class="keyword">function</span> (<span class="params">tag</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">isHTMLTag</span>(tag) || <span class="title function_">isSVG</span>(tag)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 区分大小写</span></span><br><span class="line"><span class="keyword">var</span> isBuiltInTag = <span class="title function_">makeMap</span>(<span class="string">&#x27;slot,component&#x27;</span>, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>虽然 HTML 元素重名警告的标签数大大增加了，但重要的是重名区分大小写，所以我们可以愉快地使用 Input、Select、Option 等而不用担心重名。这个功劳属于 Vue 2.0 引入的 Virtual DOM。</p>
+<h3 id="模板解析-1"><a href="#模板解析-1" class="headerlink" title="模板解析"></a>模板解析</h3><p>前面提到，Vue 2.0 相对于 1.0 的最大改进就是引入了 Virtual DOM，使模板的解析不依赖于 DOM。</p>
+<p>使用 Virtual DOM 解析模板时，不必像 DOM 方式那样将模板中的标签名转成小写，而是原汁原味地保留原始标签名。然后，使用原始的标签名进行匹配组件。例如，<code>&lt;MyComponent&gt;&lt;/MyComponent&gt;</code> 不会转为为小写形式，直接以 MyComponent 为基础开始匹配。当然，匹配的规则与 1.0 是一样的，即依次匹配：原标签名、camelCase化的标签名、PascalCase化的标签名。</p>
+<p>之前在 1.0 不能正常运行的示例代码，在 2.0 中可以正常运行了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Vue</span>.<span class="title function_">component</span>(<span class="string">&#x27;MyComponent&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;div&gt;hello, world&lt;/div&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">  <span class="attr">el</span>: <span class="string">&#x27;#app&#x27;</span>,</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;MyComponent&gt;&lt;/MyComponent&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>在 Vue 1.0 和 2.0 中还有一种定义组件模板的方式，即使用 DOM 元素。在这种情况下，解析模板时仍然会将标签转为小写形式。所以下面的代码，在 1.0 和 2.0 均不能正常运行。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index.html</span></span><br><span class="line">&lt;div id=<span class="string">&quot;app&quot;</span>&gt;</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">MyComponent</span>&gt;</span><span class="tag">&lt;/<span class="name">MyComponent</span>&gt;</span></span></span><br><span class="line">&lt;/div&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">// main.js</span></span><br><span class="line"><span class="title class_">Vue</span>.<span class="title function_">component</span>(<span class="string">&#x27;MyComponent&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">template</span>: <span class="string">&#x27;&lt;div&gt;hello, world&lt;/div&gt;&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">  <span class="attr">el</span>: <span class="string">&#x27;#app&#x27;</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="命名限制-1"><a href="#命名限制-1" class="headerlink" title="命名限制"></a>命名限制</h3><p>Vue 2.0 中组件的命名限制与 1.0 的最大区别在于区分了大小写。总结一下就是：一是不使用非法的标签字符；二是不与 HTML 元素（区分大小写）或 SVG 元素（不区分大小写）重名；三是不使用 Vue 保留的 slot 和 component（区分大小写）。</p>
+<p>除了以上三条，由于 Vue 2.0 内置了 KeepAlive、Transition、TransitionGroup 三个组件，所以尽量避免与这三个组件重名。但从另一方面讲，你也可以故意重名来实现一些特殊的功能。例如，keep-alive 的匹配顺序为 keep-alive、keepAlive、KeepAlive，所以我们可以注册一个 keep-alive 组件来拦截 KeepAlive 匹配。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到这里，我们可以知道 Vue 2.0 完全可以像 React 那样使用 PascalCase 形式的组件标签。对于 Vue 1.0，想以 PascalCase 形态写模板，尽量以全小写或者仅首字母大写形式注册组件，例如 <code>&lt;InputNumber&gt;</code> 组件，可以注册为 inputnumber 或者 Inputnumber。但是，如果你想在 1.0 中使用 Input、Select 这类与 HTML 元素重名的标签名，基本上是无解的，所以是时候尝试下 Vue 2.0 了。</p>
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/32/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/34/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

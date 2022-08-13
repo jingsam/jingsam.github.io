@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="GIS, mapping"/><link rel="alternate" href="/atom.xml" title="jingsam" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="https://jingsam.github.io/page/37/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" /><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+  </script>
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":true};
+</script>
+
+    <title>jingsam</title>
+  <meta name="generator" content="Hexo 5.4.2"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">jingsam</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">jingsam</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2016/09/26/polydist.html">求点到多边形的距离的算法实现</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2016-09-26
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>在之前的<a href="/2016/09/26/polylabel2.html">博文</a>中，多边形注记点搜寻算法需要计算点到多边形的距离，本文就来讲一讲如何用JS实现点到多边形距离的计算。</p>
+<h2 id="如何定义点到多边形的距离？"><a href="#如何定义点到多边形的距离？" class="headerlink" title="如何定义点到多边形的距离？"></a>如何定义点到多边形的距离？</h2><p>在本文中，点到多边形的距离定义如下：</p>
+<ol>
+<li>点到多边形边界的最短距离。</li>
+<li>点在多边形内部，距离为正；在多边形外部，距离为负；在边上，距离为零。</li>
+</ol>
+<p>根据上面的定义，计算点到多边形的距离需要解决两个问题：</p>
+<ol>
+<li>点到多边形的最短距离如何计算？</li>
+<li>如何判断点在多边形内部、外部、还是在边界上？</li>
+</ol>
+<h2 id="点到多边形最短距离的计算"><a href="#点到多边形最短距离的计算" class="headerlink" title="点到多边形最短距离的计算"></a>点到多边形最短距离的计算</h2><p>计算点到多边形最短距离的基本原理是：依次计算点到多边形每条边的距离，然后筛选出最短距离。</p>
+<img src="/2016/09/26/polydist/min-dist.png" class="">
+
+<p>如下图，假设<code>AB</code>为多边形的一条边，现在求点<code>P</code>到<code>AB</code>的距离。</p>
+<img src="/2016/09/26/polydist/segment-dist.png" class="">
+
+<p>根据<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E9%87%8F%E7%A7%AF">向量内集</a>的公式（$\vec{a} \cdot \vec{b} = |a||b|cosθ$）,我们可以推出：<br>$$<br>\begin{align}<br>\vec{AB} \cdot \vec{AP} &amp;= |AB||AP|cosθ = |AB||AD| \\<br>设 \quad |AD| &amp;= t|AB| \\<br>则 \quad \vec{AB} \cdot \vec{AP} &amp;= t|AB||AB| \\<br> t &amp;= \frac{\vec{AB} \cdot \vec{AP}}{|AB|^2}<br>\end{align}<br>$$</p>
+<p>根据以上公式，我们可以求出<code>t</code>，进而求出点<code>D</code>的坐标，最终<code>PD</code>的长度就很容易求得了。</p>
+<p>但是还有一些边界条件需要注意，即最终<code>D</code>点不是落在<code>AB</code>上，有以下上中情况：</p>
+<ol>
+<li><code>t &lt; 0</code>，<code>D</code>在<code>BA</code>延长线上，此时最短距离取<code>PA</code>；</li>
+<li><code>0 &lt;= t &lt;= 1</code>，<code>D</code>在<code>AB</code>上，此时最短距离取<code>PD</code>；</li>
+<li><code>t &gt; 1</code>，<code>D</code>在<code>AB</code>延长线上，此时最短距离取<code>PB</code>；</li>
+</ol>
+<img src="/2016/09/26/polydist/t.png" class="">
+
+<p>JS实现代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">pointToSegmentDist</span>(<span class="params">p, a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> <span class="variable constant_">AB</span> = [b[<span class="number">0</span>] - a[<span class="number">0</span>], b[<span class="number">1</span>] - a[<span class="number">1</span>]]</span><br><span class="line">  <span class="keyword">var</span> <span class="variable constant_">AP</span> = [p[<span class="number">0</span>] - a[<span class="number">0</span>], p[<span class="number">1</span>] - a[<span class="number">1</span>]]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> <span class="variable constant_">AB_AP</span> = <span class="variable constant_">AB</span>[<span class="number">0</span>] * <span class="variable constant_">AP</span>[<span class="number">0</span>] + <span class="variable constant_">AB</span>[<span class="number">1</span>] * <span class="variable constant_">AP</span>[<span class="number">1</span>]</span><br><span class="line">  <span class="keyword">var</span> distAB2 = <span class="variable constant_">AB</span>[<span class="number">0</span>] * <span class="variable constant_">AB</span>[<span class="number">0</span>] + <span class="variable constant_">AB</span>[<span class="number">1</span>] * <span class="variable constant_">AB</span>[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> D = [a[<span class="number">0</span>], a[<span class="number">1</span>]]</span><br><span class="line">  <span class="keyword">if</span> (distAB2 != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> t = <span class="variable constant_">AB_AP</span> / distAB2</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (t &gt; <span class="number">1</span>) &#123;</span><br><span class="line">      D = [b[<span class="number">0</span>], b[<span class="number">1</span>]]</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (t &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      D = [a[<span class="number">0</span>] + <span class="variable constant_">AB</span>[<span class="number">0</span>] * t, a[<span class="number">1</span>] + <span class="variable constant_">AB</span>[<span class="number">1</span>] * t]</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      D = [a[<span class="number">0</span>], a[<span class="number">1</span>]]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> <span class="variable constant_">AD</span> = [p[<span class="number">0</span>] - a[<span class="number">0</span>], p[<span class="number">1</span>] - a[<span class="number">1</span>]]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="title function_">sqrt</span>(<span class="variable constant_">AD</span>[<span class="number">0</span>] * <span class="variable constant_">AD</span>[<span class="number">0</span>] + <span class="variable constant_">AD</span>[<span class="number">1</span>] * <span class="variable constant_">AD</span>[<span class="number">1</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="判断点与多边形的位置关系"><a href="#判断点与多边形的位置关系" class="headerlink" title="判断点与多边形的位置关系"></a>判断点与多边形的位置关系</h2><p>判断点与多边形的位置关系，常用的算法是射线法，即经过点沿水平方向做一条直线，观察点左边或右边交点的个数。如果交点个数为奇数，点在多变形内部；交点个数为偶数，点在多边形外部。</p>
+<img src="/2016/09/26/polydist/ray.gif" class="">
+
+<p>如下图，<code>ab</code>与过<code>p</code>点的水平线相交于c，则有：<br>$$<br>\frac{x_2 - x_1}{y_2 - y_1} = \frac{x’ - x_1}{y - y_1} \\<br>那么 x’ = \frac{(x_2 - x_1)(y - y_1)}{y_2 - y_1} + x_1<br>$$</p>
+<img src="/2016/09/26/polydist/ray2.png" class="">
+
+<p>JS 算法实现为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">pointInPolygon</span>(<span class="params">p, polygon</span>) &#123;</span><br><span class="line">  <span class="comment">// 统计p点右边交点的个数</span></span><br><span class="line">  <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> k = <span class="number">0</span>; k &lt; polygon.<span class="property">length</span>; k++) &#123;</span><br><span class="line">    <span class="keyword">var</span> ring = polygon[k]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; ring.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">var</span> a = ring[i]</span><br><span class="line">      <span class="keyword">var</span> b = ring[i + <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ((a[<span class="number">1</span>] &gt; y !== b[<span class="number">1</span>] &gt; y) &amp;&amp;</span><br><span class="line">        (x &lt; (b[<span class="number">0</span>] - a[<span class="number">0</span>]) * (y - a[<span class="number">1</span>]) / (b[<span class="number">1</span>] - a[<span class="number">1</span>]) + a[<span class="number">0</span>])) count++;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> count % <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="完整实现"><a href="#完整实现" class="headerlink" title="完整实现"></a>完整实现</h2><p>解决了以上两个难题之后，下面给出完整实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">pointToPolygonDist</span>(<span class="params">p, polygon</span>) &#123;</span><br><span class="line">  <span class="comment">// 统计p点右边交点的个数</span></span><br><span class="line">  <span class="keyword">var</span> count = <span class="number">0</span></span><br><span class="line">  <span class="keyword">var</span> minDist = <span class="title class_">Infinity</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> k = <span class="number">0</span>; k &lt; polygon.<span class="property">length</span>; k++) &#123;</span><br><span class="line">    <span class="keyword">var</span> ring = polygon[k]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; ring.<span class="property">length</span> - <span class="number">1</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">var</span> a = ring[i]</span><br><span class="line">      <span class="keyword">var</span> b = ring[i + <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ((a[<span class="number">1</span>] &gt; y !== b[<span class="number">1</span>] &gt; y) &amp;&amp;</span><br><span class="line">        (x &lt; (b[<span class="number">0</span>] - a[<span class="number">0</span>]) * (y - a[<span class="number">1</span>]) / (b[<span class="number">1</span>] - a[<span class="number">1</span>]) + a[<span class="number">0</span>])) count++;</span><br><span class="line"></span><br><span class="line">      minDist = <span class="title class_">Math</span>.<span class="title function_">min</span>(minDist, <span class="title function_">pointToSegmentDist</span>(p, a, b))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (count % <span class="number">2</span> === <span class="number">0</span>) minDist = -minDist</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> minDist</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/36/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/38/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:jing-sam@qq.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/jingsam" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="http://weibo.com/u/1902650267" class="iconfont icon-weibo" title="weibo"></a>
+        <a target="_blank" rel="noopener" href="https://www.zhihu.com/people/jingsam" class="iconfont icon-zhihu" title="zhihu"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2015 - 2022<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">jingsam</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>
